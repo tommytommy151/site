@@ -5,21 +5,23 @@ import Link from "next/link";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { Heart, Menu, Scale, Search, ShoppingBag, User } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { SiteLogo } from "@/components/site-logo";
 import { SearchDialog } from "@/components/layout/search-dialog";
 import { MegaMenu } from "@/components/layout/mega-menu";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { useCartStore } from "@/lib/store/cart-store";
 import { useWishlistStore } from "@/lib/store/wishlist-store";
 import { useCompareStore } from "@/lib/store/compare-store";
+import { useSiteStore } from "@/lib/store/site-store";
 import { cn } from "@/lib/utils";
 
-const NAV_LINKS = [
-  { label: "Noutăți", href: "/products?sort=new" },
-  { label: "Categorii", href: "#", megaMenu: true },
-  { label: "Oferte Flash", href: "/deals" },
-  { label: "Branduri", href: "/brands" },
-  { label: "Jurnal", href: "/blog" },
-];
+interface NavLink {
+  label: string;
+  href: string;
+  megaMenu?: boolean;
+}
+
+const CATEGORIES_LINK: NavLink = { label: "Categorii", href: "#", megaMenu: true };
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -32,9 +34,18 @@ export function Header() {
   const openCart = useCartStore((s) => s.openCart);
   const wishlistCount = useWishlistStore((s) => s.productIds.length);
   const compareCount = useCompareStore((s) => s.productIds.length);
+  const pages = useSiteStore((s) => s.pages);
+  const menu = useSiteStore((s) => s.menu);
 
   useMotionValueEvent(scrollY, "change", (latest) => setScrolled(latest > 12));
   useEffect(() => setMounted(true), []);
+
+  const headerPages = mounted ? pages.filter((p) => p.showInHeader) : [];
+  const navLinks: NavLink[] = [
+    CATEGORIES_LINK,
+    ...menu,
+    ...headerPages.map((p) => ({ label: p.title, href: `/pages/${p.slug}` })),
+  ];
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -65,17 +76,10 @@ export function Header() {
             <Menu className="size-5" />
           </button>
 
-          <Link href="/" className="flex shrink-0 items-center gap-2">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand-emerald to-brand-indigo">
-              <span className="size-2.5 rounded-full bg-white" />
-            </span>
-            <span className="font-heading text-lg font-semibold tracking-tight">
-              Estela<span className="text-brand-emerald">Oferta</span>
-            </span>
-          </Link>
+          <SiteLogo />
 
           <nav className="ml-4 hidden items-center gap-1 lg:flex">
-            {NAV_LINKS.map((link) =>
+            {navLinks.map((link) =>
               link.megaMenu ? (
                 <MegaMenu key={link.label} label={link.label} />
               ) : (
@@ -158,7 +162,7 @@ export function Header() {
       </motion.header>
 
       <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
-      <MobileNav open={mobileOpen} onOpenChange={setMobileOpen} navLinks={NAV_LINKS} />
+      <MobileNav open={mobileOpen} onOpenChange={setMobileOpen} navLinks={navLinks} />
     </>
   );
 }

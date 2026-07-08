@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { categories } from "@/lib/data/categories";
+import { useCatalogStore } from "@/lib/store/catalog-store";
 
 interface NavLink {
   label: string;
@@ -19,6 +19,8 @@ export function MobileNav({
   onOpenChange: (open: boolean) => void;
   navLinks: NavLink[];
 }) {
+  const categories = useCatalogStore((s) => s.categories);
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="left" className="w-[85%] max-w-sm gap-0 p-0">

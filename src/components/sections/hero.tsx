@@ -8,6 +8,7 @@ import { ArrowRight, ShieldCheck, Sparkles, Truck } from "lucide-react";
 import { Container } from "@/components/layout/container";
 import { Button } from "@/components/ui/button";
 import { Counter } from "@/components/motion/counter";
+import { useSiteStore } from "@/lib/store/site-store";
 
 const TRUST_POINTS = [
   { icon: Truck, label: "Livrare gratuită peste 300 RON" },
@@ -16,6 +17,7 @@ const TRUST_POINTS = [
 ];
 
 export function Hero() {
+  const hero = useSiteStore((s) => s.hero);
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -36,7 +38,7 @@ export function Hero() {
             className="glass mb-6 inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-medium text-foreground"
           >
             <Sparkles className="size-3.5 text-brand-emerald" />
-            Colecția de sezon este live
+            {hero.eyebrow}
           </motion.span>
 
           <motion.h1
@@ -45,9 +47,9 @@ export function Hero() {
             transition={{ duration: 0.7, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
             className="text-balance text-4xl leading-[1.05] font-semibold tracking-tight sm:text-6xl lg:text-[4.25rem]"
           >
-            Mai puține lucruri, mai bune —
+            {hero.titleLine1}
             <br />
-            <span className="gradient-text">livrate frumos.</span>
+            <span className="gradient-text">{hero.titleLine2}</span>
           </motion.h1>
 
           <motion.p
@@ -56,9 +58,7 @@ export function Hero() {
             transition={{ duration: 0.7, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
             className="mt-6 max-w-lg text-[17px] leading-relaxed text-muted-foreground"
           >
-            Un catalog atent selectat de audio, ceasuri, genți și îmbrăcăminte de la creatori
-            independenți — cu o finalizare a comenzii de sub un minut și un magazin pe măsura
-            produselor.
+            {hero.description}
           </motion.p>
 
           <motion.div
@@ -68,13 +68,13 @@ export function Hero() {
             className="mt-9 flex flex-wrap items-center gap-3"
           >
             <Button size="lg" className="h-12 rounded-full px-7 text-[15px]" asChild>
-              <Link href="/products">
-                Vezi colecția
+              <Link href={hero.ctaPrimaryHref}>
+                {hero.ctaPrimaryLabel}
                 <ArrowRight className="size-4" />
               </Link>
             </Button>
             <Button size="lg" variant="outline" className="h-12 rounded-full px-7 text-[15px]" asChild>
-              <Link href="/deals">Vezi ofertele flash</Link>
+              <Link href={hero.ctaSecondaryHref}>{hero.ctaSecondaryLabel}</Link>
             </Button>
           </motion.div>
 
@@ -105,10 +105,11 @@ export function Hero() {
               className="relative col-span-2 aspect-[16/10] overflow-hidden rounded-3xl shadow-2xl"
             >
               <Image
-                src="https://picsum.photos/seed/lucent-hero-main/1200/750"
+                src={hero.imageUrl}
                 alt="Produs recomandat"
                 fill
                 priority
+                unoptimized
                 sizes="(max-width: 1024px) 90vw, 600px"
                 className="object-cover"
               />

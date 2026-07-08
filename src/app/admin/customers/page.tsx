@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
-import { orders } from "@/lib/data/orders";
+import { useOrderStore } from "@/lib/store/order-store";
 import { formatDate, formatPrice } from "@/lib/format";
 import { Input } from "@/components/ui/input";
 
@@ -15,6 +15,7 @@ interface CustomerRow {
 }
 
 export default function AdminCustomersPage() {
+  const orders = useOrderStore((s) => s.orders);
   const [query, setQuery] = useState("");
 
   const customers = useMemo(() => {
@@ -45,7 +46,7 @@ export default function AdminCustomersPage() {
           c.email.toLowerCase().includes(query.toLowerCase()),
       )
       .sort((a, b) => b.totalSpent - a.totalSpent);
-  }, [query]);
+  }, [query, orders]);
 
   return (
     <div className="flex flex-col gap-6">

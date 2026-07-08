@@ -1,12 +1,20 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
-import { orders, ORDER_STATUS_LABELS } from "@/lib/data/orders";
+import Link from "next/link";
+import { FileText, Search } from "lucide-react";
+import { ORDER_STATUS_LABELS } from "@/lib/data/orders";
+import { useOrderStore } from "@/lib/store/order-store";
 import { formatDate, formatPrice } from "@/lib/format";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { OrderStatusBadge } from "@/components/account/order-status-badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { OrderStatus } from "@/types/order";
 
 const FILTERS: { value: OrderStatus | "all"; label: string }[] = [
@@ -18,6 +26,8 @@ const FILTERS: { value: OrderStatus | "all"; label: string }[] = [
 ];
 
 export default function AdminOrdersPage() {
+  const orders = useOrderStore((s) => s.orders);
+  const updateOrderStatus = useOrderStore((s) => s.updateOrderStatus);
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<OrderStatus | "all">("all");
 
@@ -30,7 +40,7 @@ export default function AdminOrdersPage() {
           o.number.toLowerCase().includes(query.toLowerCase()) ||
           o.customerName.toLowerCase().includes(query.toLowerCase()),
       );
-  }, [query, status]);
+  }, [query, status, orders]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -77,6 +87,7 @@ export default function AdminOrdersPage() {
               <th className="p-4 font-medium">Plată</th>
               <th className="p-4 font-medium">Status</th>
               <th className="p-4 text-right font-medium">Total</th>
+              <th className="p-4 text-right font-medium">Factură</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -90,16 +101,39 @@ export default function AdminOrdersPage() {
                 <td className="p-4 text-muted-foreground">{formatDate(order.date)}</td>
                 <td className="p-4 text-muted-foreground">{order.paymentMethod}</td>
                 <td className="p-4">
-                  <OrderStatusBadge status={order.status} />
+                  <Select
+                    value={order.status}
+                    onValueChange={(value) => updateOrderStatus(order.id, value as OrderStatus)}
+                  >
+                    <SelectTrigger size="sm" className="w-40">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(Object.keys(ORDER_STATUS_LABELS) as OrderStatus[]).map((s) => (
+                        <SelectItem key={s} value={s}>
+                          {ORDER_STATUS_LABELS[s]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </td>
                 <td className="p-4 text-right font-medium text-foreground">
                   {formatPrice(order.total)}
+                </td>
+                <td className="p-4 text-right">
+                  <Link
+                    href={`/admin/orders/${order.id}/invoice`}
+                    aria-label="Vezi factura"
+                    className="inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
+                  >
+                    <FileText className="size-3.5" />
+                  </Link>
                 </td>
               </tr>
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={6} className="p-10 text-center text-muted-foreground">
+                <td colSpan={7} className="p-10 text-center text-muted-foreground">
                   Nicio comandă găsită.
                 </td>
               </tr>

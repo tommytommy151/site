@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Check, Heart, RotateCcw, ShoppingBag } from "lucide-react";
 import { useThemeStore } from "@/lib/store/theme-store";
 import { THEME_PRESETS } from "@/lib/data/theme-presets";
@@ -8,9 +9,31 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { RatingStars } from "@/components/ui/rating-stars";
 import { ProductBadgePill } from "@/components/product/product-badge";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { PagesManager } from "@/components/admin/pages-manager";
+import { LogoSeoManager } from "@/components/admin/logo-seo-manager";
+import { MenuManager } from "@/components/admin/menu-manager";
+import { HeroBannerManager } from "@/components/admin/hero-banner-manager";
+import { HomeSectionsManager } from "@/components/admin/home-sections-manager";
 import { cn } from "@/lib/utils";
 
 export default function AdminThemePage() {
+  return (
+    <Suspense fallback={null}>
+      <AdminThemePageContent />
+    </Suspense>
+  );
+}
+
+function AdminThemePageContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const activeTab = searchParams.get("tab") ?? "colors";
+
+  function handleTabChange(tab: string) {
+    router.replace(`/admin/theme?tab=${tab}`, { scroll: false });
+  }
+
   const settings = useThemeStore((s) => s.settings);
   const setPrimaryColor = useThemeStore((s) => s.setPrimaryColor);
   const setAccentColor = useThemeStore((s) => s.setAccentColor);
@@ -32,27 +55,33 @@ export default function AdminThemePage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Personalizare temă</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Schimbă culorile și forma magazinului — vezi rezultatul instant, pe tot site-ul.
-          </p>
-        </div>
-        <Button variant="outline" onClick={handleReset}>
-          {justReset ? (
-            <>
-              <Check className="size-4" /> Resetat
-            </>
-          ) : (
-            <>
-              <RotateCcw className="size-4" /> Resetează la implicit
-            </>
-          )}
-        </Button>
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Design</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Culori, meniu, banner principal, structura paginii, pagini și SEO — totul într-un singur
+          loc.
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.3fr_1fr]">
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
+
+        <TabsContent value="colors" className="mt-6">
+          <div className="flex flex-col gap-6">
+            <div className="flex justify-end">
+              <Button variant="outline" onClick={handleReset}>
+                {justReset ? (
+                  <>
+                    <Check className="size-4" /> Resetat
+                  </>
+                ) : (
+                  <>
+                    <RotateCcw className="size-4" /> Resetează la implicit
+                  </>
+                )}
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.3fr_1fr]">
         <div className="flex flex-col gap-6">
           <div className="rounded-2xl border border-border bg-card p-6">
             <h2 className="text-base font-semibold">Presetări de culoare</h2>
@@ -187,7 +216,30 @@ export default function AdminThemePage() {
             </div>
           </div>
         </div>
-      </div>
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="menu" className="mt-6">
+          <MenuManager />
+        </TabsContent>
+
+        <TabsContent value="banner" className="mt-6">
+          <HeroBannerManager />
+        </TabsContent>
+
+        <TabsContent value="layout" className="mt-6">
+          <HomeSectionsManager />
+        </TabsContent>
+
+        <TabsContent value="pages" className="mt-6">
+          <PagesManager />
+        </TabsContent>
+
+        <TabsContent value="logo-seo" className="mt-6">
+          <LogoSeoManager />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

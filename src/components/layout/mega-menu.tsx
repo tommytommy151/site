@@ -5,10 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
-import { categories } from "@/lib/data/categories";
+import { useCatalogStore } from "@/lib/store/catalog-store";
 import { cn } from "@/lib/utils";
 
 export function MegaMenu({ label }: { label: string }) {
+  const categories = useCatalogStore((s) => s.categories);
   const [open, setOpen] = useState(false);
 
   return (

@@ -17,7 +17,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { ProductCard } from "@/components/product/product-card";
 import { RatingStars } from "@/components/ui/rating-stars";
 import { products as allProducts } from "@/lib/data/products";
-import { categories, brands } from "@/lib/data/categories";
+import { useCatalogStore } from "@/lib/store/catalog-store";
 import { formatPrice } from "@/lib/format";
 import type { Product, ProductBadge } from "@/types/product";
 
@@ -81,10 +81,12 @@ const DEFAULT_FILTERS: Filters = {
   badges: [],
 };
 
-export function ProductListing() {
+export function ProductListing({ initialCategorySlug }: { initialCategorySlug?: string } = {}) {
+  const categories = useCatalogStore((s) => s.categories);
+  const brands = useCatalogStore((s) => s.brands);
   const searchParams = useSearchParams();
   const initialSort = (searchParams.get("sort") as SortKey) || "featured";
-  const initialCategory = searchParams.get("category");
+  const initialCategory = initialCategorySlug ?? searchParams.get("category");
 
   const [filters, setFilters] = useState<Filters>({
     ...DEFAULT_FILTERS,

@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCartStore } from "@/lib/store/cart-store";
 import { formatPrice } from "@/lib/format";
+import { quantityDiscountPct, quantityLineTotal } from "@/lib/pricing";
 
 export function CartDrawer() {
   const isOpen = useCartStore((s) => s.isOpen);
@@ -115,10 +116,15 @@ export function CartDrawer() {
                         </div>
                         <div className="flex items-baseline gap-1.5">
                           <span className="text-sm font-semibold text-foreground">
-                            {formatPrice(line.price * line.quantity)}
+                            {formatPrice(quantityLineTotal(line.price, line.quantity))}
                           </span>
                         </div>
                       </div>
+                      {quantityDiscountPct(line.quantity) > 0 && (
+                        <p className="text-xs font-medium text-brand-emerald">
+                          Reducere cantitate: -{quantityDiscountPct(line.quantity)}%
+                        </p>
+                      )}
                       <button
                         onClick={() => saveForLater(line.variantId)}
                         className="mt-0.5 self-start text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"

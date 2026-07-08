@@ -1,11 +1,15 @@
+"use client";
+
 import Link from "next/link";
 import { Container } from "@/components/layout/container";
 import { SectionHeading } from "@/components/layout/section-heading";
 import { RevealGroup, RevealItem } from "@/components/motion/reveal";
 import { SpotlightTile } from "@/components/motion/spotlight-tile";
-import { brands } from "@/lib/data/categories";
+import { useCatalogStore } from "@/lib/store/catalog-store";
 
 export function BrandsStrip() {
+  const brands = useCatalogStore((s) => s.brands);
+
   return (
     <section className="py-14 sm:py-16">
       <Container>

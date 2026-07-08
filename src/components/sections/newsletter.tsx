@@ -6,14 +6,17 @@ import { Container } from "@/components/layout/container";
 import { Reveal } from "@/components/motion/reveal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useNewsletterStore } from "@/lib/store/newsletter-store";
 
 export function Newsletter() {
+  const subscribe = useNewsletterStore((s) => s.subscribe);
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!email.trim()) return;
+    subscribe(email);
     setSubmitted(true);
   }
 

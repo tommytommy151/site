@@ -1,12 +1,16 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/layout/container";
 import { SectionHeading } from "@/components/layout/section-heading";
 import { RevealGroup, RevealItem } from "@/components/motion/reveal";
-import { blogPosts } from "@/lib/data/content";
+import { useBlogStore } from "@/lib/store/blog-store";
 import { formatDate } from "@/lib/format";
 
 export function BlogPreview() {
+  const blogPosts = useBlogStore((s) => s.posts).slice(0, 4);
+
   return (
     <section className="py-14 sm:py-16">
       <Container>

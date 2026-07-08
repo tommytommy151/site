@@ -1,42 +1,97 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, ArrowUpRight, Package, ShoppingCart, TrendingUp, Users } from "lucide-react";
-import { orders } from "@/lib/data/orders";
-import { products } from "@/lib/data/products";
+import {
+  ArrowDownRight,
+  ArrowRight,
+  ArrowUpRight,
+  Package,
+  ShoppingCart,
+  TrendingUp,
+  Users,
+} from "lucide-react";
+import { useOrderStore } from "@/lib/store/order-store";
+import { useProductStore } from "@/lib/store/product-store";
 import { formatPrice } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import { OrderStatusBadge } from "@/components/account/order-status-badge";
 
-const WEEKLY_SALES = [
-  { day: "Lun", value: 62 },
-  { day: "Mar", value: 78 },
-  { day: "Mie", value: 54 },
-  { day: "Joi", value: 91 },
-  { day: "Vin", value: 86 },
-  { day: "Sâm", value: 100 },
-  { day: "Dum", value: 71 },
-];
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function formatDelta(current: number, previous: number) {
+  if (previous === 0) return current > 0 ? "+100%" : "+0%";
+  const pct = ((current - previous) / previous) * 100;
+  return `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%`;
+}
 
 export default function AdminDashboardPage() {
+  const orders = useOrderStore((s) => s.orders);
+  const products = useProductStore((s) => s.products);
+
   const revenue = orders.reduce((sum, o) => sum + o.total, 0);
   const customerCount = new Set(orders.map((o) => o.customerEmail)).size;
-  const avgOrderValue = revenue / orders.length;
+  const avgOrderValue = orders.length ? revenue / orders.length : 0;
   const recentOrders = orders.slice(0, 6);
   const lowStock = products.filter((p) => p.stock <= 20).slice(0, 5);
+
+  const now = Date.now();
+  const last7 = orders.filter((o) => now - new Date(o.date).getTime() < 7 * DAY_MS);
+  const prev7 = orders.filter((o) => {
+    const age = now - new Date(o.date).getTime();
+    return age >= 7 * DAY_MS && age < 14 * DAY_MS;
+  });
+  const revenueLast7 = last7.reduce((sum, o) => sum + o.total, 0);
+  const revenuePrev7 = prev7.reduce((sum, o) => sum + o.total, 0);
+  const customersLast7 = new Set(last7.map((o) => o.customerEmail)).size;
+  const customersPrev7 = new Set(prev7.map((o) => o.customerEmail)).size;
+  const aovLast7 = last7.length ? revenueLast7 / last7.length : 0;
+  const aovPrev7 = prev7.length ? revenuePrev7 / prev7.length : 0;
+
+  const weeklySales = Array.from({ length: 7 }, (_, i) => {
+    const dayStart = now - (6 - i) * DAY_MS;
+    const date = new Date(dayStart);
+    const dayTotal = orders
+      .filter((o) => {
+        const d = new Date(o.date);
+        return (
+          d.getFullYear() === date.getFullYear() &&
+          d.getMonth() === date.getMonth() &&
+          d.getDate() === date.getDate()
+        );
+      })
+      .reduce((sum, o) => sum + o.total, 0);
+    return {
+      day: date.toLocaleDateString("ro-RO", { weekday: "short" }).replace(".", ""),
+      total: dayTotal,
+    };
+  });
+  const maxDay = Math.max(1, ...weeklySales.map((d) => d.total));
 
   const STATS = [
     {
       icon: TrendingUp,
       label: "Venituri totale",
       value: formatPrice(revenue),
-      delta: "+12.4%",
+      delta: formatDelta(revenueLast7, revenuePrev7),
     },
-    { icon: ShoppingCart, label: "Comenzi", value: orders.length, delta: "+8.1%" },
-    { icon: Users, label: "Clienți", value: customerCount, delta: "+3.6%" },
+    {
+      icon: ShoppingCart,
+      label: "Comenzi",
+      value: orders.length,
+      delta: formatDelta(last7.length, prev7.length),
+    },
+    {
+      icon: Users,
+      label: "Clienți",
+      value: customerCount,
+      delta: formatDelta(customersLast7, customersPrev7),
+    },
     {
       icon: Package,
       label: "Valoare medie comandă",
       value: formatPrice(avgOrderValue),
-      delta: "+1.9%",
+      delta: formatDelta(aovLast7, aovPrev7),
     },
   ];
 
@@ -50,36 +105,48 @@ export default function AdminDashboardPage() {
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {STATS.map((stat) => (
-          <div key={stat.label} className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-            <div className="flex items-center justify-between">
-              <span className="flex size-9 items-center justify-center rounded-lg bg-brand-emerald-soft text-brand-emerald">
-                <stat.icon className="size-4.5" />
-              </span>
-              <span className="flex items-center gap-0.5 text-xs font-medium text-brand-emerald">
-                <ArrowUpRight className="size-3" />
-                {stat.delta}
-              </span>
+        {STATS.map((stat) => {
+          const isNegative = stat.delta.startsWith("-");
+          return (
+            <div key={stat.label} className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+              <div className="flex items-center justify-between">
+                <span className="flex size-9 items-center justify-center rounded-lg bg-brand-emerald-soft text-brand-emerald">
+                  <stat.icon className="size-4.5" />
+                </span>
+                <span
+                  className={cn(
+                    "flex items-center gap-0.5 text-xs font-medium",
+                    isNegative ? "text-destructive" : "text-brand-emerald",
+                  )}
+                >
+                  {isNegative ? (
+                    <ArrowDownRight className="size-3" />
+                  ) : (
+                    <ArrowUpRight className="size-3" />
+                  )}
+                  {stat.delta}
+                </span>
+              </div>
+              <p className="mt-4 text-2xl font-semibold tracking-tight">{stat.value}</p>
+              <p className="text-xs text-muted-foreground">{stat.label}</p>
             </div>
-            <p className="mt-4 text-2xl font-semibold tracking-tight">{stat.value}</p>
-            <p className="text-xs text-muted-foreground">{stat.label}</p>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.6fr_1fr]">
         <div className="rounded-2xl border border-border bg-card p-6">
           <h2 className="text-base font-semibold">Vânzări — ultimele 7 zile</h2>
           <div className="mt-6 flex h-48 items-end gap-3">
-            {WEEKLY_SALES.map((d) => (
-              <div key={d.day} className="flex flex-1 flex-col items-center gap-2">
+            {weeklySales.map((d, i) => (
+              <div key={`${d.day}-${i}`} className="flex flex-1 flex-col items-center gap-2">
                 <div className="flex h-40 w-full items-end overflow-hidden rounded-lg bg-muted">
                   <div
                     className="w-full rounded-lg bg-gradient-to-t from-brand-emerald to-brand-indigo"
-                    style={{ height: `${d.value}%` }}
+                    style={{ height: `${Math.max(4, (d.total / maxDay) * 100)}%` }}
                   />
                 </div>
-                <span className="text-xs text-muted-foreground">{d.day}</span>
+                <span className="text-xs text-muted-foreground capitalize">{d.day}</span>
               </div>
             ))}
           </div>

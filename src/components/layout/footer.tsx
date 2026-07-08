@@ -1,13 +1,31 @@
+"use client";
+
 import Link from "next/link";
+import { Banknote, Landmark } from "lucide-react";
 import { Container } from "@/components/layout/container";
+import { SiteLogo } from "@/components/site-logo";
+import { useStoreSettingsStore } from "@/lib/store/store-settings-store";
 import {
   FacebookIcon,
   InstagramIcon,
   TwitterIcon,
   YoutubeIcon,
 } from "@/components/icons/social-icons";
+import {
+  MastercardIcon,
+  PaypalIcon,
+  StripeIcon,
+  VisaIcon,
+} from "@/components/icons/payment-icons";
+import { DisputeResolutionBadges } from "@/components/legal/dispute-resolution-badges";
 
-const FOOTER_COLUMNS = [
+interface FooterLink {
+  label: string;
+  href: string;
+  external?: boolean;
+}
+
+const FOOTER_COLUMNS: { title: string; links: FooterLink[] }[] = [
   {
     title: "Cumpără",
     links: [
@@ -41,30 +59,42 @@ const FOOTER_COLUMNS = [
   {
     title: "Legal",
     links: [
-      { label: "Politica de confidențialitate", href: "/privacy" },
       { label: "Termeni și condiții", href: "/terms" },
+      { label: "Politica de confidențialitate", href: "/privacy" },
       { label: "Politica de cookie-uri", href: "/cookies" },
+      { label: "Politica de retur", href: "/returns" },
       { label: "Accesibilitate", href: "/accessibility" },
+      { label: "ANPC", href: "https://anpc.ro", external: true },
+      {
+        label: "Soluționarea online a litigiilor",
+        href: "https://ec.europa.eu/consumers/odr",
+        external: true,
+      },
     ],
   },
 ];
 
-const PAYMENT_METHODS = ["Visa", "Mastercard", "PayPal", "Stripe", "Ramburs", "Transfer bancar"];
+const PAYMENT_LOGOS = [
+  { label: "Visa", icon: VisaIcon },
+  { label: "Mastercard", icon: MastercardIcon },
+  { label: "PayPal", icon: PaypalIcon },
+  { label: "Stripe", icon: StripeIcon },
+];
+
+const PAYMENT_TEXT_METHODS = [
+  { label: "Ramburs", icon: Banknote },
+  { label: "Transfer bancar", icon: Landmark },
+];
 
 export function Footer() {
+  const settings = useStoreSettingsStore((s) => s.settings);
+
   return (
     <footer className="border-t border-border bg-surface-sunken">
       <Container className="py-16">
         <div className="grid grid-cols-2 gap-10 sm:grid-cols-3 lg:grid-cols-6">
           <div className="col-span-2 lg:col-span-2">
-            <Link href="/" className="flex items-center gap-2">
-              <span className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand-emerald to-brand-indigo">
-                <span className="size-2.5 rounded-full bg-white" />
-              </span>
-              <span className="font-heading text-lg font-semibold tracking-tight">
-                Estela<span className="text-brand-emerald">Oferta</span>
-              </span>
-            </Link>
+            <SiteLogo />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
               Produse atent alese de la creatori independenți. Finalizare rapidă și sigură a
               comenzii și un magazin construit să se simtă la fel de bine ca ceea ce cumperi.
@@ -87,16 +117,29 @@ export function Footer() {
             <div key={col.title}>
               <p className="mb-4 text-sm font-semibold text-foreground">{col.title}</p>
               <ul className="flex flex-col gap-2.5">
-                {col.links.map((link) => (
-                  <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
+                {col.links.map((link) =>
+                  link.external ? (
+                    <li key={link.label}>
+                      <a
+                        href={link.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        {link.label}
+                      </a>
+                    </li>
+                  ) : (
+                    <li key={link.label}>
+                      <Link
+                        href={link.href}
+                        className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ),
+                )}
               </ul>
             </div>
           ))}
@@ -104,19 +147,25 @@ export function Footer() {
 
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 sm:flex-row">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} EstelaOferta Commerce SRL. Toate drepturile rezervate.
+            © {new Date().getFullYear()} {settings.storeName}. Toate drepturile rezervate.
           </p>
           <div className="flex flex-wrap items-center gap-2">
-            {PAYMENT_METHODS.map((method) => (
+            {PAYMENT_LOGOS.map(({ label, icon: Icon }) => (
+              <Icon key={label} className="h-6 w-auto rounded-md shadow-sm" />
+            ))}
+            {PAYMENT_TEXT_METHODS.map(({ label, icon: Icon }) => (
               <span
-                key={method}
-                className="rounded-md border border-border bg-background px-2.5 py-1 text-[11px] font-medium text-muted-foreground"
+                key={label}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-2.5 py-1 text-[11px] font-medium text-muted-foreground"
               >
-                {method}
+                <Icon className="size-3.5" />
+                {label}
               </span>
             ))}
           </div>
         </div>
+
+        <DisputeResolutionBadges className="mt-6 flex flex-wrap items-center justify-center gap-3 border-t border-border pt-6 sm:justify-start" />
       </Container>
     </footer>
   );

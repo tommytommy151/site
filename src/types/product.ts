@@ -73,6 +73,12 @@ export interface Brand {
   productCount: number;
 }
 
+export interface Attribute {
+  id: string;
+  name: string;
+  values: string[];
+}
+
 export interface Testimonial {
   id: string;
   author: string;
@@ -87,6 +93,7 @@ export interface BlogPost {
   slug: string;
   title: string;
   excerpt: string;
+  content: string;
   image: string;
   author: string;
   date: string;

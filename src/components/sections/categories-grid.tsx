@@ -1,12 +1,16 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/layout/container";
 import { SectionHeading } from "@/components/layout/section-heading";
 import { RevealGroup, RevealItem } from "@/components/motion/reveal";
 import { SpotlightTile } from "@/components/motion/spotlight-tile";
-import { categories } from "@/lib/data/categories";
+import { useCatalogStore } from "@/lib/store/catalog-store";
 
 export function CategoriesGrid() {
+  const categories = useCatalogStore((s) => s.categories);
+
   return (
     <section className="py-14 sm:py-16">
       <Container>

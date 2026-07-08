@@ -45,6 +45,8 @@ export const blogPosts: BlogPost[] = [
     slug: "how-we-source-materials",
     title: "Cum ne procurăm materialele pentru tot ce vindem",
     excerpt: "O privire în procesul nostru de verificare a furnizorilor, de la fibra brută la produsul finit.",
+    content:
+      "O privire în procesul nostru de verificare a furnizorilor, de la fibra brută la produsul finit. Lucrăm doar cu ateliere care ne pot arăta exact de unde vin materialele și cum sunt tratați oamenii care le prelucrează. Fiecare furnizor nou trece printr-o vizită la fața locului înainte de prima comandă.",
     image: "https://picsum.photos/seed/lucent-blog-1/900/600",
     author: "Echipa EstelaOferta",
     date: "2026-06-18",
@@ -56,6 +58,8 @@ export const blogPosts: BlogPost[] = [
     slug: "caring-for-full-grain-leather",
     title: "Îngrijirea pielii integrale: un ghid practic",
     excerpt: "Obiceiuri simple care fac ca articolele din piele să arate mai bine cu timpul, nu mai rău.",
+    content:
+      "Obiceiuri simple care fac ca articolele din piele să arate mai bine cu timpul, nu mai rău. O cârpă moale, o cremă naturală o dată la câteva luni și evitarea expunerii îndelungate la soare direct sunt tot ce ai nevoie. Pielea integrală capătă patină în timp — asta e un semn bun, nu un defect.",
     image: "https://picsum.photos/seed/lucent-blog-2/900/600",
     author: "Radu Constantin",
     date: "2026-06-02",
@@ -67,6 +71,8 @@ export const blogPosts: BlogPost[] = [
     slug: "the-case-for-fewer-better-things",
     title: "De ce alegem mai puține lucruri, dar mai bune",
     excerpt: "De ce livrăm un catalog mai mic decât majoritatea magazinelor de dimensiunea noastră — intenționat.",
+    content:
+      "De ce livrăm un catalog mai mic decât majoritatea magazinelor de dimensiunea noastră — intenționat. Preferăm douăzeci de produse pe care le verificăm personal, în locul a două sute alese doar după marjă. Fiecare produs nou intră în catalog după ce cineva din echipă l-a folosit cel puțin o lună.",
     image: "https://picsum.photos/seed/lucent-blog-3/900/600",
     author: "Echipa EstelaOferta",
     date: "2026-05-14",
@@ -78,6 +84,8 @@ export const blogPosts: BlogPost[] = [
     slug: "packaging-that-does-less-harm",
     title: "Ambalaje care fac mai puțin rău",
     excerpt: "Drumul nostru către ambalaje complet reciclabile, fără plastic, în fiecare categorie.",
+    content:
+      "Drumul nostru către ambalaje complet reciclabile, fără plastic, în fiecare categorie. Am trecut ultimul furnizor de folie de protecție anul acesta, înlocuind-o cu hârtie ondulată reciclată. Următorul pas este eliminarea benzii adezive din plastic din toate coletele.",
     image: "https://picsum.photos/seed/lucent-blog-4/900/600",
     author: "Elena Marinescu",
     date: "2026-04-29",

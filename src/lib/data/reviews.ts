@@ -27,18 +27,6 @@ const BODIES_POSITIVE = [
   "A doua achiziție de la acest brand, iar consecvența calității mă face să revin.",
 ];
 
-const TITLES_MIXED = [
-  "Bun, cu o mică observație",
-  "Solid, dar mărimile sunt mai mici",
-  "Produs plăcut, livrare lentă",
-];
-
-const BODIES_MIXED = [
-  "Calitatea este foarte bună per ansamblu, doar aș fi vrut mai multe opțiuni de culoare. Îl recomand în continuare.",
-  "Vine puțin mai mic decât mă așteptam — recomand o mărime mai mare. În rest, foarte mulțumit.",
-  "A durat puțin mai mult decât estimat până a ajuns, dar produsul în sine a meritat așteptarea.",
-];
-
 function seededRandom(seed: number) {
   let value = seed;
   return () => {
@@ -56,22 +44,15 @@ function hashString(input: string) {
   return Math.abs(hash);
 }
 
-export function generateReviews(productId: string, avgRating: number, count: number): ProductReview[] {
+export function generateReviews(productId: string, count: number): ProductReview[] {
   const rand = seededRandom(hashString(productId));
   const reviews: ProductReview[] = [];
 
   for (let i = 0; i < count; i++) {
-    const isMixed = rand() < 0.22;
-    const rating = isMixed
-      ? Math.max(3, Math.round(avgRating - 1))
-      : Math.min(5, Math.round(avgRating + (rand() > 0.5 ? 0 : 1) - (rand() > 0.7 ? 1 : 0)));
+    const rating = rand() > 0.35 ? 5 : 4;
     const author = AUTHORS[Math.floor(rand() * AUTHORS.length)];
-    const title = isMixed
-      ? TITLES_MIXED[Math.floor(rand() * TITLES_MIXED.length)]
-      : TITLES_POSITIVE[Math.floor(rand() * TITLES_POSITIVE.length)];
-    const body = isMixed
-      ? BODIES_MIXED[Math.floor(rand() * BODIES_MIXED.length)]
-      : BODIES_POSITIVE[Math.floor(rand() * BODIES_POSITIVE.length)];
+    const title = TITLES_POSITIVE[Math.floor(rand() * TITLES_POSITIVE.length)];
+    const body = BODIES_POSITIVE[Math.floor(rand() * BODIES_POSITIVE.length)];
     const daysAgo = Math.floor(rand() * 260) + 2;
     const date = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000).toISOString();
 

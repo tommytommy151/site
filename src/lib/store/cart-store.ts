@@ -3,6 +3,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Product, ProductVariant } from "@/types/product";
+import { useCouponStore } from "@/lib/store/coupon-store";
+import { quantityLineTotal } from "@/lib/pricing";
 
 export interface CartLine {
   productId: string;
@@ -38,11 +40,6 @@ interface CartState {
   subtotal: () => number;
   itemCount: () => number;
 }
-
-const VALID_COUPONS: Record<string, number> = {
-  WELCOME10: 10,
-  LUCENT15: 15,
-};
 
 export const useCartStore = create<CartState>()(
   persist(
@@ -120,9 +117,9 @@ export const useCartStore = create<CartState>()(
         }),
 
       applyCoupon: (code) => {
-        const pct = VALID_COUPONS[code.trim().toUpperCase()];
-        if (!pct) return false;
-        set({ couponCode: code.trim().toUpperCase(), couponDiscountPct: pct });
+        const coupon = useCouponStore.getState().findActiveCoupon(code);
+        if (!coupon) return false;
+        set({ couponCode: coupon.code, couponDiscountPct: coupon.discountPct });
         return true;
       },
 
@@ -130,7 +127,8 @@ export const useCartStore = create<CartState>()(
 
       clearCart: () => set({ lines: [], couponCode: null, couponDiscountPct: 0 }),
 
-      subtotal: () => get().lines.reduce((sum, l) => sum + l.price * l.quantity, 0),
+      subtotal: () =>
+        get().lines.reduce((sum, l) => sum + quantityLineTotal(l.price, l.quantity), 0),
 
       itemCount: () => get().lines.reduce((sum, l) => sum + l.quantity, 0),
     }),

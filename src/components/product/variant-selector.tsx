@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { RatingStars } from "@/components/ui/rating-stars";
 import { ProductBadgePill } from "@/components/product/product-badge";
 import { formatPrice, discountPct } from "@/lib/format";
+import { QUANTITY_DISCOUNT_TIERS, quantityDiscountPct, quantityLineTotal } from "@/lib/pricing";
 import { useCartStore } from "@/lib/store/cart-store";
 import { useWishlistStore } from "@/lib/store/wishlist-store";
 import { useCompareStore } from "@/lib/store/compare-store";
@@ -36,6 +37,8 @@ export function VariantSelector({ product }: { product: Product }) {
 
   const pct = discountPct(activeVariant.price, activeVariant.compareAtPrice);
   const outOfStock = activeVariant.stock === 0;
+  const qtyDiscountPct = quantityDiscountPct(quantity);
+  const lineTotal = quantityLineTotal(activeVariant.price, quantity);
 
   function handleAddToCart() {
     addItem(product, activeVariant, quantity);
@@ -138,6 +141,36 @@ export function VariantSelector({ product }: { product: Product }) {
         </div>
       )}
 
+      <div className="rounded-xl border border-border bg-card p-4">
+        <p className="text-sm font-medium text-foreground">Reduceri la cantitate</p>
+        <div className="mt-2.5 flex flex-col gap-1.5">
+          {QUANTITY_DISCOUNT_TIERS.map((tier) => {
+            const selected = quantity === tier.minQty;
+            const unlocked = quantity >= tier.minQty;
+            return (
+              <button
+                key={tier.minQty}
+                type="button"
+                onClick={() => setQuantity(Math.min(tier.minQty, activeVariant.stock))}
+                className={cn(
+                  "flex items-center justify-between rounded-lg border px-2.5 py-1.5 text-left text-sm transition-colors",
+                  selected
+                    ? "border-brand-emerald bg-brand-emerald-soft text-brand-emerald"
+                    : unlocked
+                      ? "border-transparent bg-brand-emerald-soft/50 text-brand-emerald"
+                      : "border-transparent text-muted-foreground hover:bg-muted",
+                )}
+              >
+                <span>
+                  {tier.minQty === 1 ? "Cumperi 1 bucată" : `Cumperi ${tier.minQty}+ bucăți`}
+                </span>
+                <span className="font-semibold">-{tier.discountPct}%</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="flex items-center gap-3">
         <div className="flex items-center rounded-xl border border-border">
           <button
@@ -196,6 +229,16 @@ export function VariantSelector({ product }: { product: Product }) {
         </button>
       </div>
 
+      {quantity > 1 && (
+        <p className="text-sm text-foreground">
+          Total pentru {quantity} bucăți:{" "}
+          <span className="font-semibold">{formatPrice(lineTotal, product.currency)}</span>
+          {qtyDiscountPct > 0 && (
+            <span className="ml-1.5 text-brand-emerald">(-{qtyDiscountPct}%)</span>
+          )}
+        </p>
+      )}
+
       {!outOfStock && activeVariant.stock <= 8 && (
         <p className="text-sm text-destructive">
           Au mai rămas doar {activeVariant.stock} bucăți în stoc — comandă curând.
@@ -208,6 +251,7 @@ export function VariantSelector({ product }: { product: Product }) {
           <span className="text-foreground">
             {product.freeShipping ? "Livrare gratuită" : "Livrare standard"} — sosește în 2–4 zile
             lucrătoare
+            {!product.freeShipping && " · gratuită pentru comenzi peste 300 lei"}
           </span>
         </div>
         <div className="flex items-center gap-3 text-sm">

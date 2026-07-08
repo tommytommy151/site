@@ -31,6 +31,7 @@ interface Seed {
   features: string[];
   stock: number;
   seedImg: string;
+  realImage?: string;
   weightGrams?: number;
   freeShipping?: boolean;
 }
@@ -516,9 +517,9 @@ function buildVariants(seed: Seed): ProductVariant[] {
 }
 
 export const products: Product[] = SEEDS.map((seed) => {
-  const images = [1, 2, 3, 4].map(
-    (n) => `https://picsum.photos/seed/lucent-${seed.seedImg}-${n}/1200/1400`,
-  );
+  const images = seed.realImage
+    ? [seed.realImage]
+    : [1, 2, 3, 4].map((n) => `https://picsum.photos/seed/lucent-${seed.seedImg}-${n}/1200/1400`);
 
   return {
     id: seed.id,
@@ -543,7 +544,7 @@ export const products: Product[] = SEEDS.map((seed) => {
     stock: seed.stock,
     sku: `LC-${seed.id.toUpperCase()}`,
     features: seed.features,
-    reviews: generateReviews(seed.id, seed.rating, Math.min(8, Math.max(3, Math.round(seed.reviewCount / 40)))),
+    reviews: generateReviews(seed.id, Math.min(8, Math.max(3, Math.round(seed.reviewCount / 40)))),
     relatedIds: [],
     weightGrams: seed.weightGrams,
     freeShipping: seed.freeShipping,
