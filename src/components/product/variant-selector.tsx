@@ -249,9 +249,7 @@ export function VariantSelector({ product }: { product: Product }) {
         <div className="flex items-center gap-3 text-sm">
           <Truck className="size-4 shrink-0 text-brand-emerald" />
           <span className="text-foreground">
-            {product.freeShipping ? "Livrare gratuită" : "Livrare standard"} — sosește în 2–4 zile
-            lucrătoare
-            {!product.freeShipping && " · gratuită pentru comenzi peste 300 lei"}
+            Livrare gratuită peste 300 de lei — sosește în 2–4 zile lucrătoare
           </span>
         </div>
         <div className="flex items-center gap-3 text-sm">

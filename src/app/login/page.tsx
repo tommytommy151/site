@@ -3,14 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Lock, Mail, ShieldCheck } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { AppleIcon, FacebookIcon, GoogleIcon } from "@/components/icons/social-icons";
-import { useAuthStore } from "@/lib/store/auth-store";
+import { useAuthStore, ADMIN_USERNAME, verifyAdminPassword } from "@/lib/store/auth-store";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -22,19 +22,27 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.trim() || !password.trim()) {
+    const identifier = email.trim();
+    if (!identifier || !password.trim()) {
       setError("Introdu adresa de email și parola.");
       return;
     }
+
+    if (identifier.toLowerCase() === ADMIN_USERNAME.toLowerCase()) {
+      const ok = await verifyAdminPassword(password);
+      if (!ok) {
+        setError("Date de autentificare invalide.");
+        return;
+      }
+      loginAsAdmin(identifier, password);
+      router.push("/admin");
+      return;
+    }
+
     login(email, password);
     router.push("/account");
-  }
-
-  function handleAdminDemo() {
-    loginAsAdmin("admin@estelaoferta.ro", "demo");
-    router.push("/admin");
   }
 
   return (
@@ -54,13 +62,13 @@ export default function LoginPage() {
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div>
           <Label htmlFor="email" className="mb-1.5">
-            Email
+            Email sau utilizator
           </Label>
           <div className="relative">
             <Mail className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="email"
-              type="email"
+              type="text"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="tu@exemplu.com"
@@ -120,14 +128,6 @@ export default function LoginPage() {
           <AppleIcon className="size-4.5" />
         </button>
       </div>
-
-      <button
-        onClick={handleAdminDemo}
-        className="mt-6 flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-border py-2.5 text-xs text-muted-foreground transition-colors hover:border-brand-indigo/40 hover:text-brand-indigo"
-      >
-        <ShieldCheck className="size-3.5" />
-        Intră în admin panel (demo)
-      </button>
     </AuthShell>
   );
 }

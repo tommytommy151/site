@@ -4,6 +4,19 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { AuthUser } from "@/types/auth";
 
+export const ADMIN_USERNAME = "admintom";
+const ADMIN_PASSWORD_HASH =
+  "77a34581a508802181c0a1c1171360c3ef96209e9f6cd047aa2eb5d33173168f";
+
+export async function verifyAdminPassword(password: string): Promise<boolean> {
+  const bytes = new TextEncoder().encode(password);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  const hex = Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+  return hex === ADMIN_PASSWORD_HASH;
+}
+
 interface AuthState {
   user: AuthUser | null;
   login: (email: string, _password: string) => AuthUser;
