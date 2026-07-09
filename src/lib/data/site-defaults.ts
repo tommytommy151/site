@@ -11,21 +11,20 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
 export const DEFAULT_MENU: MenuItem[] = [
   { id: "menu-noutati", label: "Noutăți", href: "/products?sort=new" },
   { id: "menu-oferte", label: "Oferte Flash", href: "/deals" },
-  { id: "menu-branduri", label: "Branduri", href: "/brands" },
   { id: "menu-jurnal", label: "Jurnal", href: "/blog" },
 ];
 
 export const DEFAULT_HERO: HeroContent = {
-  eyebrow: "Colecția de sezon este live",
-  titleLine1: "Mai puține lucruri, mai bune —",
-  titleLine2: "livrate frumos.",
+  eyebrow: "BLACK FRIDAY — reduceri de până la 70%",
+  titleLine1: "Cele mai mari reduceri —",
+  titleLine2: "doar în acest weekend.",
   description:
-    "Un catalog atent selectat de audio, ceasuri, genți și îmbrăcăminte de la creatori independenți — cu o finalizare a comenzii de sub un minut și un magazin pe măsura produselor.",
-  ctaPrimaryLabel: "Vezi colecția",
-  ctaPrimaryHref: "/products",
-  ctaSecondaryLabel: "Vezi ofertele flash",
-  ctaSecondaryHref: "/deals",
-  imageUrl: "https://picsum.photos/seed/lucent-hero-main/1200/750",
+    "Un catalog atent selectat de audio, ceasuri, genți și îmbrăcăminte de la creatori independenți, acum la prețuri de Black Friday — cu o finalizare a comenzii de sub un minut și livrare rapidă.",
+  ctaPrimaryLabel: "Cumpără reducerile",
+  ctaPrimaryHref: "/deals",
+  ctaSecondaryLabel: "Vezi toată colecția",
+  ctaSecondaryHref: "/products",
+  imageUrl: "https://picsum.photos/seed/lucent-hero-main/1200/750?grayscale",
 };
 
 export const DEFAULT_HOME_SECTIONS: HomeSection[] = [
@@ -35,7 +34,6 @@ export const DEFAULT_HOME_SECTIONS: HomeSection[] = [
   { id: "categories-grid", label: "Grilă de categorii", visible: true },
   { id: "bestseller-rail", label: "Cele mai vândute", visible: true },
   { id: "flash-deals", label: "Oferte Flash", visible: true },
-  { id: "brands-strip", label: "Branduri", visible: true },
   { id: "recently-viewed", label: "Văzute recent", visible: true },
   { id: "recommended-rail", label: "Produse recomandate", visible: true },
   { id: "testimonials", label: "Testimoniale", visible: true },

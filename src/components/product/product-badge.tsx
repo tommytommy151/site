@@ -3,16 +3,16 @@ import type { ProductBadge } from "@/types/product";
 
 const BADGE_STYLES: Record<ProductBadge, string> = {
   new: "bg-brand-indigo-soft text-brand-indigo",
-  bestseller: "bg-brand-emerald-soft text-brand-emerald",
-  "flash-deal": "bg-destructive/10 text-destructive",
+  bestseller: "bg-brand-emerald text-primary-foreground shadow-glow",
+  "flash-deal": "bg-brand-indigo text-white shadow-glow-indigo",
   "sold-out": "bg-muted text-muted-foreground",
-  limited: "bg-brand-navy/10 text-brand-navy dark:bg-white/10 dark:text-white",
+  limited: "border border-brand-emerald text-brand-emerald",
 };
 
 const BADGE_LABELS: Record<ProductBadge, string> = {
   new: "Nou",
   bestseller: "Cel mai vândut",
-  "flash-deal": "Reducere",
+  "flash-deal": "Black Friday",
   "sold-out": "Stoc epuizat",
   limited: "Ediție limitată",
 };

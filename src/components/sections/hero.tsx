@@ -119,7 +119,7 @@ export function Hero() {
               className="animate-float relative aspect-square overflow-hidden rounded-3xl shadow-xl [animation-delay:1.5s]"
             >
               <Image
-                src="https://picsum.photos/seed/lucent-hero-2/600/600"
+                src="https://picsum.photos/seed/lucent-hero-2/600/600?grayscale"
                 alt="Produs recomandat"
                 fill
                 sizes="(max-width: 1024px) 45vw, 280px"
@@ -131,13 +131,18 @@ export function Hero() {
               className="animate-float relative aspect-square overflow-hidden rounded-3xl shadow-xl [animation-delay:3s]"
             >
               <Image
-                src="https://picsum.photos/seed/lucent-hero-3/600/600"
+                src="https://picsum.photos/seed/lucent-hero-3/600/600?grayscale"
                 alt="Produs recomandat"
                 fill
                 sizes="(max-width: 1024px) 45vw, 280px"
                 className="object-cover"
               />
             </motion.div>
+          </div>
+
+          <div className="bg-brand-indigo text-white absolute -top-5 -right-5 flex size-24 rotate-6 flex-col items-center justify-center rounded-full text-center shadow-glow-indigo sm:size-28">
+            <span className="text-2xl font-bold sm:text-3xl">-70%</span>
+            <span className="text-[10px] font-semibold tracking-wide uppercase">Black Friday</span>
           </div>
 
           <div className="glass absolute -bottom-6 -left-6 hidden rounded-2xl px-5 py-4 shadow-xl sm:block">

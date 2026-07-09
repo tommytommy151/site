@@ -8,7 +8,7 @@ import { Dialog } from "radix-ui";
 import { products } from "@/lib/data/products";
 import { formatPrice } from "@/lib/format";
 
-const POPULAR_SEARCHES = ["Căști", "Ceasuri", "Geantă din piele", "Merino", "Ochelari de soare"];
+const POPULAR_SEARCHES = ["Robot de bucătărie", "Husă telefon", "Powerbank", "Sneakers", "Geacă bomber"];
 
 export function SearchDialog({
   open,

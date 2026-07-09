@@ -7,24 +7,24 @@ import { Reveal } from "@/components/motion/reveal";
 
 const COLLECTIONS = [
   {
-    title: "Colecția Studio",
-    description: "Esențiale audio și de birou pentru cei care lucrează de acasă.",
-    href: "/categories/audio",
-    image: "https://picsum.photos/seed/lucent-collection-1/1000/1200",
+    title: "Black Friday Electrocasnice",
+    description: "Electrocasnice smart la cele mai mici prețuri ale anului.",
+    href: "/categories/electrocasnice",
+    image: "https://loremflickr.com/1000/1200/kitchen,appliance/all?lock=201",
     size: "large",
   },
   {
-    title: "Genți pentru sezon cald",
-    description: "Genți ușoare, construite pentru sezonul de călătorii.",
-    href: "/categories/bags",
-    image: "https://picsum.photos/seed/lucent-collection-2/800/600",
+    title: "Accesorii telefon — reduse acum",
+    description: "Huse, încărcătoare și gadgeturi esențiale pentru telefon.",
+    href: "/categories/accesorii-telefon",
+    image: "https://loremflickr.com/800/600/smartphone/all?lock=202",
     size: "small",
   },
   {
-    title: "Esențiale atent alese",
-    description: "Fibre naturale, croite să reziste ani la rând.",
-    href: "/categories/apparel",
-    image: "https://picsum.photos/seed/lucent-collection-3/800/600",
+    title: "Fashion la preț redus",
+    description: "Ținute și accesorii care completează orice garderobă.",
+    href: "/categories/fashion",
+    image: "https://loremflickr.com/800/600/fashion,clothing/all?lock=203",
     size: "small",
   },
 ];

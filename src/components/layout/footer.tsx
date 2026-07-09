@@ -33,7 +33,6 @@ const FOOTER_COLUMNS: { title: string; links: FooterLink[] }[] = [
       { label: "Cele mai vândute", href: "/products?sort=bestseller" },
       { label: "Oferte Flash", href: "/deals" },
       { label: "Carduri cadou", href: "/gift-cards" },
-      { label: "Branduri", href: "/brands" },
     ],
   },
   {

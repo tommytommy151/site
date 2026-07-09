@@ -5,7 +5,6 @@ import { FeaturedCollections } from "@/components/sections/featured-collections"
 import { ProductRail } from "@/components/sections/product-rail";
 import { CategoriesGrid } from "@/components/sections/categories-grid";
 import { FlashDeals } from "@/components/sections/flash-deals";
-import { BrandsStrip } from "@/components/sections/brands-strip";
 import { RecentlyViewed } from "@/components/sections/recently-viewed";
 import { Testimonials } from "@/components/sections/testimonials";
 import { Newsletter } from "@/components/sections/newsletter";
@@ -45,7 +44,6 @@ export default function Home() {
             />
           ),
           "flash-deals": <FlashDeals />,
-          "brands-strip": <BrandsStrip />,
           "recently-viewed": <RecentlyViewed />,
           "recommended-rail": (
             <ProductRail

@@ -60,6 +60,9 @@ export function Header() {
 
   return (
     <>
+      <div className="bg-brand-indigo w-full overflow-hidden py-2 text-center text-xs font-semibold tracking-wide text-white sm:text-sm">
+        🔥 BLACK FRIDAY — reduceri de până la 70% • livrare gratuită peste 300 RON 🔥
+      </div>
       <motion.header
         initial={false}
         className={cn(
