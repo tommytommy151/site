@@ -1,7 +1,17 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, Heart, Minus, Plus, Scale, ShieldCheck, ShoppingBag, Truck } from "lucide-react";
+import {
+  Check,
+  Heart,
+  MessageCircle,
+  Minus,
+  Plus,
+  Scale,
+  ShieldCheck,
+  ShoppingBag,
+  Truck,
+} from "lucide-react";
 import type { Product } from "@/types/product";
 import { Button } from "@/components/ui/button";
 import { RatingStars } from "@/components/ui/rating-stars";
@@ -12,6 +22,8 @@ import { useCartStore } from "@/lib/store/cart-store";
 import { useWishlistStore } from "@/lib/store/wishlist-store";
 import { useCompareStore } from "@/lib/store/compare-store";
 import { cn } from "@/lib/utils";
+
+const WHATSAPP_NUMBER = "40770715920";
 
 export function VariantSelector({ product }: { product: Product }) {
   const [selectedColor, setSelectedColor] = useState(product.colorOptions?.[0]?.name ?? null);
@@ -44,6 +56,22 @@ export function VariantSelector({ product }: { product: Product }) {
     addItem(product, activeVariant, quantity);
     setJustAdded(true);
     setTimeout(() => setJustAdded(false), 2000);
+  }
+
+  function handleWhatsAppOrder() {
+    const options = Object.entries(activeVariant.options)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join(", ");
+    const message =
+      `Bună! Aș dori să comand:\n\n` +
+      `${product.name}${options ? ` (${options})` : ""} × ${quantity}\n` +
+      `Preț: ${formatPrice(lineTotal, product.currency)}\n\n` +
+      `${window.location.href}`;
+    window.open(
+      `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
   }
 
   return (
@@ -228,6 +256,16 @@ export function VariantSelector({ product }: { product: Product }) {
           <Scale className="size-4" />
         </button>
       </div>
+
+      <Button
+        variant="outline"
+        size="lg"
+        disabled={outOfStock}
+        onClick={handleWhatsAppOrder}
+        className="h-11 w-full rounded-xl text-[15px]"
+      >
+        <MessageCircle className="size-4" /> Comandă prin WhatsApp — 0770 715 920
+      </Button>
 
       {quantity > 1 && (
         <p className="text-sm text-foreground">

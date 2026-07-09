@@ -26,3 +26,33 @@ export function quantityUnitPrice(basePrice: number, quantity: number): number {
 export function quantityLineTotal(basePrice: number, quantity: number): number {
   return quantityUnitPrice(basePrice, quantity) * quantity;
 }
+
+export interface ShippingMethod {
+  id: "standard" | "express";
+  label: string;
+  eta: string;
+  price: number;
+  freeOverThreshold?: number;
+}
+
+export const SHIPPING_METHODS: ShippingMethod[] = [
+  {
+    id: "standard",
+    label: "Standard",
+    eta: "2–4 zile lucrătoare",
+    price: 25,
+    freeOverThreshold: 300,
+  },
+  {
+    id: "express",
+    label: "Expres",
+    eta: "1–2 zile lucrătoare",
+    price: 45,
+  },
+];
+
+export function shippingCost(methodId: ShippingMethod["id"], subtotal: number): number {
+  const method = SHIPPING_METHODS.find((m) => m.id === methodId) ?? SHIPPING_METHODS[0];
+  if (method.freeOverThreshold && subtotal >= method.freeOverThreshold) return 0;
+  return method.price;
+}

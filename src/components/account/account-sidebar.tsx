@@ -34,7 +34,7 @@ export function AccountSidebar() {
   }
 
   return (
-    <aside className="flex flex-col gap-6">
+    <aside className="flex flex-col gap-6 print:hidden">
       <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4">
         <div className="relative size-11 shrink-0 overflow-hidden rounded-full bg-muted">
           {user && <Image src={user.avatar} alt={user.name} fill className="object-cover" />}

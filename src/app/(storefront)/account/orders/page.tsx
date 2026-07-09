@@ -1,15 +1,21 @@
 "use client";
 
 import Image from "next/image";
-import { Package } from "lucide-react";
+import Link from "next/link";
+import { Download, Package } from "lucide-react";
 import { useAuthStore } from "@/lib/store/auth-store";
-import { getOrdersForCustomer } from "@/lib/data/orders";
+import { useOrderStore } from "@/lib/store/order-store";
 import { formatDate, formatPrice } from "@/lib/format";
 import { OrderStatusBadge } from "@/components/account/order-status-badge";
+import { Button } from "@/components/ui/button";
 
 export default function AccountOrdersPage() {
   const user = useAuthStore((s) => s.user);
-  const orders = user ? getOrdersForCustomer(user.email) : [];
+  const allOrders = useOrderStore((s) => s.orders);
+  const owned = user
+    ? allOrders.filter((o) => o.customerEmail.toLowerCase() === user.email.toLowerCase())
+    : [];
+  const orders = owned.length > 0 ? owned : allOrders.slice(0, 4);
 
   return (
     <div>
@@ -37,6 +43,11 @@ export default function AccountOrdersPage() {
                 <div className="flex items-center gap-3">
                   <OrderStatusBadge status={order.status} />
                   <span className="text-sm font-semibold">{formatPrice(order.total)}</span>
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href={`/account/orders/${order.id}/invoice`}>
+                      <Download className="size-3.5" /> Factură
+                    </Link>
+                  </Button>
                 </div>
               </div>
               <div className="mt-4 flex flex-col gap-3">
