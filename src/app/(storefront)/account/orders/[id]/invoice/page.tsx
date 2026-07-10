@@ -55,7 +55,8 @@ export default function AccountOrderInvoicePage({ params }: { params: Promise<{ 
               Factura pentru comanda {order.number} nu este încă disponibilă
             </p>
             <p className="text-sm text-muted-foreground">
-              Îți trimitem factura pe email de îndată ce este emisă.
+              Mai durează câteva ore până când administratorul publică factura. Revino puțin mai
+              târziu sau verifică emailul — te anunțăm de îndată ce este disponibilă.
             </p>
           </div>
         )}
