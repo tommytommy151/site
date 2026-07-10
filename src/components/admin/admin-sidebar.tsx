@@ -79,6 +79,7 @@ const NAV: NavItem[] = [
       { href: "/admin/wishlists-overview", label: "Liste de favorite" },
       { href: "/admin/newsletter", label: "Buletin informativ" },
       { href: "/admin/marketing-campaigns", label: "Campanii de marketing" },
+      { href: "/admin/social", label: "Generator postări social media" },
     ],
   },
   {
