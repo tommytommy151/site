@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Copy, Download, RefreshCw, Search } from "lucide-react";
+import { Clapperboard, Copy, Download, Loader2, RefreshCw, Search } from "lucide-react";
 import { products } from "@/lib/data/products";
 import { formatPrice } from "@/lib/format";
 import { generateCaption, type CaptionTone } from "@/lib/social-caption";
@@ -56,6 +56,13 @@ export default function AdminSocialPage() {
   const [imageError, setImageError] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  const [videoState, setVideoState] = useState<"idle" | "starting" | "processing" | "done" | "error">(
+    "idle",
+  );
+  const [videoOperationName, setVideoOperationName] = useState<string | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [videoError, setVideoError] = useState("");
+
   const results = useMemo(() => {
     if (!query.trim()) return [];
     const q = query.trim().toLowerCase();
@@ -67,7 +74,87 @@ export default function AdminSocialPage() {
     setQuery("");
     setCaption(generateCaption(product, tone));
     setImageError(false);
+    resetVideo();
   }
+
+  function resetVideo() {
+    setVideoState("idle");
+    setVideoOperationName(null);
+    setVideoError("");
+    setVideoUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
+  }
+
+  async function startVideoGeneration() {
+    resetVideo();
+    setVideoState("starting");
+    try {
+      const res = await fetch("/api/admin/generate-video/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productSlug: selected.slug }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.operationName) {
+        throw new Error(data.error || "Generarea video a eșuat.");
+      }
+      setVideoOperationName(data.operationName);
+      setVideoState("processing");
+    } catch (err) {
+      setVideoError(err instanceof Error ? err.message : "Generarea video a eșuat.");
+      setVideoState("error");
+    }
+  }
+
+  useEffect(() => {
+    if (videoState !== "processing" || !videoOperationName) return;
+
+    let cancelled = false;
+
+    async function poll() {
+      try {
+        const res = await fetch("/api/admin/generate-video/status", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ operationName: videoOperationName }),
+        });
+        const data = await res.json();
+        if (cancelled) return;
+
+        if (!res.ok) throw new Error(data.error || "Verificarea stării a eșuat.");
+        if (data.error) throw new Error(data.error);
+        if (!data.done) return;
+
+        const downloadRes = await fetch("/api/admin/generate-video/download", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ operationName: videoOperationName }),
+        });
+        if (cancelled) return;
+        if (!downloadRes.ok) {
+          const errData = await downloadRes.json().catch(() => ({}));
+          throw new Error(errData.error || "Descărcarea videoului a eșuat.");
+        }
+        const blob = await downloadRes.blob();
+        setVideoUrl(URL.createObjectURL(blob));
+        setVideoState("done");
+      } catch (err) {
+        if (cancelled) return;
+        setVideoError(err instanceof Error ? err.message : "Generarea video a eșuat.");
+        setVideoState("error");
+      }
+    }
+
+    const interval = setInterval(poll, 10_000);
+    poll();
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [videoState, videoOperationName]);
 
   function regenerateCaption() {
     setCaption(generateCaption(selected, tone));
@@ -320,6 +407,68 @@ export default function AdminSocialPage() {
             <Download className="size-4" />
             Descarcă posterul (PNG)
           </Button>
+
+          <div className="w-full max-w-[520px] rounded-2xl border border-border bg-card p-5">
+            <div className="flex items-center gap-2">
+              <Clapperboard className="size-4 text-brand-emerald" />
+              <h2 className="text-sm font-semibold text-foreground">
+                Video AI pentru acest produs
+              </h2>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Generează un clip video de 8 secunde (format vertical) din poza produsului, folosind
+              Google Veo. Poate dura 1-3 minute.
+            </p>
+
+            {videoState === "done" && videoUrl ? (
+              <div className="mt-4 flex flex-col gap-3">
+                <video
+                  src={videoUrl}
+                  controls
+                  className="w-full rounded-xl border border-border"
+                />
+                <div className="flex gap-2">
+                  <a
+                    href={videoUrl}
+                    download={`${selected.slug}-social.mp4`}
+                    className="flex-1"
+                  >
+                    <Button variant="outline" className="w-full">
+                      <Download className="size-4" />
+                      Descarcă video
+                    </Button>
+                  </a>
+                  <Button variant="outline" onClick={startVideoGeneration}>
+                    <RefreshCw className="size-4" />
+                    Regenerează
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-4">
+                <Button
+                  className="w-full"
+                  disabled={videoState === "starting" || videoState === "processing"}
+                  onClick={startVideoGeneration}
+                >
+                  {videoState === "starting" || videoState === "processing" ? (
+                    <>
+                      <Loader2 className="size-4 animate-spin" />
+                      {videoState === "starting" ? "Se pornește..." : "Se generează video-ul..."}
+                    </>
+                  ) : (
+                    <>
+                      <Clapperboard className="size-4" />
+                      Generează video
+                    </>
+                  )}
+                </Button>
+                {videoState === "error" && (
+                  <p className="mt-2 text-sm text-destructive">{videoError}</p>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
