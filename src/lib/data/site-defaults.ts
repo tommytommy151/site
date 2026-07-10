@@ -20,7 +20,7 @@ export const DEFAULT_HERO: HeroContent = {
   titleLine2: "doar în acest weekend.",
   description:
     "Un catalog atent selectat de audio, ceasuri, genți și îmbrăcăminte de la creatori independenți, acum la prețuri de Black Friday — cu o finalizare a comenzii de sub un minut și livrare rapidă.",
-  ctaPrimaryLabel: "Reduceri Hot",
+  ctaPrimaryLabel: "Oferte Hot",
   ctaPrimaryHref: "/products",
   ctaSecondaryLabel: "Vezi toată colecția",
   ctaSecondaryHref: "/products",
