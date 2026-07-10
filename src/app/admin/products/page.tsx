@@ -2,11 +2,12 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
-import { Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { Pencil, Plus, Search, Sparkles, Trash2 } from "lucide-react";
 import { useProductStore, type ProductFormInput } from "@/lib/store/product-store";
 import { useCatalogStore, slugify } from "@/lib/store/catalog-store";
 import type { Product } from "@/types/product";
 import { formatPrice } from "@/lib/format";
+import { stripBoilerplate } from "@/lib/strip-boilerplate";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -45,9 +46,21 @@ export default function AdminProductsPage() {
   const products = useProductStore((s) => s.products);
   const addProduct = useProductStore((s) => s.addProduct);
   const updateProduct = useProductStore((s) => s.updateProduct);
+  const patchProduct = useProductStore((s) => s.patchProduct);
   const deleteProduct = useProductStore((s) => s.deleteProduct);
   const categories = useCatalogStore((s) => s.categories);
   const brands = useCatalogStore((s) => s.brands);
+
+  const affectedProducts = useMemo(
+    () => products.filter((p) => /engros/i.test(p.name) || /engros/i.test(p.description)),
+    [products],
+  );
+
+  function cleanupBoilerplate() {
+    for (const p of affectedProducts) {
+      patchProduct(p.id, { name: stripBoilerplate(p.name), description: stripBoilerplate(p.description) });
+    }
+  }
 
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -107,10 +120,18 @@ export default function AdminProductsPage() {
           <h1 className="text-2xl font-semibold tracking-tight">Produse</h1>
           <p className="mt-1 text-sm text-muted-foreground">{products.length} produse în catalog.</p>
         </div>
-        <Button onClick={openCreate}>
-          <Plus className="size-4" />
-          Adaugă produs
-        </Button>
+        <div className="flex items-center gap-2">
+          {affectedProducts.length > 0 && (
+            <Button variant="outline" onClick={cleanupBoilerplate}>
+              <Sparkles className="size-4" />
+              Curăță &quot;Engros - EngrossOnline&quot; ({affectedProducts.length})
+            </Button>
+          )}
+          <Button onClick={openCreate}>
+            <Plus className="size-4" />
+            Adaugă produs
+          </Button>
+        </div>
       </div>
 
       <div className="relative max-w-sm">

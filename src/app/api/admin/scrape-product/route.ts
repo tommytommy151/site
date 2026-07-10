@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { stripBoilerplate } from "@/lib/strip-boilerplate";
 
 interface ScrapedProduct {
   name: string;
@@ -130,14 +131,16 @@ export async function POST(req: NextRequest) {
 
   const jsonLd = extractJsonLdProduct(html);
 
-  const name =
+  const rawName =
     jsonLd?.name ??
     extractMeta(html, "og:title") ??
     html.match(/<title[^>]*>([^<]*)<\/title>/i)?.[1] ??
     null;
+  const name = rawName ? stripBoilerplate(rawName) : null;
 
-  const description =
-    jsonLd?.description ?? extractMeta(html, "og:description", "description") ?? "";
+  const description = stripBoilerplate(
+    jsonLd?.description ?? extractMeta(html, "og:description", "description") ?? "",
+  );
 
   const image = jsonLd?.image ?? extractMeta(html, "og:image") ?? "";
 

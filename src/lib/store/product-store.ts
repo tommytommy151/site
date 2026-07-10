@@ -77,6 +77,7 @@ interface ProductState {
   products: Product[];
   addProduct: (input: ProductFormInput) => void;
   updateProduct: (id: string, input: ProductFormInput) => void;
+  patchProduct: (id: string, patch: Partial<Pick<Product, "name" | "description">>) => void;
   deleteProduct: (id: string) => void;
 }
 
@@ -104,6 +105,16 @@ export const useProductStore = create<ProductState>()(
               rating: p.rating,
               reviewCount: p.reviewCount,
             };
+            syncProduct(updated);
+            return updated;
+          }),
+        })),
+
+      patchProduct: (id, patch) =>
+        set((state) => ({
+          products: state.products.map((p) => {
+            if (p.id !== id) return p;
+            const updated = { ...p, ...patch };
             syncProduct(updated);
             return updated;
           }),
