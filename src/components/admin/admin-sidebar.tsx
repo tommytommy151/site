@@ -139,8 +139,6 @@ export function AdminSidebar() {
   );
 }
 
-const ALL_GROUP_HREFS = NAV.filter((item) => item.children).map((item) => item.href);
-
 function AdminSidebarContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -149,7 +147,12 @@ function AdminSidebarContent() {
   const logout = useAuthStore((s) => s.logout);
 
   const activeTab = searchParams.get("tab");
-  const [openItems, setOpenItems] = useState<string[]>(ALL_GROUP_HREFS);
+  const [openItems, setOpenItems] = useState<string[]>(() => {
+    const activeGroup = NAV.find((item) =>
+      item.children?.some((child) => isChildActive(child, pathname, searchParams.get("tab"))),
+    );
+    return activeGroup ? [activeGroup.href] : [];
+  });
 
   function toggleGroup(href: string) {
     setOpenItems((items) =>
