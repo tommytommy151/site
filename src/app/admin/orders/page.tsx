@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { FileText, Search } from "lucide-react";
+import { FileText, Search, Trash2 } from "lucide-react";
 import { ORDER_STATUS_LABELS } from "@/lib/data/orders";
 import { useOrderStore } from "@/lib/store/order-store";
 import { formatDate, formatPrice } from "@/lib/format";
@@ -28,6 +28,7 @@ const FILTERS: { value: OrderStatus | "all"; label: string }[] = [
 export default function AdminOrdersPage() {
   const orders = useOrderStore((s) => s.orders);
   const updateOrderStatus = useOrderStore((s) => s.updateOrderStatus);
+  const deleteOrder = useOrderStore((s) => s.deleteOrder);
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<OrderStatus | "all">("all");
 
@@ -41,6 +42,13 @@ export default function AdminOrdersPage() {
           o.customerName.toLowerCase().includes(query.toLowerCase()),
       );
   }, [query, status, orders]);
+
+  function handleDeleteOrder(order: (typeof orders)[number]) {
+    if (!confirm(`Sigur vrei să ștergi comanda ${order.number}? Acțiunea nu poate fi anulată.`)) {
+      return;
+    }
+    deleteOrder(order.id);
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -87,7 +95,7 @@ export default function AdminOrdersPage() {
               <th className="p-4 font-medium">Plată</th>
               <th className="p-4 font-medium">Status</th>
               <th className="p-4 text-right font-medium">Total</th>
-              <th className="p-4 text-right font-medium">Factură</th>
+              <th className="p-4 text-right font-medium">Acțiuni</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -120,14 +128,23 @@ export default function AdminOrdersPage() {
                 <td className="p-4 text-right font-medium text-foreground">
                   {formatPrice(order.total)}
                 </td>
-                <td className="p-4 text-right">
-                  <Link
-                    href={`/admin/orders/${order.id}/invoice`}
-                    aria-label="Vezi factura"
-                    className="inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
-                  >
-                    <FileText className="size-3.5" />
-                  </Link>
+                <td className="p-4">
+                  <div className="flex items-center justify-end gap-1">
+                    <Link
+                      href={`/admin/orders/${order.id}/invoice`}
+                      aria-label="Vezi factura"
+                      className="flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
+                    >
+                      <FileText className="size-3.5" />
+                    </Link>
+                    <button
+                      onClick={() => handleDeleteOrder(order)}
+                      aria-label="Șterge comanda"
+                      className="flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                    >
+                      <Trash2 className="size-3.5" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

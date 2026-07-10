@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, Trash2 } from "lucide-react";
 import { useOrderStore } from "@/lib/store/order-store";
 import { formatDate, formatPrice } from "@/lib/format";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,7 @@ interface CustomerRow {
 
 export default function AdminCustomersPage() {
   const orders = useOrderStore((s) => s.orders);
+  const deleteOrdersByCustomerEmail = useOrderStore((s) => s.deleteOrdersByCustomerEmail);
   const [query, setQuery] = useState("");
 
   const customers = useMemo(() => {
@@ -48,6 +49,17 @@ export default function AdminCustomersPage() {
       .sort((a, b) => b.totalSpent - a.totalSpent);
   }, [query, orders]);
 
+  function handleDeleteCustomer(customer: CustomerRow) {
+    if (
+      !confirm(
+        `Sigur vrei să ștergi clientul ${customer.name}? Se vor șterge toate cele ${customer.orderCount} comenzi asociate. Acțiunea nu poate fi anulată.`,
+      )
+    ) {
+      return;
+    }
+    deleteOrdersByCustomerEmail(customer.email);
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -73,6 +85,7 @@ export default function AdminCustomersPage() {
               <th className="p-4 font-medium">Comenzi</th>
               <th className="p-4 font-medium">Ultima comandă</th>
               <th className="p-4 text-right font-medium">Total cheltuit</th>
+              <th className="p-4 text-right font-medium">Acțiuni</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -93,6 +106,17 @@ export default function AdminCustomersPage() {
                 <td className="p-4 text-muted-foreground">{formatDate(customer.lastOrderDate)}</td>
                 <td className="p-4 text-right font-medium text-foreground">
                   {formatPrice(customer.totalSpent)}
+                </td>
+                <td className="p-4">
+                  <div className="flex items-center justify-end">
+                    <button
+                      onClick={() => handleDeleteCustomer(customer)}
+                      aria-label="Șterge clientul"
+                      className="flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                    >
+                      <Trash2 className="size-3.5" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

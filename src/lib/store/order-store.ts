@@ -9,6 +9,8 @@ interface OrderState {
   orders: Order[];
   addOrder: (order: Order) => void;
   updateOrderStatus: (id: string, status: OrderStatus) => void;
+  deleteOrder: (id: string) => void;
+  deleteOrdersByCustomerEmail: (email: string) => void;
 }
 
 export const useOrderStore = create<OrderState>()(
@@ -21,6 +23,14 @@ export const useOrderStore = create<OrderState>()(
       updateOrderStatus: (id, status) =>
         set((state) => ({
           orders: state.orders.map((o) => (o.id === id ? { ...o, status } : o)),
+        })),
+
+      deleteOrder: (id) =>
+        set((state) => ({ orders: state.orders.filter((o) => o.id !== id) })),
+
+      deleteOrdersByCustomerEmail: (email) =>
+        set((state) => ({
+          orders: state.orders.filter((o) => o.customerEmail !== email),
         })),
     }),
     { name: "estelaoferta-orders" },
