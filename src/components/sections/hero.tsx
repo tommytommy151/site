@@ -117,8 +117,8 @@ export function Hero() {
               className="animate-float relative aspect-square overflow-hidden rounded-3xl shadow-xl [animation-delay:1.5s]"
             >
               <Image
-                src="https://picsum.photos/seed/lucent-hero-2/600/600?grayscale"
-                alt="Produs recomandat"
+                src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&h=600&fit=crop&q=80"
+                alt="Pungi de cumpărături"
                 fill
                 sizes="(max-width: 1024px) 45vw, 280px"
                 className="object-cover"
@@ -129,8 +129,8 @@ export function Hero() {
               className="animate-float relative aspect-square overflow-hidden rounded-3xl shadow-xl [animation-delay:3s]"
             >
               <Image
-                src="https://picsum.photos/seed/lucent-hero-3/600/600?grayscale"
-                alt="Produs recomandat"
+                src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&h=600&fit=crop&q=80"
+                alt="Shopping cu reduceri"
                 fill
                 sizes="(max-width: 1024px) 45vw, 280px"
                 className="object-cover"

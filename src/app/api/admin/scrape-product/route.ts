@@ -46,14 +46,19 @@ function extractJsonLdProduct(html: string): Partial<ScrapedProduct> | null {
       );
       if (!product) continue;
 
-      const offer = Array.isArray(product.offers) ? product.offers[0] : product.offers;
+      let offer = Array.isArray(product.offers) ? product.offers[0] : product.offers;
+      if (offer && offer.price === undefined && Array.isArray(offer.offers)) {
+        offer = offer.offers[0];
+      }
       const image = Array.isArray(product.image) ? product.image[0] : product.image;
+
+      const priceValue = offer?.price ?? offer?.lowPrice;
 
       return {
         name: typeof product.name === "string" ? product.name : undefined,
         description: typeof product.description === "string" ? product.description : undefined,
         image: typeof image === "string" ? image : undefined,
-        price: offer?.price ? Number(offer.price) : undefined,
+        price: priceValue !== undefined ? Number(priceValue) : undefined,
         currency: typeof offer?.priceCurrency === "string" ? offer.priceCurrency : undefined,
       };
     } catch {

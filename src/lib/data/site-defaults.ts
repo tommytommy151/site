@@ -20,11 +20,11 @@ export const DEFAULT_HERO: HeroContent = {
   titleLine2: "doar în acest weekend.",
   description:
     "Un catalog atent selectat de audio, ceasuri, genți și îmbrăcăminte de la creatori independenți, acum la prețuri de Black Friday — cu o finalizare a comenzii de sub un minut și livrare rapidă.",
-  ctaPrimaryLabel: "Cumpără reducerile",
-  ctaPrimaryHref: "/deals",
+  ctaPrimaryLabel: "Reduceri Hot",
+  ctaPrimaryHref: "/products",
   ctaSecondaryLabel: "Vezi toată colecția",
   ctaSecondaryHref: "/products",
-  imageUrl: "https://picsum.photos/seed/lucent-hero-main/1200/750?grayscale",
+  imageUrl: "https://images.unsplash.com/photo-1512909006721-3d6018887383?w=1200&h=750&fit=crop&q=80",
 };
 
 export const DEFAULT_HOME_SECTIONS: HomeSection[] = [
