@@ -189,6 +189,36 @@ const SEEDS: Seed[] = [
     features: ["Presare la rece, 43 RPM", "Funcționare silențioasă", "Tub de alimentare larg", "Componente lavabile la mașina de spălat vase"],
     stock: 30, seedImg: "appliance-10", imgKeyword: "fruit",
   },
+  {
+    id: "blender-smoothblend-1200",
+    name: "Blender de Blat SmoothBlend 1200",
+    brand: "Auric", brandSlug: "auric",
+    category: "Electrocasnice", categorySlug: "electrocasnice",
+    tagline: "1200W și lame din inox pentru smoothie-uri perfect fine.",
+    description:
+      "SmoothBlend 1200 zdrobește gheață și fructe congelate în secunde, cu un motor de 1200W și lame din inox cu 6 fețe. Vasul din tritan de 1.8L nu reține mirosuri și rezistă la impact.",
+    price: 429, compareAtPrice: 599,
+    colors: ["black", "white"],
+    rating: 4.6, reviewCount: 54,
+    badges: ["new"],
+    features: ["Motor 1200W", "Lame inox cu 6 fețe", "Vas tritan 1.8L", "3 programe presetate", "Funcție auto-curățare"],
+    stock: 48, seedImg: "appliance-11", imgKeyword: "blender,smoothie", weightGrams: 3100,
+  },
+  {
+    id: "cuptor-countertop-xl",
+    name: "Cuptor Electric de Blat CompactBake XL",
+    brand: "Loam", brandSlug: "loam",
+    category: "Electrocasnice", categorySlug: "electrocasnice",
+    tagline: "23L, convecție și grill, perfect pentru bucătării mici.",
+    description:
+      "CompactBake XL aduce coacere cu convecție și grill într-un format de 23L, ideal pentru bucătării mici. Termostat reglabil până la 230°C și timer cu oprire automată.",
+    price: 399, compareAtPrice: 489,
+    colors: ["black", "stone"],
+    rating: 4.5, reviewCount: 39,
+    badges: ["new"],
+    features: ["Capacitate 23L", "Convecție + grill", "Termostat până la 230°C", "Timer cu oprire automată", "Tavă și grătar incluse"],
+    stock: 40, seedImg: "appliance-12", imgKeyword: "oven,kitchen", weightGrams: 9200,
+  },
 
   // Accesorii Telefon
   {
@@ -340,6 +370,36 @@ const SEEDS: Seed[] = [
     badges: ["limited"],
     features: ["3 lentile din sticlă optică", "Clip universal", "Husă de transport inclusă", "Compatibil cu huse subțiri"],
     stock: 45, seedImg: "phone-10", imgKeyword: "cameralens",
+  },
+  {
+    id: "suport-birou-flexibil",
+    name: "Suport Telefon cu Braț Flexibil pentru Birou",
+    brand: "Halcyon", brandSlug: "halcyon",
+    category: "Accesorii Telefon", categorySlug: "accesorii-telefon",
+    tagline: "Braț ajustabil pe 360°, clemă solidă pentru orice birou.",
+    description:
+      "Un suport cu braț flexibil din aluminiu, ajustabil pe 360° pentru unghiul perfect la apeluri video sau vizionat conținut, cu clemă din cauciuc care nu zgârie biroul.",
+    price: 119, compareAtPrice: 149,
+    colors: ["black", "white"],
+    rating: 4.5, reviewCount: 42,
+    badges: ["new"],
+    features: ["Braț flexibil din aluminiu", "Ajustare 360°", "Clemă cu cauciuc antiderapant", "Compatibil cu majoritatea telefoanelor"],
+    stock: 90, seedImg: "phone-11", imgKeyword: "phonestand,desk",
+  },
+  {
+    id: "cablu-lightning-tresat-1m",
+    name: "Cablu Lightning la USB-C Tresat 1m",
+    brand: "Kessel", brandSlug: "kessel",
+    category: "Accesorii Telefon", categorySlug: "accesorii-telefon",
+    tagline: "Împletitură din nailon, certificat MFi, încărcare rapidă.",
+    description:
+      "Cablu Lightning la USB-C certificat MFi, cu împletitură din nailon rezistentă și conectori din aluminiu, pentru încărcare rapidă și transfer de date stabil.",
+    price: 89,
+    colors: ["black", "white"],
+    rating: 4.6, reviewCount: 61,
+    badges: ["new"],
+    features: ["Certificat MFi", "Împletitură din nailon", "Conectori din aluminiu", "Lungime 1 metru"],
+    stock: 180, seedImg: "phone-12", imgKeyword: "cable,lightning", freeShipping: true,
   },
 
   // Fashion
@@ -499,6 +559,37 @@ const SEEDS: Seed[] = [
     badges: ["bestseller", "flash-deal"],
     features: ["Piele întoarsă premium", "Talpă din cauciuc reciclat", "Căptușeală respirabilă", "Design minimalist"],
     stock: 118, seedImg: "fashion-10", imgKeyword: "sneakers,shoes", freeShipping: true,
+  },
+  {
+    id: "palton-lana-oversized",
+    name: "Palton din Lână Oversized",
+    brand: "Vantage", brandSlug: "vantage",
+    category: "Fashion", categorySlug: "fashion",
+    tagline: "Amestec de lână, croială oversized pentru sezonul rece.",
+    description:
+      "Un palton dintr-un amestec premium de lână, cu croială oversized și căptușeală moale, gândit pentru straturi confortabile în sezonul rece.",
+    price: 649, compareAtPrice: 799,
+    colors: ["black", "stone", "navy"],
+    sizes: ["S", "M", "L", "XL"],
+    rating: 4.7, reviewCount: 28,
+    badges: ["new"],
+    features: ["Amestec de lână premium", "Croială oversized", "Căptușeală interioară moale", "Buzunare laterale ascunse"],
+    stock: 34, seedImg: "fashion-11", imgKeyword: "coat,wool",
+  },
+  {
+    id: "rucsac-laptop-impermeabil",
+    name: "Rucsac Laptop Impermeabil",
+    brand: "Norr", brandSlug: "norr",
+    category: "Fashion", categorySlug: "fashion",
+    tagline: "Material impermeabil, compartiment dedicat pentru laptop de 16\".",
+    description:
+      "Un rucsac din material impermeabil cu compartiment căptușit pentru laptop de până la 16 inch, port USB extern pentru încărcare și spate ergonomic ventilat.",
+    price: 289, compareAtPrice: 349,
+    colors: ["black", "stone"],
+    rating: 4.6, reviewCount: 47,
+    badges: ["new"],
+    features: ["Material impermeabil", "Compartiment laptop 16\"", "Port USB extern", "Spate ergonomic ventilat"],
+    stock: 66, seedImg: "fashion-12", imgKeyword: "backpack,laptop", freeShipping: true,
   },
 ];
 

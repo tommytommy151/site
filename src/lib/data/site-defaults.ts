@@ -11,7 +11,7 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
 export const DEFAULT_MENU: MenuItem[] = [
   { id: "menu-noutati", label: "Noutăți", href: "/products?sort=new" },
   { id: "menu-oferte", label: "Oferte Flash", href: "/deals" },
-  { id: "menu-jurnal", label: "Jurnal", href: "/blog" },
+  { id: "menu-jurnal", label: "Blog", href: "/blog" },
 ];
 
 export const DEFAULT_HERO: HeroContent = {
@@ -28,6 +28,7 @@ export const DEFAULT_HERO: HeroContent = {
 };
 
 export const DEFAULT_HOME_SECTIONS: HomeSection[] = [
+  { id: "promo-banner", label: "Banner Black Friday", visible: true },
   { id: "todays-offers", label: "Ofertele zilei", visible: true },
   { id: "featured-collections", label: "Colecții recomandate", visible: true },
   { id: "popular-rail", label: "Produse în tendințe", visible: true },
@@ -38,6 +39,6 @@ export const DEFAULT_HOME_SECTIONS: HomeSection[] = [
   { id: "recommended-rail", label: "Produse recomandate", visible: true },
   { id: "testimonials", label: "Testimoniale", visible: true },
   { id: "newsletter", label: "Newsletter", visible: true },
-  { id: "blog-preview", label: "Jurnal (blog)", visible: true },
+  { id: "blog-preview", label: "Blog", visible: true },
   { id: "instagram-feed", label: "Feed Instagram", visible: true },
 ];

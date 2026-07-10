@@ -13,6 +13,7 @@ import { useWishlistStore } from "@/lib/store/wishlist-store";
 import { useCompareStore } from "@/lib/store/compare-store";
 import { useCartStore } from "@/lib/store/cart-store";
 import { onSpotlightMove } from "@/lib/use-spotlight";
+import { ShareButton } from "@/components/product/share-button";
 
 export function ProductCard({ product, className }: { product: Product; className?: string }) {
   const isWishlisted = useWishlistStore((s) => s.has(product.id));
@@ -83,6 +84,7 @@ export function ProductCard({ product, className }: { product: Product; classNam
             >
               <Scale className="size-4" />
             </button>
+            <ShareButton slug={product.slug} name={product.name} />
           </div>
         </div>
 

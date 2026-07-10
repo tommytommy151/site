@@ -4,7 +4,7 @@ import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, ShieldCheck, Sparkles, Truck } from "lucide-react";
+import { ArrowRight, Sparkles, Truck } from "lucide-react";
 import { Container } from "@/components/layout/container";
 import { Button } from "@/components/ui/button";
 import { Counter } from "@/components/motion/counter";
@@ -12,8 +12,6 @@ import { useSiteStore } from "@/lib/store/site-store";
 
 const TRUST_POINTS = [
   { icon: Truck, label: "Livrare gratuită peste 300 RON" },
-  { icon: ShieldCheck, label: "Garanție 2 ani pentru fiecare comandă" },
-  { icon: Sparkles, label: "Selecție atentă de la creatori independenți" },
 ];
 
 export function Hero() {

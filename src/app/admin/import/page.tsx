@@ -1,10 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { Upload } from "lucide-react";
+import Image from "next/image";
+import { Link2, Loader2, Upload } from "lucide-react";
 import { useProductStore } from "@/lib/store/product-store";
-import { slugify } from "@/lib/store/catalog-store";
+import { useCatalogStore, slugify } from "@/lib/store/catalog-store";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface ParsedRow {
   name: string;
@@ -40,7 +50,200 @@ function parseCsv(text: string): ParsedRow[] {
     .filter((row) => row.name.length > 0);
 }
 
-export default function AdminImportPage() {
+interface ScrapedProduct {
+  name: string;
+  description: string;
+  image: string;
+  price: number | null;
+  currency: string | null;
+  sourceUrl: string;
+}
+
+function UrlImportSection() {
+  const addProduct = useProductStore((s) => s.addProduct);
+  const categories = useCatalogStore((s) => s.categories);
+  const brands = useCatalogStore((s) => s.brands);
+
+  const [url, setUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [scraped, setScraped] = useState<ScrapedProduct | null>(null);
+  const [added, setAdded] = useState(false);
+
+  const [brandSlug, setBrandSlug] = useState("");
+  const [categorySlug, setCategorySlug] = useState("");
+  const [stock, setStock] = useState(20);
+
+  async function handleFetch(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setScraped(null);
+    setAdded(false);
+    try {
+      const res = await fetch("/api/admin/scrape-product", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Nu am putut importa produsul.");
+        return;
+      }
+      setScraped(data as ScrapedProduct);
+    } catch {
+      setError("Nu am putut accesa adresa URL furnizată.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleAdd() {
+    if (!scraped) return;
+    const brand = brands.find((b) => b.slug === brandSlug);
+    const category = categories.find((c) => c.slug === categorySlug);
+    addProduct({
+      name: scraped.name,
+      slug: slugify(scraped.name),
+      brand: brand?.name ?? "Fără brand",
+      brandSlug: brand?.slug ?? "fara-brand",
+      category: category?.name ?? "Necategorizat",
+      categorySlug: category?.slug ?? "necategorizat",
+      price: scraped.price ?? 0,
+      stock,
+      image: scraped.image,
+      description: scraped.description,
+      badges: ["new"],
+    });
+    setAdded(true);
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div>
+        <h2 className="text-lg font-semibold tracking-tight">Import de pe un alt site</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Lipește adresa unei pagini de produs. Citim titlul, descrierea, imaginea și prețul
+          (din datele Open Graph / schema.org ale paginii) și le pregătim pentru catalog.
+        </p>
+      </div>
+
+      <form onSubmit={handleFetch} className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Link2 className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            type="url"
+            required
+            placeholder="https://alt-site.ro/produs/exemplu"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <Button type="submit" disabled={loading}>
+          {loading ? <Loader2 className="size-4 animate-spin" /> : "Preia produsul"}
+        </Button>
+      </form>
+
+      {error && <p className="text-sm text-destructive">{error}</p>}
+
+      {scraped && (
+        <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-4 sm:flex-row">
+          <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-xl bg-muted sm:w-40">
+            {scraped.image ? (
+              <Image
+                src={scraped.image}
+                alt={scraped.name}
+                fill
+                sizes="160px"
+                className="object-cover"
+                unoptimized
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
+                Fără imagine
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-1 flex-col gap-3">
+            <div>
+              <p className="font-medium text-foreground">{scraped.name}</p>
+              {scraped.description && (
+                <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                  {scraped.description}
+                </p>
+              )}
+              <p className="mt-1 text-xs text-muted-foreground">
+                Preț detectat:{" "}
+                {scraped.price !== null
+                  ? `${scraped.price} ${scraped.currency ?? "RON"}`
+                  : "nedetectat — completează manual la editare"}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div>
+                <Label className="mb-1.5">Brand</Label>
+                <Select value={brandSlug} onValueChange={setBrandSlug}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Alege brand" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {brands.map((brand) => (
+                      <SelectItem key={brand.id} value={brand.slug}>
+                        {brand.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="mb-1.5">Categorie</Label>
+                <Select value={categorySlug} onValueChange={setCategorySlug}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Alege categoria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.slug}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="import-stock" className="mb-1.5">
+                  Stoc inițial
+                </Label>
+                <Input
+                  id="import-stock"
+                  type="number"
+                  min={0}
+                  value={stock}
+                  onChange={(e) => setStock(Number(e.target.value) || 0)}
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Button onClick={handleAdd}>Adaugă în catalog</Button>
+              {added && (
+                <span className="text-sm text-muted-foreground">
+                  Produsul a fost adăugat. Îl poți edita din Produse.
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CsvImportSection() {
   const addProduct = useProductStore((s) => s.addProduct);
 
   const [fileName, setFileName] = useState<string | null>(null);
@@ -80,9 +283,9 @@ export default function AdminImportPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Import produse</h1>
+        <h2 className="text-lg font-semibold tracking-tight">Import din CSV</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Încarcă un fișier CSV cu coloanele <code className="rounded bg-muted px-1 py-0.5">name</code>,{" "}
           <code className="rounded bg-muted px-1 py-0.5">price</code> și{" "}
@@ -137,6 +340,25 @@ export default function AdminImportPage() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+export default function AdminImportPage() {
+  return (
+    <div className="flex flex-col gap-10">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Import produse</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Adaugă produse rapid, fie dintr-o pagină de pe alt site, fie dintr-un fișier CSV.
+        </p>
+      </div>
+
+      <UrlImportSection />
+
+      <div className="border-t border-border pt-8">
+        <CsvImportSection />
+      </div>
     </div>
   );
 }

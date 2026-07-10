@@ -8,7 +8,6 @@ import {
   Minus,
   Plus,
   Scale,
-  ShieldCheck,
   ShoppingBag,
   Truck,
 } from "lucide-react";
@@ -21,6 +20,7 @@ import { QUANTITY_DISCOUNT_TIERS, quantityDiscountPct, quantityLineTotal } from 
 import { useCartStore } from "@/lib/store/cart-store";
 import { useWishlistStore } from "@/lib/store/wishlist-store";
 import { useCompareStore } from "@/lib/store/compare-store";
+import { ShareIconsRow } from "@/components/product/share-button";
 import { cn } from "@/lib/utils";
 
 const WHATSAPP_NUMBER = "40770715920";
@@ -290,15 +290,25 @@ export function VariantSelector({ product }: { product: Product }) {
             Livrare gratuită peste 300 de lei — sosește în 2–4 zile lucrătoare
           </span>
         </div>
-        <div className="flex items-center gap-3 text-sm">
-          <ShieldCheck className="size-4 shrink-0 text-brand-emerald" />
-          <span className="text-foreground">Garanție 2 ani & retur în 30 de zile</span>
-        </div>
       </div>
 
       <p className="text-xs text-muted-foreground">
         SKU: {activeVariant.sku} {product.weightGrams && `· ${product.weightGrams}g`}
       </p>
+
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => toggleWishlist(product.id)}
+          className={cn(
+            "flex h-9 items-center gap-1.5 rounded-full border border-border px-3.5 text-sm font-medium transition-colors hover:border-brand-emerald/50",
+            isWishlisted && "border-brand-emerald bg-brand-emerald-soft text-brand-emerald",
+          )}
+        >
+          <Heart className="size-4" fill={isWishlisted ? "currentColor" : "none"} />
+          {isWishlisted ? "Apreciat" : "Apreciază"}
+        </button>
+        <ShareIconsRow slug={product.slug} name={product.name} />
+      </div>
     </div>
   );
 }

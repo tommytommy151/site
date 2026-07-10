@@ -60,8 +60,14 @@ export function Header() {
 
   return (
     <>
-      <div className="bg-brand-indigo w-full overflow-hidden py-2 text-center text-xs font-semibold tracking-wide text-white sm:text-sm">
-        🔥 BLACK FRIDAY — reduceri de până la 70% • livrare gratuită peste 300 RON 🔥
+      <div className="bg-brand-indigo w-full overflow-hidden py-2 text-xs font-semibold tracking-wide text-white sm:text-sm">
+        <div className="flex w-max animate-marquee gap-16 whitespace-nowrap">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <span key={i}>
+              🔥 BLACK FRIDAY — reduceri de până la 70% • livrare gratuită peste 300 RON 🔥
+            </span>
+          ))}
+        </div>
       </div>
       <motion.header
         initial={false}

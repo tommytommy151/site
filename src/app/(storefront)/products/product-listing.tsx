@@ -16,7 +16,7 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ProductCard } from "@/components/product/product-card";
 import { RatingStars } from "@/components/ui/rating-stars";
-import { products as allProducts } from "@/lib/data/products";
+import { useProductStore } from "@/lib/store/product-store";
 import { useCatalogStore } from "@/lib/store/catalog-store";
 import { formatPrice } from "@/lib/format";
 import type { Product, ProductBadge } from "@/types/product";
@@ -82,6 +82,7 @@ const DEFAULT_FILTERS: Filters = {
 };
 
 export function ProductListing({ initialCategorySlug }: { initialCategorySlug?: string } = {}) {
+  const allProducts = useProductStore((s) => s.products);
   const categories = useCatalogStore((s) => s.categories);
   const brands = useCatalogStore((s) => s.brands);
   const searchParams = useSearchParams();

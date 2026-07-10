@@ -13,7 +13,7 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
   useEffect(() => setMounted(true), []);
 
   useEffect(() => {
-    if (mounted && user?.role !== "admin") router.replace("/login");
+    if (mounted && user?.role !== "admin") router.replace("/admin/login");
   }, [mounted, user, router]);
 
   if (!mounted || user?.role !== "admin") {

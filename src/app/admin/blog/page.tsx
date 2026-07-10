@@ -90,7 +90,7 @@ export default function AdminBlogPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Blog</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {posts.length} articole — apar în &ldquo;Jurnal&rdquo; pe homepage și la /blog.
+            {posts.length} articole — apar în &ldquo;Blog&rdquo; pe homepage și la /blog.
           </p>
         </div>
         <Button onClick={openCreate}>

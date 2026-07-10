@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import { Heart } from "lucide-react";
 import { useWishlistStore } from "@/lib/store/wishlist-store";
-import { products } from "@/lib/data/products";
+import { useProductStore } from "@/lib/store/product-store";
 import { ProductCard } from "@/components/product/product-card";
 
 export default function AccountWishlistPage() {
   const ids = useWishlistStore((s) => s.productIds);
+  const products = useProductStore((s) => s.products);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);

@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { products } from "@/lib/data/products";
+import { useProductStore } from "@/lib/store/product-store";
 import { useRecentlyViewedStore } from "@/lib/store/recently-viewed-store";
 import { ProductRail } from "@/components/sections/product-rail";
 
 export function RecentlyViewed() {
   const ids = useRecentlyViewedStore((s) => s.productIds);
+  const products = useProductStore((s) => s.products);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);

@@ -49,7 +49,7 @@ const FOOTER_COLUMNS: { title: string; links: FooterLink[] }[] = [
     title: "Companie",
     links: [
       { label: "Despre EstelaOferta", href: "/about" },
-      { label: "Jurnal", href: "/blog" },
+      { label: "Blog", href: "/blog" },
       { label: "Cariere", href: "/careers" },
       { label: "Sustenabilitate", href: "/sustainability" },
       { label: "Afiliere", href: "/affiliates" },

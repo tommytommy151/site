@@ -10,12 +10,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { AppleIcon, FacebookIcon, GoogleIcon } from "@/components/icons/social-icons";
-import { useAuthStore, ADMIN_USERNAME, verifyAdminPassword } from "@/lib/store/auth-store";
+import { useAuthStore } from "@/lib/store/auth-store";
 
 export default function LoginPage() {
   const router = useRouter();
   const login = useAuthStore((s) => s.login);
-  const loginAsAdmin = useAuthStore((s) => s.loginAsAdmin);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,17 +26,6 @@ export default function LoginPage() {
     const identifier = email.trim();
     if (!identifier || !password.trim()) {
       setError("Introdu adresa de email și parola.");
-      return;
-    }
-
-    if (identifier.toLowerCase() === ADMIN_USERNAME.toLowerCase()) {
-      const ok = await verifyAdminPassword(password);
-      if (!ok) {
-        setError("Date de autentificare invalide.");
-        return;
-      }
-      loginAsAdmin(identifier, password);
-      router.push("/admin");
       return;
     }
 
@@ -128,6 +116,13 @@ export default function LoginPage() {
           <AppleIcon className="size-4.5" />
         </button>
       </div>
+
+      <Link
+        href="/admin/login"
+        className="mt-6 block text-center text-xs text-muted-foreground/60 hover:text-foreground"
+      >
+        Acces administrator
+      </Link>
     </AuthShell>
   );
 }

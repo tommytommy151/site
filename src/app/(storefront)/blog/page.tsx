@@ -14,9 +14,8 @@ export default function BlogPage() {
   return (
     <Container className="py-14 sm:py-16">
       <SectionHeading
-        eyebrow="Jurnal"
-        title="Jurnalul EstelaOferta"
-        description="Notițe despre meșteșug, materiale și modul în care construim."
+        eyebrow="Blog"
+        title="Blogul EstelaOferta"
       />
       <RevealGroup className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {posts.map((post) => (

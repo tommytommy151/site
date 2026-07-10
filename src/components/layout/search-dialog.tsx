@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Search, TrendingUp, X } from "lucide-react";
 import { Dialog } from "radix-ui";
-import { products } from "@/lib/data/products";
+import { useProductStore } from "@/lib/store/product-store";
 import { formatPrice } from "@/lib/format";
 
 const POPULAR_SEARCHES = ["Robot de bucătărie", "Husă telefon", "Powerbank", "Sneakers", "Geacă bomber"];
@@ -18,6 +18,7 @@ export function SearchDialog({
   onOpenChange: (open: boolean) => void;
 }) {
   const [query, setQuery] = useState("");
+  const products = useProductStore((s) => s.products);
 
   const results = useMemo(() => {
     if (!query.trim()) return [];
@@ -30,7 +31,7 @@ export function SearchDialog({
           p.category.toLowerCase().includes(q),
       )
       .slice(0, 6);
-  }, [query]);
+  }, [query, products]);
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>

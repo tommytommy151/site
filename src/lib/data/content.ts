@@ -77,7 +77,7 @@ export const blogPosts: BlogPost[] = [
     author: "Echipa EstelaOferta",
     date: "2026-05-14",
     readMinutes: 5,
-    category: "Jurnal",
+    category: "Blog",
   },
   {
     id: "post-4",

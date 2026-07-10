@@ -1,14 +1,17 @@
+"use client";
+
 import { Zap } from "lucide-react";
 import { Container } from "@/components/layout/container";
 import { Reveal } from "@/components/motion/reveal";
 import { Countdown } from "@/components/sections/countdown";
 import { ProductCarousel } from "@/components/product/product-carousel";
-import { getProductsByBadge } from "@/lib/data/products";
+import { useProductStore } from "@/lib/store/product-store";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 export function FlashDeals() {
-  const deals = getProductsByBadge("flash-deal");
+  const products = useProductStore((s) => s.products);
+  const deals = products.filter((p) => p.badges.includes("flash-deal"));
   if (deals.length === 0) return null;
 
   return (
