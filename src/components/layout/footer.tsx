@@ -31,7 +31,7 @@ const FOOTER_COLUMNS: { title: string; links: FooterLink[] }[] = [
     links: [
       { label: "Noutăți", href: "/products?sort=new" },
       { label: "Cele mai vândute", href: "/products?sort=bestseller" },
-      { label: "Oferte Flash", href: "/deals" },
+      { label: "Oferte Flash", href: "/products" },
       { label: "Carduri cadou", href: "/gift-cards" },
     ],
   },

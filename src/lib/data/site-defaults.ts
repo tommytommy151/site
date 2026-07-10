@@ -10,7 +10,7 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
 
 export const DEFAULT_MENU: MenuItem[] = [
   { id: "menu-noutati", label: "Noutăți", href: "/products?sort=new" },
-  { id: "menu-oferte", label: "Oferte Flash", href: "/deals" },
+  { id: "menu-oferte", label: "Oferte Flash", href: "/products" },
   { id: "menu-jurnal", label: "Blog", href: "/blog" },
 ];
 

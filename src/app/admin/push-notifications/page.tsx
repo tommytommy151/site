@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 export default function AdminPushNotificationsPage() {
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
-  const [url, setUrl] = useState("/deals");
+  const [url, setUrl] = useState("/products");
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<{ sent: number; failed: number; total: number } | null>(
     null,
@@ -84,7 +84,7 @@ export default function AdminPushNotificationsPage() {
           </Label>
           <Input
             id="push-url"
-            placeholder="/deals"
+            placeholder="/products"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
           />

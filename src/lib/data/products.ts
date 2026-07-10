@@ -593,14 +593,6 @@ const SEEDS: Seed[] = [
   },
 ];
 
-function hashSeed(value: string): number {
-  let hash = 0;
-  for (let i = 0; i < value.length; i++) {
-    hash = (hash * 31 + value.charCodeAt(i)) >>> 0;
-  }
-  return hash % 5000;
-}
-
 function buildVariants(seed: Seed): ProductVariant[] {
   const colors = seed.colors.length ? seed.colors : (["black"] as (keyof typeof COLORS)[]);
   const sizes = seed.sizes?.length ? seed.sizes : [null];
@@ -626,12 +618,9 @@ function buildVariants(seed: Seed): ProductVariant[] {
 }
 
 export const products: Product[] = SEEDS.map((seed, index) => {
-  const baseLock = hashSeed(seed.id);
   const images = seed.realImage
     ? [seed.realImage]
-    : [1, 2, 3, 4].map(
-        (n) => `https://loremflickr.com/1200/1400/${seed.imgKeyword}/all?lock=${baseLock + n}`,
-      );
+    : [1, 2, 3, 4].map((n) => `https://picsum.photos/seed/${seed.id}-${n}/1200/1400`);
 
   return {
     id: seed.id,

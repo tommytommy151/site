@@ -29,7 +29,7 @@ export function FlashDeals() {
           <div className="flex items-center gap-4">
             <Countdown hoursFromNow={14} />
             <Link
-              href="/deals"
+              href="/products"
               className="group hidden items-center gap-1.5 text-sm font-medium text-white/80 hover:text-white sm:flex"
             >
               Vezi tot

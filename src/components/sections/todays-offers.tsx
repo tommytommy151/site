@@ -8,7 +8,7 @@ const OFFERS = [
     icon: Percent,
     title: "Până la 40% reducere",
     description: "Produse audio și ceasuri selectate, până la epuizarea stocului.",
-    href: "/deals",
+    href: "/products",
     accentClass: "bg-brand-emerald-soft text-brand-emerald",
   },
   {
