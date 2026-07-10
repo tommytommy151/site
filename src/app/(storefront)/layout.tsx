@@ -2,6 +2,7 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { CartDrawer } from "@/components/cart/cart-drawer";
 import { PageTransition } from "@/components/motion/page-transition";
+import { PushSubscribePrompt } from "@/components/push/push-subscribe-prompt";
 
 export default function StorefrontLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -12,6 +13,7 @@ export default function StorefrontLayout({ children }: { children: React.ReactNo
       </main>
       <Footer />
       <CartDrawer />
+      <PushSubscribePrompt />
     </div>
   );
 }
