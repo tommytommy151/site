@@ -21,4 +21,6 @@ export interface Order {
   total: number;
   paymentMethod: string;
   shippingAddress: string;
+  invoiceUrl?: string;
+  invoiceFileName?: string;
 }

@@ -9,6 +9,8 @@ interface OrderState {
   orders: Order[];
   addOrder: (order: Order) => void;
   updateOrderStatus: (id: string, status: OrderStatus) => void;
+  setOrderInvoice: (id: string, invoiceUrl: string, invoiceFileName: string) => void;
+  removeOrderInvoice: (id: string) => void;
   deleteOrder: (id: string) => void;
   deleteOrdersByCustomerEmail: (email: string) => void;
 }
@@ -23,6 +25,18 @@ export const useOrderStore = create<OrderState>()(
       updateOrderStatus: (id, status) =>
         set((state) => ({
           orders: state.orders.map((o) => (o.id === id ? { ...o, status } : o)),
+        })),
+
+      setOrderInvoice: (id, invoiceUrl, invoiceFileName) =>
+        set((state) => ({
+          orders: state.orders.map((o) => (o.id === id ? { ...o, invoiceUrl, invoiceFileName } : o)),
+        })),
+
+      removeOrderInvoice: (id) =>
+        set((state) => ({
+          orders: state.orders.map((o) =>
+            o.id === id ? { ...o, invoiceUrl: undefined, invoiceFileName: undefined } : o,
+          ),
         })),
 
       deleteOrder: (id) =>
