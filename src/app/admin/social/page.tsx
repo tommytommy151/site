@@ -2,10 +2,10 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Clapperboard, Copy, Download, Loader2, RefreshCw, Search } from "lucide-react";
-import { products } from "@/lib/data/products";
 import { formatPrice } from "@/lib/format";
 import { generateCaption, type CaptionTone } from "@/lib/social-caption";
 import { useStoreSettingsStore } from "@/lib/store/store-settings-store";
+import { useProductStore } from "@/lib/store/product-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,6 +47,7 @@ function wrapText(
 
 export default function AdminSocialPage() {
   const storeName = useStoreSettingsStore((s) => s.settings.storeName);
+  const products = useProductStore((s) => s.products);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const [query, setQuery] = useState("");
@@ -67,7 +68,7 @@ export default function AdminSocialPage() {
     if (!query.trim()) return [];
     const q = query.trim().toLowerCase();
     return products.filter((p) => p.name.toLowerCase().includes(q)).slice(0, 8);
-  }, [query]);
+  }, [query, products]);
 
   function selectProduct(product: Product) {
     setSelected(product);
