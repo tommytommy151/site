@@ -84,6 +84,14 @@ export const categories: Category[] = [
     productCount: 0,
     description: "Cele mai populare produse ale momentului.",
   },
+  {
+    id: "cat-consumabile",
+    name: "Consumabile",
+    slug: "consumabile",
+    image: "https://images.unsplash.com/photo-1563453392212-326f5e854473?w=900&h=1100&fit=crop&q=80",
+    productCount: 0,
+    description: "Produse consumabile de uz zilnic.",
+  },
 ];
 
 export const brands: Brand[] = [
