@@ -67,6 +67,14 @@ export const categories: Category[] = [
     description: "Ustensile și accesorii pentru bucătărie.",
     parentId: "cat-articole-pentru-casa",
   },
+  {
+    id: "cat-produse-hot",
+    name: "Produse Hot",
+    slug: "produse-hot",
+    image: "https://images.unsplash.com/photo-1607082349566-187342175e2f?w=900&h=1100&fit=crop&q=80",
+    productCount: 0,
+    description: "Cele mai populare produse ale momentului.",
+  },
 ];
 
 export const brands: Brand[] = [
