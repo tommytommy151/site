@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getProductBySlug } from "@/lib/data/products";
+import { getCustomProduct } from "@/lib/products/server-products";
 import { ProductDetail } from "./product-detail";
 
 export async function generateMetadata({
@@ -8,7 +9,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = getProductBySlug(slug) ?? (await getCustomProduct(slug));
   if (!product) return {};
 
   return {

@@ -11,19 +11,42 @@ import { ProductTabs } from "@/components/product/product-tabs";
 import { ProductRail } from "@/components/sections/product-rail";
 import { TrackRecentlyViewed } from "@/components/product/track-recently-viewed";
 import { useProductStore } from "@/lib/store/product-store";
+import type { Product } from "@/types/product";
 
 export function ProductDetail({ slug }: { slug: string }) {
   const products = useProductStore((s) => s.products);
   const [mounted, setMounted] = useState(false);
+  const [remoteProduct, setRemoteProduct] = useState<Product | null>(null);
+  const [remoteChecked, setRemoteChecked] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  const product = products.find((p) => p.slug === slug);
+  const localProduct = products.find((p) => p.slug === slug);
+
+  useEffect(() => {
+    if (!mounted || localProduct) return;
+    let cancelled = false;
+    fetch(`/api/products/${slug}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled) setRemoteProduct(data);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setRemoteChecked(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [mounted, localProduct, slug]);
+
+  const product = localProduct ?? remoteProduct ?? undefined;
 
   useEffect(() => {
     if (product) document.title = product.name;
   }, [product]);
 
   if (!mounted) return null;
+  if (!localProduct && !remoteChecked) return null;
 
   if (!product) {
     return (

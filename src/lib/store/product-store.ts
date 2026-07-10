@@ -57,6 +57,22 @@ function buildProduct(id: string, input: ProductFormInput): Product {
   };
 }
 
+function syncProduct(product: Product) {
+  fetch("/api/products/sync", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(product),
+  }).catch(() => {});
+}
+
+function syncDeleteProduct(slug: string) {
+  fetch("/api/products/sync", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ slug }),
+  }).catch(() => {});
+}
+
 interface ProductState {
   products: Product[];
   addProduct: (input: ProductFormInput) => void;
@@ -72,18 +88,33 @@ export const useProductStore = create<ProductState>()(
       addProduct: (input) =>
         set((state) => {
           const id = crypto.randomUUID();
-          return { products: [buildProduct(id, input), ...state.products] };
+          const product = buildProduct(id, input);
+          syncProduct(product);
+          return { products: [product, ...state.products] };
         }),
 
       updateProduct: (id, input) =>
         set((state) => ({
-          products: state.products.map((p) =>
-            p.id === id ? { ...p, ...buildProduct(id, input), reviews: p.reviews, rating: p.rating, reviewCount: p.reviewCount } : p,
-          ),
+          products: state.products.map((p) => {
+            if (p.id !== id) return p;
+            const updated = {
+              ...p,
+              ...buildProduct(id, input),
+              reviews: p.reviews,
+              rating: p.rating,
+              reviewCount: p.reviewCount,
+            };
+            syncProduct(updated);
+            return updated;
+          }),
         })),
 
       deleteProduct: (id) =>
-        set((state) => ({ products: state.products.filter((p) => p.id !== id) })),
+        set((state) => {
+          const target = state.products.find((p) => p.id === id);
+          if (target) syncDeleteProduct(target.slug);
+          return { products: state.products.filter((p) => p.id !== id) };
+        }),
     }),
     { name: "estelaoferta-products" },
   ),
