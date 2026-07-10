@@ -1,5 +1,5 @@
 import type { Product, ProductBadge, ProductVariant } from "@/types/product";
-import { generateReviews } from "./reviews";
+import { generateReviews, generateFixedRatioReviews } from "./reviews";
 
 const COLORS = {
   black: { name: "Negru Onyx", hex: "#161616" },
@@ -625,7 +625,7 @@ function buildVariants(seed: Seed): ProductVariant[] {
   return variants;
 }
 
-export const products: Product[] = SEEDS.map((seed) => {
+export const products: Product[] = SEEDS.map((seed, index) => {
   const baseLock = hashSeed(seed.id);
   const images = seed.realImage
     ? [seed.realImage]
@@ -656,7 +656,10 @@ export const products: Product[] = SEEDS.map((seed) => {
     stock: seed.stock,
     sku: `LC-${seed.id.toUpperCase()}`,
     features: seed.features,
-    reviews: generateReviews(seed.id, Math.min(8, Math.max(3, Math.round(seed.reviewCount / 40)))),
+    reviews:
+      (index + 1) % 3 === 0
+        ? generateFixedRatioReviews(seed.id)
+        : generateReviews(seed.id, Math.min(8, Math.max(3, Math.round(seed.reviewCount / 40)))),
     relatedIds: [],
     weightGrams: seed.weightGrams,
     freeShipping: seed.freeShipping,

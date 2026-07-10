@@ -44,6 +44,37 @@ function hashString(input: string) {
   return Math.abs(hash);
 }
 
+export function generateFixedRatioReviews(productId: string): ProductReview[] {
+  const rand = seededRandom(hashString(`${productId}-fixed`));
+  const fiveStarCount = 2 + Math.floor(rand() * 2); // 2-3
+  const fourStarCount = 1 + Math.floor(rand() * 2); // 1-2
+  const ratings = [
+    ...Array(fiveStarCount).fill(5),
+    ...Array(fourStarCount).fill(4),
+  ];
+
+  const reviews: ProductReview[] = ratings.map((rating, i) => {
+    const author = AUTHORS[Math.floor(rand() * AUTHORS.length)];
+    const title = TITLES_POSITIVE[Math.floor(rand() * TITLES_POSITIVE.length)];
+    const body = BODIES_POSITIVE[Math.floor(rand() * BODIES_POSITIVE.length)];
+    const daysAgo = Math.floor(rand() * 260) + 2;
+    const date = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000).toISOString();
+
+    return {
+      id: `${productId}-fixed-review-${i}`,
+      author,
+      rating,
+      title,
+      body,
+      date,
+      verified: rand() > 0.15,
+      helpful: Math.floor(rand() * 48),
+    };
+  });
+
+  return reviews.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+}
+
 export function generateReviews(productId: string, count: number): ProductReview[] {
   const rand = seededRandom(hashString(productId));
   const reviews: ProductReview[] = [];
