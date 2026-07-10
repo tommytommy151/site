@@ -87,7 +87,7 @@ function CheckoutSuccessContent() {
           subtotal: total - shipping,
           shipping,
           total,
-          paymentMethod: "Card (Stripe)",
+          paymentMethod: "Card bancar",
           shippingAddress: `${address.line1}, ${address.city}, ${address.county} ${address.postalCode}`.trim(),
         };
         addOrder(order);

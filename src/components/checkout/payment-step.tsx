@@ -148,14 +148,14 @@ export function PaymentStep({ onBack }: { onBack: () => void }) {
               )}
             >
               <span className="flex items-center gap-2">
-                <CreditCard className="size-4" /> Card bancar — plată securizată prin Stripe
+                <CreditCard className="size-4" /> Card bancar — plată securizată
               </span>
               {method === "card" && <Check className="size-4" />}
             </button>
           </div>
           {method === "card" && (
             <p className="mt-2 text-xs text-muted-foreground">
-              Vei fi redirecționat către pagina securizată Stripe pentru a introduce datele
+              Vei fi redirecționat către o pagină securizată pentru a introduce datele
               cardului.
             </p>
           )}
