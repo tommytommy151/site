@@ -41,6 +41,7 @@ const NAV: NavItem[] = [
     icon: ShoppingCart,
     children: [
       { href: "/admin/orders", label: "Comenzi" },
+      { href: "/admin/returns", label: "Retururi" },
       { href: "/admin/abandoned-carts", label: "Coșuri de cumpărături abandonate" },
       { href: "/admin/customers", label: "Clienți" },
       { href: "/admin/customer-groups", label: "Grupuri clienți" },

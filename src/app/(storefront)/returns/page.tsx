@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/legal/legal-page";
+import { ReturnRequestForm } from "@/components/returns/return-request-form";
 
 export const metadata: Metadata = {
   title: "Politica de retur",
@@ -9,7 +10,8 @@ export const metadata: Metadata = {
 
 export default function ReturnsPage() {
   return (
-    <LegalPage title="Politica de retur" updated="8 iulie 2026">
+    <>
+      <LegalPage title="Politica de retur" updated="8 iulie 2026">
       <p>
         Conform Ordonanței de Urgență a Guvernului nr. 34/2014 privind drepturile
         consumatorilor în cadrul contractelor la distanță, aveți dreptul de a vă retrage din
@@ -75,6 +77,8 @@ export default function ReturnsPage() {
         Acest text este un model general și nu constituie consultanță juridică. Recomandăm
         adaptarea lui de către un avocat, cu datele reale ale companiei.
       </p>
-    </LegalPage>
+      </LegalPage>
+      <ReturnRequestForm />
+    </>
   );
 }
