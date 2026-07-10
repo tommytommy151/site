@@ -21,7 +21,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://estelaoferta.example"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://lucent-commerce.vercel.app"),
   title: {
     default: "EstelaOferta — Comerț Premium",
     template: "%s · EstelaOferta",

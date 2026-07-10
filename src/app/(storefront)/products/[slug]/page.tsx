@@ -16,6 +16,7 @@ export async function generateMetadata({
     description: product.tagline,
     openGraph: {
       type: "website",
+      url: `/products/${product.slug}`,
       title: product.name,
       description: product.tagline,
       images: [{ url: product.images[0] }],

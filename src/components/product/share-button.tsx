@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://estelaoferta.example";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://lucent-commerce.vercel.app";
 
 function FacebookIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
