@@ -43,7 +43,7 @@ export const useCheckoutStore = create<CheckoutState>()(
       contactName: "",
       contactEmail: "",
       address: EMPTY_ADDRESS,
-      shippingMethod: "standard",
+      shippingMethod: "express",
       pendingOrderId: null,
       pendingItems: [],
 
@@ -56,7 +56,7 @@ export const useCheckoutStore = create<CheckoutState>()(
           contactName: "",
           contactEmail: "",
           address: EMPTY_ADDRESS,
-          shippingMethod: "standard",
+          shippingMethod: "express",
           pendingOrderId: null,
           pendingItems: [],
         }),

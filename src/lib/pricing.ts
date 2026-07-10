@@ -28,7 +28,7 @@ export function quantityLineTotal(basePrice: number, quantity: number): number {
 }
 
 export interface ShippingMethod {
-  id: "standard" | "express";
+  id: "express";
   label: string;
   eta: string;
   price: number;
@@ -37,17 +37,10 @@ export interface ShippingMethod {
 
 export const SHIPPING_METHODS: ShippingMethod[] = [
   {
-    id: "standard",
-    label: "Standard",
-    eta: "2–4 zile lucrătoare",
-    price: 25,
-    freeOverThreshold: 300,
-  },
-  {
     id: "express",
-    label: "Expres",
+    label: "Curierat rapid",
     eta: "1–2 zile lucrătoare",
-    price: 45,
+    price: 20,
   },
 ];
 
