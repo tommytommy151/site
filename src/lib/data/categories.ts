@@ -68,6 +68,15 @@ export const categories: Category[] = [
     parentId: "cat-articole-pentru-casa",
   },
   {
+    id: "cat-gradina",
+    name: "Grădină",
+    slug: "gradina",
+    image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=900&h=1100&fit=crop&q=80",
+    productCount: 0,
+    description: "Unelte și accesorii pentru grădină.",
+    parentId: "cat-articole-pentru-casa",
+  },
+  {
     id: "cat-produse-hot",
     name: "Produse Hot",
     slug: "produse-hot",
