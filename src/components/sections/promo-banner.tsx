@@ -1,12 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Flame, Percent, Tag } from "lucide-react";
+import { Flame, Percent, Tag } from "lucide-react";
 import { Container } from "@/components/layout/container";
 import { Reveal } from "@/components/motion/reveal";
-import { Button } from "@/components/ui/button";
-import { Countdown } from "@/components/sections/countdown";
 
 const FLOATING_TAGS = [
   { icon: Percent, label: "-70%", className: "top-6 left-[8%] rotate-[-8deg]" },
@@ -58,19 +55,6 @@ export function PromoBanner() {
             reînnoiesc constant — nu le rata.
           </p>
 
-          <div className="flex flex-col items-center gap-4 sm:flex-row">
-            <Countdown hoursFromNow={30} />
-            <Button
-              size="lg"
-              className="h-12 rounded-full bg-white px-7 text-[15px] text-brand-navy hover:bg-white/90"
-              asChild
-            >
-              <Link href="/deals">
-                Vezi ofertele Black Friday
-                <ArrowRight className="size-4" />
-              </Link>
-            </Button>
-          </div>
         </Reveal>
       </Container>
     </section>
