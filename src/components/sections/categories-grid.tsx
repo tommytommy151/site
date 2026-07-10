@@ -14,11 +14,7 @@ export function CategoriesGrid() {
   return (
     <section className="py-14 sm:py-16">
       <Container>
-        <SectionHeading
-          eyebrow="Explorează"
-          title="Cumpără pe categorii"
-          description="Fiecare categorie, selectată manual, nu generată automat."
-        />
+        <SectionHeading title="Explorează și categoriile" />
         <RevealGroup className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
           {categories.map((cat) => (
             <RevealItem key={cat.id}>

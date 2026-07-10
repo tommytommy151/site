@@ -4,7 +4,6 @@ import { Hero } from "@/components/sections/hero";
 import { HomeSections } from "@/components/sections/home-sections";
 import { PromoBanner } from "@/components/sections/promo-banner";
 import { TodaysOffers } from "@/components/sections/todays-offers";
-import { FeaturedCollections } from "@/components/sections/featured-collections";
 import { ProductRail } from "@/components/sections/product-rail";
 import { CategoriesGrid } from "@/components/sections/categories-grid";
 import { FlashDeals } from "@/components/sections/flash-deals";
@@ -28,7 +27,6 @@ export default function Home() {
         sections={{
           "promo-banner": <PromoBanner />,
           "todays-offers": <TodaysOffers />,
-          "featured-collections": <FeaturedCollections />,
           "popular-rail": (
             <ProductRail
               eyebrow="Popular acum"
