@@ -7,7 +7,6 @@ import { Heart, Menu, Scale, Search, ShoppingBag, User } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SiteLogo } from "@/components/site-logo";
 import { SearchDialog } from "@/components/layout/search-dialog";
-import { MegaMenu } from "@/components/layout/mega-menu";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { useCartStore } from "@/lib/store/cart-store";
 import { useWishlistStore } from "@/lib/store/wishlist-store";
@@ -20,8 +19,6 @@ interface NavLink {
   href: string;
   megaMenu?: boolean;
 }
-
-const CATEGORIES_LINK: NavLink = { label: "Categorii", href: "#", megaMenu: true };
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -42,7 +39,6 @@ export function Header() {
 
   const headerPages = mounted ? pages.filter((p) => p.showInHeader) : [];
   const navLinks: NavLink[] = [
-    CATEGORIES_LINK,
     ...menu,
     ...headerPages.map((p) => ({ label: p.title, href: `/pages/${p.slug}` })),
   ];
@@ -88,19 +84,15 @@ export function Header() {
           <SiteLogo />
 
           <nav className="ml-4 hidden items-center gap-1 lg:flex">
-            {navLinks.map((link) =>
-              link.megaMenu ? (
-                <MegaMenu key={link.label} label={link.label} />
-              ) : (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  className="rounded-full px-3.5 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted hover:text-foreground"
-                >
-                  {link.label}
-                </Link>
-              ),
-            )}
+            {navLinks.map((link) => (
+              <Link
+                key={link.label}
+                href={link.href}
+                className="rounded-full px-3.5 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted hover:text-foreground"
+              >
+                {link.label}
+              </Link>
+            ))}
           </nav>
 
           <button
