@@ -44,16 +44,31 @@ export function MobileNav({
           <p className="mt-4 mb-1 px-3 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
             Categorii
           </p>
-          {categories.map((cat) => (
-            <Link
-              key={cat.id}
-              href={`/categories/${cat.slug}`}
-              onClick={() => onOpenChange(false)}
-              className="rounded-lg px-3 py-2.5 text-[15px] text-foreground hover:bg-muted"
-            >
-              {cat.name}
-            </Link>
-          ))}
+          {categories
+            .filter((cat) => !cat.parentId)
+            .map((cat) => (
+              <div key={cat.id} className="flex flex-col">
+                <Link
+                  href={`/categories/${cat.slug}`}
+                  onClick={() => onOpenChange(false)}
+                  className="rounded-lg px-3 py-2.5 text-[15px] text-foreground hover:bg-muted"
+                >
+                  {cat.name}
+                </Link>
+                {categories
+                  .filter((child) => child.parentId === cat.id)
+                  .map((child) => (
+                    <Link
+                      key={child.id}
+                      href={`/categories/${child.slug}`}
+                      onClick={() => onOpenChange(false)}
+                      className="rounded-lg px-3 py-2 pl-7 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+                    >
+                      {child.name}
+                    </Link>
+                  ))}
+              </div>
+            ))}
 
           <div className="mt-4 flex flex-col gap-1 border-t border-border pt-4">
             <Link

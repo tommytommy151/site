@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 export function MegaMenu({ label }: { label: string }) {
   const categories = useCatalogStore((s) => s.categories);
+  const topLevel = categories.filter((c) => !c.parentId);
   const [open, setOpen] = useState(false);
 
   return (
@@ -38,27 +39,47 @@ export function MegaMenu({ label }: { label: string }) {
             className="absolute top-full left-1/2 z-50 w-[680px] -translate-x-1/2 pt-3"
           >
             <div className="glass grid grid-cols-3 gap-1 rounded-2xl p-3 shadow-xl">
-              {categories.map((cat) => (
-                <Link
-                  key={cat.id}
-                  href={`/categories/${cat.slug}`}
-                  className="group flex flex-col gap-2 rounded-xl p-2 transition-colors hover:bg-muted/70"
-                >
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-muted">
-                    <Image
-                      src={cat.image}
-                      alt={cat.name}
-                      fill
-                      sizes="220px"
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
+              {topLevel.map((cat) => {
+                const children = categories.filter((c) => c.parentId === cat.id);
+                return (
+                  <div key={cat.id} className="flex flex-col gap-2 rounded-xl p-2">
+                    <Link
+                      href={`/categories/${cat.slug}`}
+                      className="group flex flex-col gap-2"
+                      onClick={() => setOpen(false)}
+                    >
+                      <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-muted">
+                        <Image
+                          src={cat.image}
+                          alt={cat.name}
+                          fill
+                          sizes="220px"
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{cat.name}</p>
+                        <p className="text-xs text-muted-foreground">{cat.productCount} produse</p>
+                      </div>
+                    </Link>
+                    {children.length > 0 && (
+                      <ul className="flex flex-col gap-0.5 border-t border-border/60 pt-1.5">
+                        {children.map((child) => (
+                          <li key={child.id}>
+                            <Link
+                              href={`/categories/${child.slug}`}
+                              onClick={() => setOpen(false)}
+                              className="block rounded-md px-1.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground"
+                            >
+                              {child.name}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{cat.name}</p>
-                    <p className="text-xs text-muted-foreground">{cat.productCount} produse</p>
-                  </div>
-                </Link>
-              ))}
+                );
+              })}
             </div>
           </motion.div>
         )}

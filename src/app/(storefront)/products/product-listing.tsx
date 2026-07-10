@@ -89,9 +89,13 @@ export function ProductListing({ initialCategorySlug }: { initialCategorySlug?: 
   const initialSort = (searchParams.get("sort") as SortKey) || "featured";
   const initialCategory = initialCategorySlug ?? searchParams.get("category");
 
-  const [filters, setFilters] = useState<Filters>({
-    ...DEFAULT_FILTERS,
-    categories: initialCategory ? [initialCategory] : [],
+  const [filters, setFilters] = useState<Filters>(() => {
+    if (!initialCategory) return DEFAULT_FILTERS;
+    const match = categories.find((c) => c.slug === initialCategory);
+    const childSlugs = match
+      ? categories.filter((c) => c.parentId === match.id).map((c) => c.slug)
+      : [];
+    return { ...DEFAULT_FILTERS, categories: [initialCategory, ...childSlugs] };
   });
   const [sort, setSort] = useState<SortKey>(initialSort);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);

@@ -63,6 +63,7 @@ export interface Category {
   image: string;
   productCount: number;
   description: string;
+  parentId?: string | null;
 }
 
 export interface Brand {

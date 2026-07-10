@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useCatalogStore, slugify } from "@/lib/store/catalog-store";
@@ -16,6 +16,13 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type FormState = Omit<Category, "id">;
 
@@ -25,7 +32,10 @@ const EMPTY_FORM: FormState = {
   image: "",
   productCount: 0,
   description: "",
+  parentId: null,
 };
+
+const NO_PARENT = "none";
 
 export default function AdminCategoriesPage() {
   const categories = useCatalogStore((s) => s.categories);
@@ -53,6 +63,7 @@ export default function AdminCategoriesPage() {
       image: cat.image,
       productCount: cat.productCount,
       description: cat.description,
+      parentId: cat.parentId ?? null,
     });
     setSlugEdited(true);
     setOpen(true);
@@ -73,6 +84,56 @@ export default function AdminCategoriesPage() {
     }
     setOpen(false);
   }
+
+  // A category can't be its own parent, and can't be moved under one of its
+  // own descendants (would create a cycle in the tree).
+  function descendantIds(id: string): Set<string> {
+    const ids = new Set<string>();
+    const stack = [id];
+    while (stack.length) {
+      const current = stack.pop()!;
+      for (const cat of categories) {
+        if (cat.parentId === current && !ids.has(cat.id)) {
+          ids.add(cat.id);
+          stack.push(cat.id);
+        }
+      }
+    }
+    return ids;
+  }
+
+  const parentOptions = editingId
+    ? categories.filter((c) => c.id !== editingId && !descendantIds(editingId).has(c.id))
+    : categories;
+
+  function categoryDepth(cat: Category): number {
+    let depth = 0;
+    let current = cat;
+    while (current.parentId) {
+      const parent = categories.find((c) => c.id === current.parentId);
+      if (!parent) break;
+      depth += 1;
+      current = parent;
+    }
+    return depth;
+  }
+
+  const sortedCategories = useMemo(() => {
+    const byParent = new Map<string | null, Category[]>();
+    for (const cat of categories) {
+      const key = cat.parentId ?? null;
+      byParent.set(key, [...(byParent.get(key) ?? []), cat]);
+    }
+    const result: Category[] = [];
+    function visit(parentId: string | null) {
+      for (const cat of byParent.get(parentId) ?? []) {
+        result.push(cat);
+        visit(cat.id);
+      }
+    }
+    visit(null);
+    return result;
+  }, [categories]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -95,15 +156,21 @@ export default function AdminCategoriesPage() {
           <thead>
             <tr className="border-b border-border text-left text-xs text-muted-foreground uppercase">
               <th className="p-4 font-medium">Categorie</th>
+              <th className="p-4 font-medium">Categorie părinte</th>
               <th className="p-4 font-medium">URL</th>
               <th className="p-4 font-medium">Produse</th>
               <th className="p-4 text-right font-medium">Acțiuni</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {categories.map((cat) => (
+            {sortedCategories.map((cat) => (
               <tr key={cat.id}>
                 <td className="flex items-center gap-3 p-4">
+                  <div
+                    className="shrink-0"
+                    style={{ width: categoryDepth(cat) * 24 }}
+                    aria-hidden
+                  />
                   <div className="relative size-11 shrink-0 overflow-hidden rounded-lg bg-muted">
                     <Image src={cat.image} alt={cat.name} fill className="object-cover" unoptimized />
                   </div>
@@ -111,6 +178,11 @@ export default function AdminCategoriesPage() {
                     <p className="truncate font-medium text-foreground">{cat.name}</p>
                     <p className="truncate text-xs text-muted-foreground">{cat.description}</p>
                   </div>
+                </td>
+                <td className="p-4 text-muted-foreground">
+                  {cat.parentId
+                    ? categories.find((c) => c.id === cat.parentId)?.name ?? "—"
+                    : "—"}
                 </td>
                 <td className="p-4 font-mono text-xs text-muted-foreground">
                   /categories/{cat.slug}
@@ -177,6 +249,31 @@ export default function AdminCategoriesPage() {
                   required
                 />
               </div>
+            </div>
+            <div>
+              <Label className="mb-1.5">Categorie părinte</Label>
+              <Select
+                value={form.parentId ?? NO_PARENT}
+                onValueChange={(value) =>
+                  setForm((f) => ({ ...f, parentId: value === NO_PARENT ? null : value }))
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Fără categorie părinte" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_PARENT}>Fără categorie părinte (categorie principală)</SelectItem>
+                  {parentOptions.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Alege o categorie părinte pentru a face din aceasta o subcategorie, vizibilă în
+                meniu sub categoria principală.
+              </p>
             </div>
             <div>
               <Label htmlFor="cat-description" className="mb-1.5">
