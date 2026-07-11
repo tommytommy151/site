@@ -181,6 +181,9 @@ export default function AdminDashboardPage() {
                   <p className="truncate text-sm text-foreground">{product.name}</p>
                   <p className="text-xs text-muted-foreground">{product.stock} bucăți rămase</p>
                 </div>
+                <p className="shrink-0 text-sm font-medium text-foreground">
+                  {formatPrice(product.price)}
+                </p>
               </div>
             ))}
           </div>
@@ -229,12 +232,20 @@ export default function AdminDashboardPage() {
           </div>
           {analytics && analytics.topProducts.length > 0 ? (
             <div className="flex flex-col divide-y divide-border">
-              {analytics.topProducts.map((p) => (
-                <div key={p.productId} className="flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0">
-                  <span className="truncate text-sm text-foreground/85">{p.name}</span>
-                  <span className="shrink-0 text-sm font-medium text-foreground">{p.count}</span>
-                </div>
-              ))}
+              {analytics.topProducts.map((p) => {
+                const match = products.find((prod) => prod.id === p.productId);
+                return (
+                  <div key={p.productId} className="flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm text-foreground/85">{p.name}</p>
+                      {match && (
+                        <p className="text-xs text-muted-foreground">{formatPrice(match.price)}</p>
+                      )}
+                    </div>
+                    <span className="shrink-0 text-sm font-medium text-foreground">{p.count}</span>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">Încă nu sunt date.</p>
