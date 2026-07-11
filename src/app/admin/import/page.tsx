@@ -5,11 +5,13 @@ import Image from "next/image";
 import { AlertCircle, Check, Loader2, Upload } from "lucide-react";
 import { useProductStore } from "@/lib/store/product-store";
 import { useCatalogStore, slugify } from "@/lib/store/catalog-store";
+import type { ProductBadge } from "@/types/product";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { TagInput } from "@/components/admin/tag-input";
 import {
   Select,
   SelectContent,
@@ -17,6 +19,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+const BADGE_LABELS: Record<ProductBadge, string> = {
+  new: "Nou",
+  bestseller: "Cel mai vândut",
+  "flash-deal": "Reducere",
+  "sold-out": "Stoc epuizat",
+  limited: "Ediție limitată",
+};
 
 interface ParsedRow {
   name: string;
@@ -69,6 +79,10 @@ interface BatchItem {
   error: string | null;
   price: number;
   stock: number;
+  brandSlug: string;
+  categorySlug: string;
+  badges: ProductBadge[];
+  tags: string[];
   include: boolean;
 }
 
@@ -119,6 +133,10 @@ function UrlImportSection() {
         error: null,
         price: 0,
         stock: 20,
+        brandSlug: "",
+        categorySlug: "",
+        badges: ["new"],
+        tags: [],
         include: true,
       })),
     );
@@ -137,7 +155,12 @@ function UrlImportSection() {
           return;
         }
         const scraped = data as ScrapedProduct;
-        updateItem(url, { status: "done", data: scraped, price: scraped.price ?? 0 });
+        updateItem(url, {
+          status: "done",
+          data: scraped,
+          price: scraped.price ?? 0,
+          tags: scraped.tags,
+        });
       } catch {
         updateItem(url, { status: "error", error: "Nu am putut accesa adresa URL." });
       }
@@ -146,12 +169,31 @@ function UrlImportSection() {
     setFetching(false);
   }
 
+  function applyDefaultsToAll() {
+    setBatch((prev) => prev.map((it) => ({ ...it, brandSlug, categorySlug })));
+  }
+
+  function toggleItemBadge(url: string, badge: ProductBadge) {
+    setBatch((prev) =>
+      prev.map((it) =>
+        it.url === url
+          ? {
+              ...it,
+              badges: it.badges.includes(badge)
+                ? it.badges.filter((b) => b !== badge)
+                : [...it.badges, badge],
+            }
+          : it,
+      ),
+    );
+  }
+
   function handleAddAll() {
-    const brand = brands.find((b) => b.slug === brandSlug);
-    const category = categories.find((c) => c.slug === categorySlug);
     let count = 0;
     for (const item of batch) {
       if (!item.include || item.status !== "done" || !item.data) continue;
+      const brand = brands.find((b) => b.slug === item.brandSlug);
+      const category = categories.find((c) => c.slug === item.categorySlug);
       addProduct({
         name: item.data.name,
         slug: slugify(item.data.name),
@@ -164,8 +206,8 @@ function UrlImportSection() {
         image: item.data.images[0] ?? "",
         images: item.data.images,
         description: item.data.description,
-        badges: ["new"],
-        tags: item.data.tags,
+        badges: item.badges,
+        tags: item.tags,
       });
       count++;
     }
@@ -206,9 +248,9 @@ function UrlImportSection() {
 
       {batch.length > 0 && (
         <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-4">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div>
-              <Label className="mb-1.5">Brand (aplicat tuturor produselor)</Label>
+          <div className="flex flex-col gap-3 rounded-xl border border-dashed border-border p-3 sm:flex-row sm:items-end">
+            <div className="flex-1">
+              <Label className="mb-1.5">Brand implicit</Label>
               <Select value={brandSlug} onValueChange={setBrandSlug}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Alege brand" />
@@ -222,8 +264,8 @@ function UrlImportSection() {
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label className="mb-1.5">Categorie (aplicată tuturor produselor)</Label>
+            <div className="flex-1">
+              <Label className="mb-1.5">Categorie implicită</Label>
               <Select value={categorySlug} onValueChange={setCategorySlug}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Alege categoria" />
@@ -237,85 +279,161 @@ function UrlImportSection() {
                 </SelectContent>
               </Select>
             </div>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={applyDefaultsToAll}
+              disabled={!brandSlug && !categorySlug}
+            >
+              Aplică tuturor
+            </Button>
           </div>
 
           <div className="flex flex-col divide-y divide-border">
             {batch.map((item) => (
-              <div key={item.url} className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row">
-                <div className="relative size-16 shrink-0 overflow-hidden rounded-lg bg-muted">
-                  {item.data?.images[0] ? (
-                    <Image
-                      src={item.data.images[0]}
-                      alt={item.data.name}
-                      fill
-                      sizes="64px"
-                      className="object-cover"
-                      unoptimized
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center">
-                      {item.status === "loading" || item.status === "pending" ? (
-                        <Loader2 className="size-4 animate-spin text-muted-foreground" />
-                      ) : (
-                        <AlertCircle className="size-4 text-muted-foreground" />
-                      )}
+              <div key={item.url} className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0">
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <div className="relative size-16 shrink-0 overflow-hidden rounded-lg bg-muted">
+                    {item.data?.images[0] ? (
+                      <Image
+                        src={item.data.images[0]}
+                        alt={item.data.name}
+                        fill
+                        sizes="64px"
+                        className="object-cover"
+                        unoptimized
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center">
+                        {item.status === "loading" || item.status === "pending" ? (
+                          <Loader2 className="size-4 animate-spin text-muted-foreground" />
+                        ) : (
+                          <AlertCircle className="size-4 text-muted-foreground" />
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex min-w-0 flex-1 flex-col gap-1">
+                    <p className="truncate text-sm font-medium text-foreground">
+                      {item.data?.name ?? item.url}
+                    </p>
+                    {item.status === "loading" && (
+                      <p className="text-xs text-muted-foreground">Se preiau datele...</p>
+                    )}
+                    {item.status === "error" && (
+                      <p className="text-xs text-destructive">{item.error}</p>
+                    )}
+                    {item.status === "done" && item.data && (
+                      <p className="text-xs text-muted-foreground">
+                        {item.data.images.length}{" "}
+                        {item.data.images.length === 1 ? "imagine" : "imagini"}
+                      </p>
+                    )}
+                  </div>
+
+                  {item.status === "done" && (
+                    <div className="flex shrink-0 items-start gap-2">
+                      <label className="flex items-center gap-1.5">
+                        <span className="text-xs text-muted-foreground">Preț</span>
+                        <Input
+                          type="number"
+                          min={0}
+                          value={item.price}
+                          onChange={(e) =>
+                            updateItem(item.url, { price: Number(e.target.value) || 0 })
+                          }
+                          className="h-8 w-24"
+                        />
+                      </label>
+                      <label className="flex items-center gap-1.5">
+                        <span className="text-xs text-muted-foreground">Stoc</span>
+                        <Input
+                          type="number"
+                          min={0}
+                          value={item.stock}
+                          onChange={(e) =>
+                            updateItem(item.url, { stock: Number(e.target.value) || 0 })
+                          }
+                          className="h-8 w-20"
+                        />
+                      </label>
+                      <Checkbox
+                        checked={item.include}
+                        onCheckedChange={(v) => updateItem(item.url, { include: Boolean(v) })}
+                      />
                     </div>
                   )}
-                </div>
-
-                <div className="flex flex-1 flex-col gap-1 min-w-0">
-                  <p className="truncate text-sm font-medium text-foreground">
-                    {item.data?.name ?? item.url}
-                  </p>
                   {item.status === "loading" && (
-                    <p className="text-xs text-muted-foreground">Se preiau datele...</p>
-                  )}
-                  {item.status === "error" && (
-                    <p className="text-xs text-destructive">{item.error}</p>
-                  )}
-                  {item.status === "done" && item.data && (
-                    <p className="text-xs text-muted-foreground">
-                      {item.data.images.length}{" "}
-                      {item.data.images.length === 1 ? "imagine" : "imagini"}
-                      {item.data.tags.length > 0 && ` · ${item.data.tags.length} etichete`}
-                    </p>
+                    <Loader2 className="size-4 shrink-0 animate-spin self-center text-muted-foreground" />
                   )}
                 </div>
 
-                {item.status === "done" && (
-                  <div className="flex shrink-0 items-center gap-2">
-                    <label className="flex items-center gap-1.5">
-                      <span className="text-xs text-muted-foreground">Preț</span>
-                      <Input
-                        type="number"
-                        min={0}
-                        value={item.price}
-                        onChange={(e) =>
-                          updateItem(item.url, { price: Number(e.target.value) || 0 })
-                        }
-                        className="h-8 w-24"
+                {item.status === "done" && item.data && (
+                  <div className="flex flex-col gap-3 rounded-xl bg-muted/40 p-3 sm:pl-[76px]">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      <div>
+                        <Label className="mb-1.5 text-xs">Brand</Label>
+                        <Select
+                          value={item.brandSlug}
+                          onValueChange={(v) => updateItem(item.url, { brandSlug: v })}
+                        >
+                          <SelectTrigger className="h-8 w-full text-xs">
+                            <SelectValue placeholder="Alege brand" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {brands.map((brand) => (
+                              <SelectItem key={brand.id} value={brand.slug}>
+                                {brand.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label className="mb-1.5 text-xs">Categorie</Label>
+                        <Select
+                          value={item.categorySlug}
+                          onValueChange={(v) => updateItem(item.url, { categorySlug: v })}
+                        >
+                          <SelectTrigger className="h-8 w-full text-xs">
+                            <SelectValue placeholder="Alege categoria" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categories.map((category) => (
+                              <SelectItem key={category.id} value={category.slug}>
+                                {category.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="mb-1.5 text-xs">Repere</Label>
+                      <div className="flex flex-wrap gap-x-4 gap-y-1.5">
+                        {(Object.keys(BADGE_LABELS) as ProductBadge[]).map((badge) => (
+                          <label key={badge} className="flex items-center gap-1.5 text-xs">
+                            <Checkbox
+                              checked={item.badges.includes(badge)}
+                              onCheckedChange={() => toggleItemBadge(item.url, badge)}
+                            />
+                            <span className="text-foreground/85">{BADGE_LABELS[badge]}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="mb-1.5 text-xs">Etichete</Label>
+                      <TagInput
+                        value={item.tags}
+                        onChange={(tags) => updateItem(item.url, { tags })}
+                        placeholder="Scrie o etichetă și apasă Enter"
                       />
-                    </label>
-                    <label className="flex items-center gap-1.5">
-                      <span className="text-xs text-muted-foreground">Stoc</span>
-                      <Input
-                        type="number"
-                        min={0}
-                        value={item.stock}
-                        onChange={(e) =>
-                          updateItem(item.url, { stock: Number(e.target.value) || 0 })
-                        }
-                        className="h-8 w-20"
-                      />
-                    </label>
-                    <Checkbox
-                      checked={item.include}
-                      onCheckedChange={(v) => updateItem(item.url, { include: Boolean(v) })}
-                    />
+                    </div>
                   </div>
-                )}
-                {item.status === "loading" && (
-                  <Loader2 className="size-4 shrink-0 animate-spin self-center text-muted-foreground" />
                 )}
               </div>
             ))}
