@@ -174,6 +174,7 @@ export default function AdminProductsPage() {
                   <div className="flex items-center justify-end gap-1">
                     <Link
                       href={`/admin/products/${product.id}`}
+                      target="_blank"
                       aria-label="Editează"
                       className="flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
                     >
