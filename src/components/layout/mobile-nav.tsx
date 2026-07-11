@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useCatalogStore } from "@/lib/store/catalog-store";
@@ -51,8 +52,13 @@ export function MobileNav({
                 <Link
                   href={`/categories/${cat.slug}`}
                   onClick={() => onOpenChange(false)}
-                  className="rounded-lg px-3 py-2.5 text-[15px] text-foreground hover:bg-muted"
+                  className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-[15px] text-foreground hover:bg-muted"
                 >
+                  <span className="relative size-4 shrink-0 overflow-hidden rounded-full bg-muted">
+                    {cat.image && (
+                      <Image src={cat.image} alt="" fill sizes="16px" className="object-cover" unoptimized />
+                    )}
+                  </span>
                   {cat.name}
                 </Link>
                 {categories
@@ -62,8 +68,20 @@ export function MobileNav({
                       key={child.id}
                       href={`/categories/${child.slug}`}
                       onClick={() => onOpenChange(false)}
-                      className="rounded-lg px-3 py-2 pl-7 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+                      className="flex items-center gap-2 rounded-lg px-3 py-2 pl-7 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
                     >
+                      <span className="relative size-3.5 shrink-0 overflow-hidden rounded-full bg-muted">
+                        {child.image && (
+                          <Image
+                            src={child.image}
+                            alt=""
+                            fill
+                            sizes="14px"
+                            className="object-cover"
+                            unoptimized
+                          />
+                        )}
+                      </span>
                       {child.name}
                     </Link>
                   ))}

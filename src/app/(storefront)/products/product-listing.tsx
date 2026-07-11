@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { SlidersHorizontal } from "lucide-react";
@@ -146,6 +147,11 @@ export function ProductListing({ initialCategorySlug }: { initialCategorySlug?: 
                 checked={filters.categories.includes(cat.slug)}
                 onCheckedChange={() => toggleArrayFilter("categories", cat.slug)}
               />
+              <span className="relative size-4 shrink-0 overflow-hidden rounded-full bg-muted">
+                {cat.image && (
+                  <Image src={cat.image} alt="" fill sizes="16px" className="object-cover" unoptimized />
+                )}
+              </span>
               <span className="text-foreground/85">{cat.name}</span>
               <span className="ml-auto text-xs text-muted-foreground">{cat.productCount}</span>
             </label>
