@@ -29,3 +29,13 @@ export async function getCustomProduct(slug: string): Promise<Product | null> {
   if (!value) return null;
   return typeof value === "string" ? JSON.parse(value) : (value as Product);
 }
+
+export async function getAllCustomProducts(): Promise<Product[]> {
+  const redis = getRedis();
+  if (!redis) return [];
+  const all = await redis.hgetall<Record<string, string>>(PRODUCTS_KEY);
+  if (!all) return [];
+  return Object.values(all).map((value) =>
+    typeof value === "string" ? JSON.parse(value) : (value as Product),
+  );
+}

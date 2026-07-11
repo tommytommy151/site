@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { ThemeApplier } from "@/components/theme-applier";
 import { CookieConsent } from "@/components/cookie-consent";
+import { ProductStoreHydrator } from "@/components/product-store-hydrator";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -55,6 +56,7 @@ export default function RootLayout({
       >
         <Providers>
           <ThemeApplier />
+          <ProductStoreHydrator />
           {children}
           <CookieConsent />
         </Providers>

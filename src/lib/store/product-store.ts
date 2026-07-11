@@ -84,12 +84,31 @@ interface ProductState {
   updateProduct: (id: string, input: ProductFormInput) => void;
   patchProduct: (id: string, patch: Partial<Pick<Product, "name" | "description">>) => void;
   deleteProduct: (id: string) => void;
+  mergeCustomProducts: (products: Product[]) => void;
+}
+
+const OLD_STORAGE_KEY = "estelaoferta-products";
+const STORAGE_KEY = "estelaoferta-products-v2";
+
+// One-time migration: the persist key was renamed to force a reseed from
+// updated seed data, which orphaned any browser-only products (e.g. from
+// admin imports) still sitting under the old key. Carry them forward.
+if (typeof window !== "undefined" && !localStorage.getItem(STORAGE_KEY)) {
+  const old = localStorage.getItem(OLD_STORAGE_KEY);
+  if (old) localStorage.setItem(STORAGE_KEY, old);
 }
 
 export const useProductStore = create<ProductState>()(
   persist(
     (set) => ({
       products: DEFAULT_PRODUCTS,
+
+      mergeCustomProducts: (incoming) =>
+        set((state) => {
+          const existingSlugs = new Set(state.products.map((p) => p.slug));
+          const toAdd = incoming.filter((p) => !existingSlugs.has(p.slug));
+          return toAdd.length ? { products: [...toAdd, ...state.products] } : {};
+        }),
 
       addProduct: (input) =>
         set((state) => {
@@ -132,6 +151,6 @@ export const useProductStore = create<ProductState>()(
           return { products: state.products.filter((p) => p.id !== id) };
         }),
     }),
-    { name: "estelaoferta-products-v2" },
+    { name: STORAGE_KEY },
   ),
 );
