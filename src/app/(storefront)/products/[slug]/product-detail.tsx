@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { VariantSelector } from "@/components/product/variant-selector";
 import { ProductTabs } from "@/components/product/product-tabs";
+import { FrequentlyBoughtTogether } from "@/components/product/frequently-bought-together";
 import { ProductRail } from "@/components/sections/product-rail";
 import { TrackRecentlyViewed } from "@/components/product/track-recently-viewed";
 import { useProductStore } from "@/lib/store/product-store";
@@ -106,6 +107,12 @@ export function ProductDetail({ slug }: { slug: string }) {
           <ProductGallery images={product.images} name={product.name} />
           <VariantSelector product={product} />
         </div>
+
+        {related.length > 0 && (
+          <div className="mt-10">
+            <FrequentlyBoughtTogether product={product} related={related.slice(0, 2)} />
+          </div>
+        )}
 
         <ProductTabs product={product} />
       </Container>
