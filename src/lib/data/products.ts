@@ -46,7 +46,7 @@ const SEEDS: Seed[] = [
     category: "Electrocasnice", categorySlug: "electrocasnice",
     tagline: "9 accesorii, un singur motor de 900W care le face pe toate.",
     description:
-      "MultiChef 900 înlocuiește o bucătărie întreagă de gadgeturi cu un singur robot: bol de inox de 5L, tel, cârlig de frământat și disc de tocat, toate acționate de un motor de 900W cu 8 viteze. Bolul și accesoriile merg direct la mașina de spălat vase.",
+      "Robot de Bucătărie MultiChef 900 de la Kessel este alegerea potrivită dacă cauți electrocasnice de calitate. MultiChef 900 înlocuiește o bucătărie întreagă de gadgeturi cu un singur robot: bol de inox de 5L, tel, cârlig de frământat și disc de tocat, toate acționate de un motor de 900W cu 8 viteze. Bolul și accesoriile merg direct la mașina de spălat vase. Disponibil acum în categoria Electrocasnice de pe EstelaOferta, cu livrare rapidă.",
     price: 899, compareAtPrice: 1299,
     colors: ["black", "white"],
     rating: 4.7, reviewCount: 268,
@@ -61,7 +61,7 @@ const SEEDS: Seed[] = [
     category: "Electrocasnice", categorySlug: "electrocasnice",
     tagline: "Cartografiere laser și golire automată a rezervorului.",
     description:
-      "NavClean X2 mapează fiecare cameră cu laser LiDAR, evită obstacolele în timp real și revine singur la stația de andocare pentru a-și goli rezervorul de praf. Aspirare și mopping în aceeași trecere.",
+      "Dacă vrei electrocasnice fiabile, Aspirator Robot NavClean X2 semnat Vantage merită atenția ta. NavClean X2 mapează fiecare cameră cu laser LiDAR, evită obstacolele în timp real și revine singur la stația de andocare pentru a-și goli rezervorul de praf. Aspirare și mopping în aceeași trecere. Comandă Aspirator Robot NavClean X2 online și beneficiezi de livrare rapidă și garanție.",
     price: 1799, compareAtPrice: 2399,
     colors: ["black", "white"],
     rating: 4.6, reviewCount: 194,
@@ -76,7 +76,7 @@ const SEEDS: Seed[] = [
     category: "Electrocasnice", categorySlug: "electrocasnice",
     tagline: "Boabe proaspăt măcinate, espresso de nivel de cafenea acasă.",
     description:
-      "BrewMaster Pro macină boabele la fiecare preparare, controlează presiunea la 15 bar și spumează laptele automat pentru cappuccino sau latte cu un singur buton.",
+      "Espressor Automat BrewMaster Pro aduce în categoria electrocasnice un nivel nou de calitate, direct de la Auric. BrewMaster Pro macină boabele la fiecare preparare, controlează presiunea la 15 bar și spumează laptele automat pentru cappuccino sau latte cu un singur buton. O alegere de top pentru oricine caută produse din categoria Electrocasnice la EstelaOferta.",
     price: 2199,
     colors: ["black", "stone"],
     rating: 4.8, reviewCount: 121,
@@ -91,7 +91,7 @@ const SEEDS: Seed[] = [
     category: "Electrocasnice", categorySlug: "electrocasnice",
     tagline: "Crocant fără ulei, capacitate pentru toată familia.",
     description:
-      "AirCrisp 5L folosește circulație rapidă de aer cald pentru rezultate crocante cu până la 90% mai puțin ulei. Capacitatea de 5L acoperă mese pentru 4-6 persoane, iar coșul antiaderent se spală ușor.",
+      "Produs Norr, Friteuză cu Aer Cald AirCrisp 5L este gândit pentru cei care nu fac compromisuri la electrocasnice. AirCrisp 5L folosește circulație rapidă de aer cald pentru rezultate crocante cu până la 90% mai puțin ulei. Capacitatea de 5L acoperă mese pentru 4-6 persoane, iar coșul antiaderent se spală ușor. Perfect pentru cei care vor electrocasnice de încredere, la preț corect.",
     price: 549, compareAtPrice: 699,
     colors: ["black", "white"],
     rating: 4.7, reviewCount: 356,
@@ -106,7 +106,7 @@ const SEEDS: Seed[] = [
     category: "Electrocasnice", categorySlug: "electrocasnice",
     tagline: "Design retro, 6 nivele de rumenire și fantă extra-lată.",
     description:
-      "Un prăjitor de pâine cu carcasă metalică retro, fantă extra-lată pentru felii groase și 6 nivele de rumenire reglabile, cu funcții dedicate pentru dezghețare și reîncălzire.",
+      "Prăjitor de Pâine Retro Toast de la Loam redefinește standardul pentru electrocasnice. Un prăjitor de pâine cu carcasă metalică retro, fantă extra-lată pentru felii groase și 6 nivele de rumenire reglabile, cu funcții dedicate pentru dezghețare și reîncălzire. Descoperă Prăjitor de Pâine Retro Toast și restul gamei Electrocasnice pe EstelaOferta.",
     price: 279,
     colors: ["cognac", "black", "white"],
     rating: 4.5, reviewCount: 143,
@@ -121,7 +121,7 @@ const SEEDS: Seed[] = [
     category: "Electrocasnice", categorySlug: "electrocasnice",
     tagline: "700W într-un corp ușor, cu 5 viteze și pulse.",
     description:
-      "PowerBlend 700 combină putere de 700W cu un corp ergonomic ușor, 5 viteze plus funcție pulse și tele/cârlige din inox detașabile pentru curățare rapidă.",
+      "Mixer de Mână PowerBlend 700 de la Halcyon este alegerea potrivită dacă cauți electrocasnice de calitate. PowerBlend 700 combină putere de 700W cu un corp ergonomic ușor, 5 viteze plus funcție pulse și tele/cârlige din inox detașabile pentru curățare rapidă. Disponibil acum în categoria Electrocasnice de pe EstelaOferta, cu livrare rapidă.",
     price: 199, compareAtPrice: 249,
     colors: ["black", "white", "sand"],
     rating: 4.6, reviewCount: 227,
@@ -136,7 +136,7 @@ const SEEDS: Seed[] = [
     category: "Electrocasnice", categorySlug: "electrocasnice",
     tagline: "Presiune de 6 bar și jet de abur continuu de 120g/min.",
     description:
-      "SteamPress Pro livrează un jet de abur continuu de 120g/min la o presiune de 6 bar, cu talpă din ceramică ce alunecă fără efort pe orice țesătură, chiar și pe cele groase.",
+      "Dacă vrei electrocasnice fiabile, Stație de Călcat cu Abur SteamPress Pro semnat Kessel merită atenția ta. SteamPress Pro livrează un jet de abur continuu de 120g/min la o presiune de 6 bar, cu talpă din ceramică ce alunecă fără efort pe orice țesătură, chiar și pe cele groase. Comandă Stație de Călcat cu Abur SteamPress Pro online și beneficiezi de livrare rapidă și garanție.",
     price: 699, compareAtPrice: 849,
     colors: ["black", "white"],
     rating: 4.7, reviewCount: 98,
@@ -151,7 +151,7 @@ const SEEDS: Seed[] = [
     category: "Electrocasnice", categorySlug: "electrocasnice",
     tagline: "Sticlă borosilicată, iluminare LED și oprire automată.",
     description:
-      "Un ceainic electric din sticlă borosilicată rezistentă la temperaturi mari, cu iluminare LED albastră în timpul fierberii, filtru anticalcar detașabil și oprire automată la punctul de fierbere.",
+      "Ceainic Electric din Sticlă ClearBoil aduce în categoria electrocasnice un nivel nou de calitate, direct de la Norr. Un ceainic electric din sticlă borosilicată rezistentă la temperaturi mari, cu iluminare LED albastră în timpul fierberii, filtru anticalcar detașabil și oprire automată la punctul de fierbere. O alegere de top pentru oricine caută produse din categoria Electrocasnice la EstelaOferta.",
     price: 179,
     colors: ["black", "white"],
     rating: 4.6, reviewCount: 189,
@@ -166,7 +166,7 @@ const SEEDS: Seed[] = [
     category: "Electrocasnice", categorySlug: "electrocasnice",
     tagline: "Microunde + grill într-un format compact de bucătărie.",
     description:
-      "CompactWave combină funcția de microunde de 800W cu un grill cuarț de 1000W, într-un format compact de 20L, cu 8 programe automate și buton rotativ pentru control rapid.",
+      "Produs Vantage, Cuptor cu Microunde Grill CompactWave este gândit pentru cei care nu fac compromisuri la electrocasnice. CompactWave combină funcția de microunde de 800W cu un grill cuarț de 1000W, într-un format compact de 20L, cu 8 programe automate și buton rotativ pentru control rapid. Perfect pentru cei care vor electrocasnice de încredere, la preț corect.",
     price: 449, compareAtPrice: 549,
     colors: ["black", "white"],
     rating: 4.5, reviewCount: 112,
@@ -181,7 +181,7 @@ const SEEDS: Seed[] = [
     category: "Electrocasnice", categorySlug: "electrocasnice",
     tagline: "Presare lentă la rece, mai mult suc, mai puține vitamine pierdute.",
     description:
-      "SlowJuice 200 presează la rece la doar 43 RPM, păstrând mai multe vitamine și enzime decât storcătoarele centrifugale clasice, cu funcționare aproape silențioasă.",
+      "Storcător de Fructe SlowJuice 200 de la Auric redefinește standardul pentru electrocasnice. SlowJuice 200 presează la rece la doar 43 RPM, păstrând mai multe vitamine și enzime decât storcătoarele centrifugale clasice, cu funcționare aproape silențioasă. Descoperă Storcător de Fructe SlowJuice 200 și restul gamei Electrocasnice pe EstelaOferta.",
     price: 649,
     colors: ["black", "stone"],
     rating: 4.7, reviewCount: 76,
@@ -196,7 +196,7 @@ const SEEDS: Seed[] = [
     category: "Electrocasnice", categorySlug: "electrocasnice",
     tagline: "1200W și lame din inox pentru smoothie-uri perfect fine.",
     description:
-      "SmoothBlend 1200 zdrobește gheață și fructe congelate în secunde, cu un motor de 1200W și lame din inox cu 6 fețe. Vasul din tritan de 1.8L nu reține mirosuri și rezistă la impact.",
+      "Blender de Blat SmoothBlend 1200 de la Auric este alegerea potrivită dacă cauți electrocasnice de calitate. SmoothBlend 1200 zdrobește gheață și fructe congelate în secunde, cu un motor de 1200W și lame din inox cu 6 fețe. Vasul din tritan de 1.8L nu reține mirosuri și rezistă la impact. Disponibil acum în categoria Electrocasnice de pe EstelaOferta, cu livrare rapidă.",
     price: 429, compareAtPrice: 599,
     colors: ["black", "white"],
     rating: 4.6, reviewCount: 54,
@@ -211,7 +211,7 @@ const SEEDS: Seed[] = [
     category: "Electrocasnice", categorySlug: "electrocasnice",
     tagline: "23L, convecție și grill, perfect pentru bucătării mici.",
     description:
-      "CompactBake XL aduce coacere cu convecție și grill într-un format de 23L, ideal pentru bucătării mici. Termostat reglabil până la 230°C și timer cu oprire automată.",
+      "Dacă vrei electrocasnice fiabile, Cuptor Electric de Blat CompactBake XL semnat Loam merită atenția ta. CompactBake XL aduce coacere cu convecție și grill într-un format de 23L, ideal pentru bucătării mici. Termostat reglabil până la 230°C și timer cu oprire automată. Comandă Cuptor Electric de Blat CompactBake XL online și beneficiezi de livrare rapidă și garanție.",
     price: 399, compareAtPrice: 489,
     colors: ["black", "stone"],
     rating: 4.5, reviewCount: 39,
@@ -228,7 +228,7 @@ const SEEDS: Seed[] = [
     category: "Accesorii Telefon", categorySlug: "accesorii-telefon",
     tagline: "Piele naturală, compatibilă cu încărcare magnetică.",
     description:
-      "O husă din piele naturală tăbăcită vegetal, cu magneți integrați compatibili cu încărcarea rapidă wireless, care capătă o patină unică în timp.",
+      "Husă din Piele MagSafe Pro aduce în categoria accesorii telefon un nivel nou de calitate, direct de la Kessel. O husă din piele naturală tăbăcită vegetal, cu magneți integrați compatibili cu încărcarea rapidă wireless, care capătă o patină unică în timp. O alegere de top pentru oricine caută produse din categoria Accesorii Telefon la EstelaOferta.",
     price: 199, compareAtPrice: 259,
     colors: ["cognac", "black", "navy"],
     rating: 4.7, reviewCount: 312,
@@ -243,7 +243,7 @@ const SEEDS: Seed[] = [
     category: "Accesorii Telefon", categorySlug: "accesorii-telefon",
     tagline: "Duritate 9H, kit de aplicare fără bule incluse.",
     description:
-      "Sticlă securizată cu duritate 9H, tratată oleofob pentru amprente reduse, livrată cu un chenar de aplicare care garantează poziționare perfectă fără bule de aer.",
+      "Produs Norr, Folie Sticlă Securizată 9H este gândit pentru cei care nu fac compromisuri la accesorii telefon. Sticlă securizată cu duritate 9H, tratată oleofob pentru amprente reduse, livrată cu un chenar de aplicare care garantează poziționare perfectă fără bule de aer. Perfect pentru cei care vor accesorii telefon de încredere, la preț corect.",
     price: 59, compareAtPrice: 89,
     colors: ["black"],
     rating: 4.5, reviewCount: 587,
@@ -258,7 +258,7 @@ const SEEDS: Seed[] = [
     category: "Accesorii Telefon", categorySlug: "accesorii-telefon",
     tagline: "Încărcare fără fir, până la 15W, cu răcire activă.",
     description:
-      "Un încărcător wireless cu putere de până la 15W, ventilator intern silențios pentru răcire activă și indicator LED discret care nu deranjează în dormitor.",
+      "Încărcător Wireless Rapid 15W de la Vantage redefinește standardul pentru accesorii telefon. Un încărcător wireless cu putere de până la 15W, ventilator intern silențios pentru răcire activă și indicator LED discret care nu deranjează în dormitor. Descoperă Încărcător Wireless Rapid 15W și restul gamei Accesorii Telefon pe EstelaOferta.",
     price: 149, compareAtPrice: 199,
     colors: ["black", "white"],
     rating: 4.6, reviewCount: 245,
@@ -273,7 +273,7 @@ const SEEDS: Seed[] = [
     category: "Accesorii Telefon", categorySlug: "accesorii-telefon",
     tagline: "Capacitate mare, două porturi USB-C cu încărcare rapidă.",
     description:
-      "20000mAh acoperă mai multe încărcări complete pentru telefon, cu două porturi USB-C de încărcare rapidă la 20W și afișaj digital pentru procentul rămas.",
+      "Baterie Externă PowerBank 20000mAh de la Auric este alegerea potrivită dacă cauți accesorii telefon de calitate. 20000mAh acoperă mai multe încărcări complete pentru telefon, cu două porturi USB-C de încărcare rapidă la 20W și afișaj digital pentru procentul rămas. Disponibil acum în categoria Accesorii Telefon de pe EstelaOferta, cu livrare rapidă.",
     price: 229,
     colors: ["black", "sand"],
     rating: 4.7, reviewCount: 198,
@@ -288,7 +288,7 @@ const SEEDS: Seed[] = [
     category: "Accesorii Telefon", categorySlug: "accesorii-telefon",
     tagline: "Magneți N52, prindere fermă pe orice grilă de ventilație.",
     description:
-      "Un suport auto cu magneți N52 de mare putere, care ține telefonul ferm chiar și pe drum accidentat, cu clemă rotativă pentru grila de ventilație.",
+      "Dacă vrei accesorii telefon fiabile, Suport Auto Magnetic pentru Telefon semnat Loam merită atenția ta. Un suport auto cu magneți N52 de mare putere, care ține telefonul ferm chiar și pe drum accidentat, cu clemă rotativă pentru grila de ventilație. Comandă Suport Auto Magnetic pentru Telefon online și beneficiezi de livrare rapidă și garanție.",
     price: 89, compareAtPrice: 119,
     colors: ["black"],
     rating: 4.6, reviewCount: 267,
@@ -303,7 +303,7 @@ const SEEDS: Seed[] = [
     category: "Accesorii Telefon", categorySlug: "accesorii-telefon",
     tagline: "Împletitură din nailon, rezistent la îndoiri repetate.",
     description:
-      "Un cablu USB-C la USB-C cu împletitură din nailon rezistentă, testat la peste 20.000 de îndoiri, cu suport pentru încărcare rapidă până la 100W.",
+      "Cablu USB-C la USB-C Tresat 2m aduce în categoria accesorii telefon un nivel nou de calitate, direct de la Halcyon. Un cablu USB-C la USB-C cu împletitură din nailon rezistentă, testat la peste 20.000 de îndoiri, cu suport pentru încărcare rapidă până la 100W. O alegere de top pentru oricine caută produse din categoria Accesorii Telefon la EstelaOferta.",
     price: 69,
     colors: ["black", "white", "navy"],
     rating: 4.5, reviewCount: 341,
@@ -318,7 +318,7 @@ const SEEDS: Seed[] = [
     category: "Accesorii Telefon", categorySlug: "accesorii-telefon",
     tagline: "Microfon dublu pentru apeluri clare, autonomie 30h cu carcasă.",
     description:
-      "ClearCall reduce zgomotul de fundal la apeluri cu un sistem de microfon dublu și oferă până la 30 de ore de autonomie totală, inclusiv carcasa de încărcare.",
+      "Produs Kessel, Cască Bluetooth In-Ear ClearCall este gândit pentru cei care nu fac compromisuri la accesorii telefon. ClearCall reduce zgomotul de fundal la apeluri cu un sistem de microfon dublu și oferă până la 30 de ore de autonomie totală, inclusiv carcasa de încărcare. Perfect pentru cei care vor accesorii telefon de încredere, la preț corect.",
     price: 179, compareAtPrice: 229,
     colors: ["black", "white"],
     rating: 4.6, reviewCount: 176,
@@ -333,7 +333,7 @@ const SEEDS: Seed[] = [
     category: "Accesorii Telefon", categorySlug: "accesorii-telefon",
     tagline: "Extensibil până la 1.6m, telecomandă Bluetooth inclusă.",
     description:
-      "Un trepied ușor de aluminiu, extensibil până la 1.6 metri, cu suport rotativ 360° pentru telefon și telecomandă Bluetooth inclusă pentru declanșare la distanță.",
+      "Trepied Selfie cu Telecomandă de la Norr redefinește standardul pentru accesorii telefon. Un trepied ușor de aluminiu, extensibil până la 1.6 metri, cu suport rotativ 360° pentru telefon și telecomandă Bluetooth inclusă pentru declanșare la distanță. Descoperă Trepied Selfie cu Telecomandă și restul gamei Accesorii Telefon pe EstelaOferta.",
     price: 99, compareAtPrice: 139,
     colors: ["black"],
     rating: 4.4, reviewCount: 154,
@@ -348,7 +348,7 @@ const SEEDS: Seed[] = [
     category: "Accesorii Telefon", categorySlug: "accesorii-telefon",
     tagline: "20W GaN, format compact pentru călătorii.",
     description:
-      "Un adaptor de priză compact cu tehnologie GaN, două porturi (USB-C 20W și USB-A), suficient de mic pentru orice trusă de călătorie.",
+      "Adaptor Priză Dublu USB-C + USB-A de la Vantage este alegerea potrivită dacă cauți accesorii telefon de calitate. Un adaptor de priză compact cu tehnologie GaN, două porturi (USB-C 20W și USB-A), suficient de mic pentru orice trusă de călătorie. Disponibil acum în categoria Accesorii Telefon de pe EstelaOferta, cu livrare rapidă.",
     price: 79,
     colors: ["black", "white"],
     rating: 4.6, reviewCount: 133,
@@ -363,7 +363,7 @@ const SEEDS: Seed[] = [
     category: "Accesorii Telefon", categorySlug: "accesorii-telefon",
     tagline: "Wide, macro și fisheye — clip universal, sticlă optică.",
     description:
-      "Un set de 3 lentile din sticlă optică — wide-angle, macro și fisheye — cu clip universal compatibil cu majoritatea telefoanelor și huselor subțiri.",
+      "Dacă vrei accesorii telefon fiabile, Set Lentile Foto pentru Telefon semnat Auric merită atenția ta. Un set de 3 lentile din sticlă optică — wide-angle, macro și fisheye — cu clip universal compatibil cu majoritatea telefoanelor și huselor subțiri. Comandă Set Lentile Foto pentru Telefon online și beneficiezi de livrare rapidă și garanție.",
     price: 129, compareAtPrice: 169,
     colors: ["black"],
     rating: 4.3, reviewCount: 87,
@@ -378,7 +378,7 @@ const SEEDS: Seed[] = [
     category: "Accesorii Telefon", categorySlug: "accesorii-telefon",
     tagline: "Braț ajustabil pe 360°, clemă solidă pentru orice birou.",
     description:
-      "Un suport cu braț flexibil din aluminiu, ajustabil pe 360° pentru unghiul perfect la apeluri video sau vizionat conținut, cu clemă din cauciuc care nu zgârie biroul.",
+      "Suport Telefon cu Braț Flexibil pentru Birou aduce în categoria accesorii telefon un nivel nou de calitate, direct de la Halcyon. Un suport cu braț flexibil din aluminiu, ajustabil pe 360° pentru unghiul perfect la apeluri video sau vizionat conținut, cu clemă din cauciuc care nu zgârie biroul. O alegere de top pentru oricine caută produse din categoria Accesorii Telefon la EstelaOferta.",
     price: 119, compareAtPrice: 149,
     colors: ["black", "white"],
     rating: 4.5, reviewCount: 42,
@@ -393,7 +393,7 @@ const SEEDS: Seed[] = [
     category: "Accesorii Telefon", categorySlug: "accesorii-telefon",
     tagline: "Împletitură din nailon, certificat MFi, încărcare rapidă.",
     description:
-      "Cablu Lightning la USB-C certificat MFi, cu împletitură din nailon rezistentă și conectori din aluminiu, pentru încărcare rapidă și transfer de date stabil.",
+      "Produs Kessel, Cablu Lightning la USB-C Tresat 1m este gândit pentru cei care nu fac compromisuri la accesorii telefon. Cablu Lightning la USB-C certificat MFi, cu împletitură din nailon rezistentă și conectori din aluminiu, pentru încărcare rapidă și transfer de date stabil. Perfect pentru cei care vor accesorii telefon de încredere, la preț corect.",
     price: 89,
     colors: ["black", "white"],
     rating: 4.6, reviewCount: 61,
@@ -410,7 +410,7 @@ const SEEDS: Seed[] = [
     category: "Fashion", categorySlug: "fashion",
     tagline: "Bumbac organic greu, croială care își păstrează forma.",
     description:
-      "Un tricou esențial din bumbac organic greu, preshrunk pentru a-și păstra forma spălare după spălare, cu guler întărit și croială curată, nici prea larg, nici prea mulat.",
+      "Tricou din Bumbac Organic Essential de la Halcyon redefinește standardul pentru fashion. Un tricou esențial din bumbac organic greu, preshrunk pentru a-și păstra forma spălare după spălare, cu guler întărit și croială curată, nici prea larg, nici prea mulat. Descoperă Tricou din Bumbac Organic Essential și restul gamei Fashion pe EstelaOferta.",
     price: 129,
     colors: ["white", "black", "stone", "navy"],
     sizes: ["XS", "S", "M", "L", "XL"],
@@ -426,7 +426,7 @@ const SEEDS: Seed[] = [
     category: "Fashion", categorySlug: "fashion",
     tagline: "Membrană impermeabilă, croială bomber urbană.",
     description:
-      "UrbanShell combină o membrană impermeabilă tehnică cu o croială bomber clasică, buzunare cu fermoar ascuns și manșete ajustabile pentru zilele de tranziție.",
+      "Geacă Bomber Impermeabilă UrbanShell de la Vantage este alegerea potrivită dacă cauți fashion de calitate. UrbanShell combină o membrană impermeabilă tehnică cu o croială bomber clasică, buzunare cu fermoar ascuns și manșete ajustabile pentru zilele de tranziție. Disponibil acum în categoria Fashion de pe EstelaOferta, cu livrare rapidă.",
     price: 549, compareAtPrice: 699,
     colors: ["black", "navy", "stone"],
     sizes: ["S", "M", "L", "XL", "XXL"],
@@ -442,7 +442,7 @@ const SEEDS: Seed[] = [
     category: "Fashion", categorySlug: "fashion",
     tagline: "Bumbac elastic, croială slim care nu restricționează mișcarea.",
     description:
-      "Pantaloni chino din bumbac cu adaos de elastan, croiți slim fit pentru o siluetă curată, dar suficient de elastici pentru purtat toată ziua fără disconfort.",
+      "Dacă vrei fashion fiabile, Pantaloni Chino Slim Fit semnat Norr merită atenția ta. Pantaloni chino din bumbac cu adaos de elastan, croiți slim fit pentru o siluetă curată, dar suficient de elastici pentru purtat toată ziua fără disconfort. Comandă Pantaloni Chino Slim Fit online și beneficiezi de livrare rapidă și garanție.",
     price: 259, compareAtPrice: 319,
     colors: ["stone", "black", "navy"],
     sizes: ["S", "M", "L", "XL"],
@@ -458,7 +458,7 @@ const SEEDS: Seed[] = [
     category: "Fashion", categorySlug: "fashion",
     tagline: "In respirabil, croială fluidă pentru orice sezon cald.",
     description:
-      "O rochie midi din in 100%, cu croială fluidă și curea ajustabilă la talie, respirabilă și confortabilă pentru zile lungi de vară.",
+      "Rochie Midi din In aduce în categoria fashion un nivel nou de calitate, direct de la Kessel. O rochie midi din in 100%, cu croială fluidă și curea ajustabilă la talie, respirabilă și confortabilă pentru zile lungi de vară. O alegere de top pentru oricine caută produse din categoria Fashion la EstelaOferta.",
     price: 379,
     colors: ["sand", "white", "emerald"],
     sizes: ["XS", "S", "M", "L"],
@@ -474,7 +474,7 @@ const SEEDS: Seed[] = [
     category: "Fashion", categorySlug: "fashion",
     tagline: "Merino fin de 17,5 microni, purtat direct pe piele.",
     description:
-      "Un pulover tricotat din lână merino de 17,5 microni, suficient de fină pentru a fi purtată direct pe piele, cu reglare termică naturală pentru toate anotimpurile.",
+      "Produs Halcyon, Pulover din Lână Merino este gândit pentru cei care nu fac compromisuri la fashion. Un pulover tricotat din lână merino de 17,5 microni, suficient de fină pentru a fi purtată direct pe piele, cu reglare termică naturală pentru toate anotimpurile. Perfect pentru cei care vor fashion de încredere, la preț corect.",
     price: 449, compareAtPrice: 549,
     colors: ["navy", "stone", "black"],
     sizes: ["XS", "S", "M", "L", "XL"],
@@ -490,7 +490,7 @@ const SEEDS: Seed[] = [
     category: "Fashion", categorySlug: "fashion",
     tagline: "Mătase 100%, imprimeu exclusiv, margini cusute manual.",
     description:
-      "O eșarfă din mătase 100%, cu un imprimeu exclusiv creat pentru colecția de sezon și margini rulate, cusute manual pentru o finisare impecabilă.",
+      "Eșarfă din Mătase Imprimată de la Loam redefinește standardul pentru fashion. O eșarfă din mătase 100%, cu un imprimeu exclusiv creat pentru colecția de sezon și margini rulate, cusute manual pentru o finisare impecabilă. Descoperă Eșarfă din Mătase Imprimată și restul gamei Fashion pe EstelaOferta.",
     price: 229,
     colors: ["emerald", "cognac", "black"],
     rating: 4.6, reviewCount: 91,
@@ -505,7 +505,7 @@ const SEEDS: Seed[] = [
     category: "Fashion", categorySlug: "fashion",
     tagline: "Două culori într-o singură curea, cataramă rotativă.",
     description:
-      "O curea reversibilă din piele integrală — negru pe o parte, coniac pe cealaltă — cu cataramă rotativă care schimbă instant culoarea vizibilă.",
+      "Curea din Piele Reversibilă de la Norr este alegerea potrivită dacă cauți fashion de calitate. O curea reversibilă din piele integrală — negru pe o parte, coniac pe cealaltă — cu cataramă rotativă care schimbă instant culoarea vizibilă. Disponibil acum în categoria Fashion de pe EstelaOferta, cu livrare rapidă.",
     price: 199,
     colors: ["black", "cognac"],
     sizes: ["S", "M", "L", "XL"],
@@ -521,7 +521,7 @@ const SEEDS: Seed[] = [
     category: "Fashion", categorySlug: "fashion",
     tagline: "Lentile polarizate UV400, ramă metalică ușoară.",
     description:
-      "Un model aviator clasic reinterpretat, cu lentile polarizate UV400 și ramă metalică ultra-ușoară, finisată manual pentru un aspect premium.",
+      "Dacă vrei fashion fiabile, Ochelari de Soare Aviator semnat Vantage merită atenția ta. Un model aviator clasic reinterpretat, cu lentile polarizate UV400 și ramă metalică ultra-ușoară, finisată manual pentru un aspect premium. Comandă Ochelari de Soare Aviator online și beneficiezi de livrare rapidă și garanție.",
     price: 349, compareAtPrice: 429,
     colors: ["black", "cognac"],
     rating: 4.6, reviewCount: 156,
@@ -536,7 +536,7 @@ const SEEDS: Seed[] = [
     category: "Fashion", categorySlug: "fashion",
     tagline: "Piele integrală, format compact pentru esențiale zilnice.",
     description:
-      "O geantă crossbody compactă din piele integrală, gândită exact pentru esențialele zilnice — telefon, card, chei — cu curea ajustabilă și fermoar securizat.",
+      "Geantă Crossbody Compactă aduce în categoria fashion un nivel nou de calitate, direct de la Kessel. O geantă crossbody compactă din piele integrală, gândită exact pentru esențialele zilnice — telefon, card, chei — cu curea ajustabilă și fermoar securizat. O alegere de top pentru oricine caută produse din categoria Fashion la EstelaOferta.",
     price: 329, compareAtPrice: 399,
     colors: ["cognac", "black", "stone"],
     rating: 4.7, reviewCount: 143,
@@ -551,7 +551,7 @@ const SEEDS: Seed[] = [
     category: "Fashion", categorySlug: "fashion",
     tagline: "Piele întoarsă și talpă din cauciuc reciclat.",
     description:
-      "Un sneaker minimalist din piele întoarsă premium, cu talpă din cauciuc reciclat pentru amortizare pe tot parcursul zilei și un design curat, fără elemente în plus.",
+      "Produs Auric, Sneakers Casual Minimalist este gândit pentru cei care nu fac compromisuri la fashion. Un sneaker minimalist din piele întoarsă premium, cu talpă din cauciuc reciclat pentru amortizare pe tot parcursul zilei și un design curat, fără elemente în plus. Perfect pentru cei care vor fashion de încredere, la preț corect.",
     price: 449, compareAtPrice: 549,
     colors: ["white", "black", "stone"],
     sizes: ["39", "40", "41", "42", "43", "44", "45"],
@@ -567,7 +567,7 @@ const SEEDS: Seed[] = [
     category: "Fashion", categorySlug: "fashion",
     tagline: "Amestec de lână, croială oversized pentru sezonul rece.",
     description:
-      "Un palton dintr-un amestec premium de lână, cu croială oversized și căptușeală moale, gândit pentru straturi confortabile în sezonul rece.",
+      "Palton din Lână Oversized de la Vantage redefinește standardul pentru fashion. Un palton dintr-un amestec premium de lână, cu croială oversized și căptușeală moale, gândit pentru straturi confortabile în sezonul rece. Descoperă Palton din Lână Oversized și restul gamei Fashion pe EstelaOferta.",
     price: 649, compareAtPrice: 799,
     colors: ["black", "stone", "navy"],
     sizes: ["S", "M", "L", "XL"],
@@ -583,7 +583,7 @@ const SEEDS: Seed[] = [
     category: "Fashion", categorySlug: "fashion",
     tagline: "Material impermeabil, compartiment dedicat pentru laptop de 16\".",
     description:
-      "Un rucsac din material impermeabil cu compartiment căptușit pentru laptop de până la 16 inch, port USB extern pentru încărcare și spate ergonomic ventilat.",
+      "Rucsac Laptop Impermeabil de la Norr este alegerea potrivită dacă cauți fashion de calitate. Un rucsac din material impermeabil cu compartiment căptușit pentru laptop de până la 16 inch, port USB extern pentru încărcare și spate ergonomic ventilat. Disponibil acum în categoria Fashion de pe EstelaOferta, cu livrare rapidă.",
     price: 289, compareAtPrice: 349,
     colors: ["black", "stone"],
     rating: 4.6, reviewCount: 47,
@@ -599,7 +599,7 @@ const SEEDS: Seed[] = [
     category: "Bucătărie", categorySlug: "bucatarie",
     tagline: "6 cuțite din oțel inoxidabil german, cu suport din lemn inclus.",
     description:
-      "Set complet de 6 cuțite din oțel inoxidabil de înaltă calitate, ascuțite din fabrică la un unghi de 15°, cu mânere ergonomice și suport din lemn de fag inclus.",
+      "Dacă vrei bucătărie fiabile, Set Cuțite Bucătărie ChefLine Pro semnat Norr merită atenția ta. Set complet de 6 cuțite din oțel inoxidabil de înaltă calitate, ascuțite din fabrică la un unghi de 15°, cu mânere ergonomice și suport din lemn de fag inclus. Comandă Set Cuțite Bucătărie ChefLine Pro online și beneficiezi de livrare rapidă și garanție.",
     price: 249, compareAtPrice: 349,
     colors: ["black", "stone"],
     rating: 4.6, reviewCount: 94,
@@ -614,7 +614,7 @@ const SEEDS: Seed[] = [
     category: "Bucătărie", categorySlug: "bucatarie",
     tagline: "Distribuție uniformă a căldurii, potrivit pentru toate tipurile de plite.",
     description:
-      "Vas de gătit din fontă emailată cu capacitate de 5 litri, ideal pentru tocănițe și fripturi la foc mic. Compatibil cu toate tipurile de plite, inclusiv inducție, și cu cuptorul.",
+      "Vas Gătit din Fontă Emailată 5L aduce în categoria bucătărie un nivel nou de calitate, direct de la Kessel. Vas de gătit din fontă emailată cu capacitate de 5 litri, ideal pentru tocănițe și fripturi la foc mic. Compatibil cu toate tipurile de plite, inclusiv inducție, și cu cuptorul. O alegere de top pentru oricine caută produse din categoria Bucătărie la EstelaOferta.",
     price: 389, compareAtPrice: 499,
     colors: ["emerald", "black"],
     rating: 4.8, reviewCount: 61,
@@ -629,7 +629,7 @@ const SEEDS: Seed[] = [
     category: "Bucătărie", categorySlug: "bucatarie",
     tagline: "10 recipiente ermetice, fără BPA, stivuibile.",
     description:
-      "Set de 10 recipiente din plastic fără BPA cu capace ermetice, potrivite pentru frigider, congelator și microunde. Design stivuibil care economisește spațiu în dulap.",
+      "Produs Loam, Set Recipiente Depozitare Alimente FreshBox este gândit pentru cei care nu fac compromisuri la bucătărie. Set de 10 recipiente din plastic fără BPA cu capace ermetice, potrivite pentru frigider, congelator și microunde. Design stivuibil care economisește spațiu în dulap. Perfect pentru cei care vor bucătărie de încredere, la preț corect.",
     price: 129,
     colors: ["white", "sand"],
     rating: 4.5, reviewCount: 38,
@@ -644,7 +644,7 @@ const SEEDS: Seed[] = [
     category: "Bucătărie", categorySlug: "bucatarie",
     tagline: "Precizie de 1g, platformă din sticlă călită.",
     description:
-      "Balanță digitală de bucătărie cu precizie de 1 gram, platformă din sticlă călită ușor de curățat și funcție de tarare pentru cântărirea ingredientelor direct în bol.",
+      "Balanță Bucătărie Digitală PreciWeigh de la Auric redefinește standardul pentru bucătărie. Balanță digitală de bucătărie cu precizie de 1 gram, platformă din sticlă călită ușor de curățat și funcție de tarare pentru cântărirea ingredientelor direct în bol. Descoperă Balanță Bucătărie Digitală PreciWeigh și restul gamei Bucătărie pe EstelaOferta.",
     price: 89,
     colors: ["black", "white"],
     rating: 4.4, reviewCount: 27,
@@ -660,7 +660,7 @@ const SEEDS: Seed[] = [
     category: "Baie", categorySlug: "baie",
     tagline: "6 prosoape din bumbac organic 100%, absorbție ridicată.",
     description:
-      "Set de 6 prosoape (2 față, 2 mâini, 2 baie) din bumbac organic 100%, certificate OEKO-TEX, cu absorbție ridicată și uscare rapidă.",
+      "Set Prosoape Bumbac Organic SoftTouch de la Loam este alegerea potrivită dacă cauți baie de calitate. Set de 6 prosoape (2 față, 2 mâini, 2 baie) din bumbac organic 100%, certificate OEKO-TEX, cu absorbție ridicată și uscare rapidă. Disponibil acum în categoria Baie de pe EstelaOferta, cu livrare rapidă.",
     price: 159, compareAtPrice: 219,
     colors: ["white", "sand", "stone"],
     rating: 4.7, reviewCount: 52,
@@ -675,7 +675,7 @@ const SEEDS: Seed[] = [
     category: "Baie", categorySlug: "baie",
     tagline: "Talpă antiderapantă, se usucă rapid.",
     description:
-      "Covor de baie moale din microfibră cu talpă antiderapantă din cauciuc, se usucă rapid și poate fi spălat la mașină.",
+      "Dacă vrei baie fiabile, Covor Baie Antiderapant PlushStep semnat Norr merită atenția ta. Covor de baie moale din microfibră cu talpă antiderapantă din cauciuc, se usucă rapid și poate fi spălat la mașină. Comandă Covor Baie Antiderapant PlushStep online și beneficiezi de livrare rapidă și garanție.",
     price: 99,
     colors: ["navy", "sand"],
     rating: 4.5, reviewCount: 33,
@@ -690,7 +690,7 @@ const SEEDS: Seed[] = [
     category: "Baie", categorySlug: "baie",
     tagline: "Design minimalist din ceramică, pompă din inox.",
     description:
-      "Dozator de săpun lichid din ceramică, cu design minimalist și pompă din inox rezistentă la coroziune. Capacitate de 400ml.",
+      "Dozator Săpun Lichid din Ceramică PureBath aduce în categoria baie un nivel nou de calitate, direct de la Auric. Dozator de săpun lichid din ceramică, cu design minimalist și pompă din inox rezistentă la coroziune. Capacitate de 400ml. O alegere de top pentru oricine caută produse din categoria Baie la EstelaOferta.",
     price: 69,
     colors: ["white", "black"],
     rating: 4.3, reviewCount: 19,
@@ -705,7 +705,7 @@ const SEEDS: Seed[] = [
     category: "Baie", categorySlug: "baie",
     tagline: "Iluminare LED circulară, anti-aburire.",
     description:
-      "Oglindă de baie rotundă cu iluminare LED circulară reglabilă și funcție anti-aburire, montaj simplu pe perete, alimentare cu buton tactil.",
+      "Produs Vantage, Oglindă Baie cu Iluminare LED Halo este gândit pentru cei care nu fac compromisuri la baie. Oglindă de baie rotundă cu iluminare LED circulară reglabilă și funcție anti-aburire, montaj simplu pe perete, alimentare cu buton tactil. Perfect pentru cei care vor baie de încredere, la preț corect.",
     price: 449, compareAtPrice: 599,
     colors: ["black"],
     rating: 4.8, reviewCount: 24,
