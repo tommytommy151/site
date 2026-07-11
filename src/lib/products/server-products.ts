@@ -1,4 +1,4 @@
-import { head, put, del } from "@vercel/blob";
+import { get, put, del } from "@vercel/blob";
 import type { Product } from "@/types/product";
 
 const BLOB_PATHNAME = "products/custom.json";
@@ -6,10 +6,10 @@ const BLOB_PATHNAME = "products/custom.json";
 async function readAll(): Promise<Record<string, Product>> {
   if (!process.env.BLOB_READ_WRITE_TOKEN) return {};
   try {
-    const blob = await head(BLOB_PATHNAME);
-    const res = await fetch(blob.url, { cache: "no-store" });
-    if (!res.ok) return {};
-    return (await res.json()) as Record<string, Product>;
+    const blob = await get(BLOB_PATHNAME, { access: "private", useCache: false });
+    if (!blob) return {};
+    const text = await new Response(blob.stream).text();
+    return JSON.parse(text) as Record<string, Product>;
   } catch {
     return {};
   }
@@ -17,7 +17,7 @@ async function readAll(): Promise<Record<string, Product>> {
 
 async function writeAll(products: Record<string, Product>) {
   await put(BLOB_PATHNAME, JSON.stringify(products), {
-    access: "public",
+    access: "private",
     contentType: "application/json",
     addRandomSuffix: false,
     allowOverwrite: true,
