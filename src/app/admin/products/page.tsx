@@ -6,7 +6,6 @@ import { Pencil, Plus, Search, Sparkles, Trash2 } from "lucide-react";
 import { useProductStore, type ProductFormInput } from "@/lib/store/product-store";
 import { useCatalogStore, slugify } from "@/lib/store/catalog-store";
 import type { Product } from "@/types/product";
-import { formatPrice } from "@/lib/format";
 import { stripBoilerplate } from "@/lib/strip-boilerplate";
 import { Input } from "@/components/ui/input";
 import { ImageUploadInput } from "@/components/admin/image-upload-input";
@@ -27,6 +26,74 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+function InlineTextField({
+  value,
+  onCommit,
+  className,
+}: {
+  value: string;
+  onCommit: (value: string) => void;
+  className?: string;
+}) {
+  const [draft, setDraft] = useState(value);
+
+  return (
+    <input
+      value={draft}
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={() => {
+        const next = draft.trim();
+        if (next && next !== value) onCommit(next);
+        else setDraft(value);
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") e.currentTarget.blur();
+        if (e.key === "Escape") {
+          setDraft(value);
+          e.currentTarget.blur();
+        }
+      }}
+      className={`w-full rounded-md border border-transparent bg-transparent px-1.5 py-1 -mx-1.5 hover:border-border focus:border-primary focus:bg-background focus:outline-none ${className ?? ""}`}
+    />
+  );
+}
+
+function InlineNumberField({
+  value,
+  onCommit,
+  min = 0,
+  className,
+}: {
+  value: number;
+  onCommit: (value: number) => void;
+  min?: number;
+  className?: string;
+}) {
+  const [draft, setDraft] = useState(String(value));
+
+  return (
+    <input
+      type="number"
+      min={min}
+      value={draft}
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={() => {
+        const next = Number(draft);
+        if (!Number.isNaN(next) && next !== value) onCommit(next);
+        else setDraft(String(value));
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") e.currentTarget.blur();
+        if (e.key === "Escape") {
+          setDraft(String(value));
+          e.currentTarget.blur();
+        }
+      }}
+      className={`w-full rounded-md border border-transparent bg-transparent px-1.5 py-1 -mx-1.5 hover:border-border focus:border-primary focus:bg-background focus:outline-none ${className ?? ""}`}
+    />
+  );
+}
 
 const EMPTY_FORM: ProductFormInput = {
   name: "",
@@ -182,16 +249,30 @@ export default function AdminProductsPage() {
                     />
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate font-medium text-foreground">{product.name}</p>
+                    <InlineTextField
+                      value={product.name}
+                      onCommit={(name) => patchProduct(product.id, { name })}
+                      className="truncate font-medium text-foreground"
+                    />
                     <p className="text-xs text-muted-foreground">{product.brand}</p>
                   </div>
                 </td>
                 <td className="p-4 text-muted-foreground">{product.category}</td>
-                <td className="p-4 font-medium text-foreground">{formatPrice(product.price)}</td>
+                <td className="p-4 font-medium text-foreground">
+                  <div className="flex items-center gap-1">
+                    <InlineNumberField
+                      value={product.price}
+                      onCommit={(price) => patchProduct(product.id, { price })}
+                    />
+                    <span className="shrink-0 text-xs text-muted-foreground">RON</span>
+                  </div>
+                </td>
                 <td className="p-4">
-                  <span className={product.stock <= 20 ? "text-destructive" : "text-foreground"}>
-                    {product.stock}
-                  </span>
+                  <InlineNumberField
+                    value={product.stock}
+                    onCommit={(stock) => patchProduct(product.id, { stock })}
+                    className={product.stock <= 20 ? "text-destructive" : "text-foreground"}
+                  />
                 </td>
                 <td className="p-4 text-muted-foreground">{product.rating.toFixed(1)}</td>
                 <td className="p-4">

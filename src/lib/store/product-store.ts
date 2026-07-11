@@ -82,7 +82,10 @@ interface ProductState {
   products: Product[];
   addProduct: (input: ProductFormInput) => void;
   updateProduct: (id: string, input: ProductFormInput) => void;
-  patchProduct: (id: string, patch: Partial<Pick<Product, "name" | "description">>) => void;
+  patchProduct: (
+    id: string,
+    patch: Partial<Pick<Product, "name" | "description" | "price" | "stock">>,
+  ) => void;
   deleteProduct: (id: string) => void;
   mergeCustomProducts: (products: Product[]) => void;
 }
