@@ -65,6 +65,16 @@ function buildProduct(id: string, input: ProductFormInput): Product {
   };
 }
 
+function dedupeBySlug(products: Product[]): Product[] {
+  const seen = new Set<string>();
+  return products.filter((p) => {
+    const key = p.slug || p.id;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function syncProduct(product: Product) {
   fetch("/api/products/sync", {
     method: "POST",
@@ -119,10 +129,24 @@ export const useProductStore = create<ProductState>()(
 
       addProduct: (input) =>
         set((state) => {
-          const id = crypto.randomUUID();
+          // Re-using "Adaugă produs" for an item that already exists (e.g. to
+          // change its category) would otherwise create a second listing with
+          // the same slug, which then shows up twice on category pages.
+          // Update the existing entry instead of creating a duplicate.
+          const existing = state.products.find((p) => p.slug === input.slug);
+          const id = existing?.id ?? crypto.randomUUID();
           const product = buildProduct(id, input);
+          if (existing) {
+            product.reviews = existing.reviews;
+            product.rating = existing.rating;
+            product.reviewCount = existing.reviewCount;
+          }
           syncProduct(product);
-          return { products: [product, ...state.products] };
+          return {
+            products: existing
+              ? state.products.map((p) => (p.id === id ? product : p))
+              : [product, ...state.products],
+          };
         }),
 
       updateProduct: (id, input) =>
@@ -163,6 +187,14 @@ export const useProductStore = create<ProductState>()(
           return { products: state.products.filter((p) => p.id !== id) };
         }),
     }),
-    { name: STORAGE_KEY },
+    {
+      name: STORAGE_KEY,
+      // Clean up duplicate slugs left over from before addProduct guarded
+      // against them (e.g. the same product added once per category).
+      merge: (persisted, current) => {
+        const merged = { ...current, ...(persisted as Partial<ProductState>) };
+        return { ...merged, products: dedupeBySlug(merged.products) };
+      },
+    },
   ),
 );
