@@ -7,4 +7,4 @@ export function getGenAI() {
 }
 
 export const VEO_MODEL = "veo-3.1-generate-preview";
-export const TEXT_MODEL = "gemini-2.5-flash";
+export const TEXT_MODEL = "gemini-flash-latest";
