@@ -74,6 +74,7 @@ function UrlImportSection() {
   const [brandSlug, setBrandSlug] = useState("");
   const [categorySlug, setCategorySlug] = useState("");
   const [stock, setStock] = useState(20);
+  const [price, setPrice] = useState(0);
 
   async function handleFetch(e: React.FormEvent) {
     e.preventDefault();
@@ -92,7 +93,9 @@ function UrlImportSection() {
         setError(data.error ?? "Nu am putut importa produsul.");
         return;
       }
-      setScraped(data as ScrapedProduct);
+      const scrapedData = data as ScrapedProduct;
+      setScraped(scrapedData);
+      setPrice(scrapedData.price ?? 0);
     } catch {
       setError("Nu am putut accesa adresa URL furnizată.");
     } finally {
@@ -111,7 +114,7 @@ function UrlImportSection() {
       brandSlug: brand?.slug ?? "fara-brand",
       category: category?.name ?? "Necategorizat",
       categorySlug: category?.slug ?? "necategorizat",
-      price: scraped.price ?? 0,
+      price,
       stock,
       image: scraped.images[0] ?? "",
       images: scraped.images,
@@ -195,12 +198,11 @@ function UrlImportSection() {
                   {scraped.description}
                 </p>
               )}
-              <p className="mt-1 text-xs text-muted-foreground">
-                Preț detectat:{" "}
-                {scraped.price !== null
-                  ? `${scraped.price} ${scraped.currency ?? "RON"}`
-                  : "nedetectat — completează manual la editare"}
-              </p>
+              {scraped.price === null && (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Preț nedetectat automat — completează-l mai jos.
+                </p>
+              )}
               {scraped.tags.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {scraped.tags.map((tag) => (
@@ -215,7 +217,7 @@ function UrlImportSection() {
               )}
             </div>
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div>
                 <Label className="mb-1.5">Brand</Label>
                 <Select value={brandSlug} onValueChange={setBrandSlug}>
@@ -245,6 +247,18 @@ function UrlImportSection() {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+              <div>
+                <Label htmlFor="import-price" className="mb-1.5">
+                  Preț (RON)
+                </Label>
+                <Input
+                  id="import-price"
+                  type="number"
+                  min={0}
+                  value={price}
+                  onChange={(e) => setPrice(Number(e.target.value) || 0)}
+                />
               </div>
               <div>
                 <Label htmlFor="import-stock" className="mb-1.5">
