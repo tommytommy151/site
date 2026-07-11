@@ -2,10 +2,10 @@ import type { ThemePreset } from "@/types/theme";
 
 export const THEME_PRESETS: ThemePreset[] = [
   {
-    id: "black-friday",
-    name: "Black Friday",
-    primaryColor: "#e8b84b",
-    accentColor: "#e11d2e",
+    id: "orange-classic",
+    name: "Portocaliu Clasic",
+    primaryColor: "#f97316",
+    accentColor: "#ea580c",
   },
   {
     id: "gold-charcoal",

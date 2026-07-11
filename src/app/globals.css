@@ -106,36 +106,36 @@
 :root {
   --radius: 0.75rem;
 
-  /* Neutrals — Black Friday: charcoal / white */
-  --background: oklch(0.22 0.007 30);
-  --foreground: oklch(0.97 0.004 85);
-  --card: oklch(0.27 0.01 30);
-  --card-foreground: oklch(0.97 0.004 85);
-  --popover: oklch(0.27 0.01 30);
-  --popover-foreground: oklch(0.97 0.004 85);
+  /* Neutrals — light: white / soft warm gray */
+  --background: oklch(0.99 0.003 85);
+  --foreground: oklch(0.22 0.01 30);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.22 0.01 30);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.22 0.01 30);
 
-  --surface-raised: oklch(0.31 0.012 30);
-  --surface-sunken: oklch(0.18 0.006 30);
+  --surface-raised: oklch(0.97 0.005 85);
+  --surface-sunken: oklch(0.95 0.006 85);
 
-  /* Brand accents — gold / crimson red / charcoal */
-  --brand-emerald: oklch(0.8 0.17 85);
-  --brand-emerald-soft: color-mix(in oklch, var(--brand-emerald) 18%, var(--card));
-  --brand-indigo: oklch(0.58 0.22 25);
-  --brand-indigo-soft: color-mix(in oklch, var(--brand-indigo) 20%, var(--card));
+  /* Brand accents — orange primary / deep orange accent */
+  --brand-emerald: oklch(0.7 0.19 45);
+  --brand-emerald-soft: color-mix(in oklch, var(--brand-emerald) 16%, var(--card));
+  --brand-indigo: oklch(0.6 0.21 35);
+  --brand-indigo-soft: color-mix(in oklch, var(--brand-indigo) 16%, var(--card));
   --brand-navy: oklch(0.16 0.006 30);
 
   --primary: var(--brand-emerald);
-  --primary-foreground: oklch(0.12 0.02 85);
-  --secondary: oklch(0.18 0.012 30);
-  --secondary-foreground: oklch(0.97 0.004 85);
-  --muted: oklch(0.2 0.012 30);
-  --muted-foreground: oklch(0.68 0.02 30);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.96 0.004 85);
+  --secondary-foreground: oklch(0.22 0.01 30);
+  --muted: oklch(0.96 0.004 85);
+  --muted-foreground: oklch(0.48 0.01 30);
   --accent: var(--brand-indigo);
-  --accent-foreground: oklch(0.98 0.008 30);
+  --accent-foreground: oklch(1 0 0);
   --destructive: oklch(0.6 0.24 27);
   --destructive-foreground: oklch(0.99 0.01 27);
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 15%);
+  --border: oklch(0 0 0 / 9%);
+  --input: oklch(0 0 0 / 10%);
   --ring: var(--brand-emerald);
 
   --shadow-xs-value: 0 1px 2px oklch(0 0 0 / 0.3);
@@ -170,9 +170,9 @@
   --surface-raised: oklch(0.24 0.01 30);
   --surface-sunken: oklch(0.12 0.005 30);
 
-  --brand-emerald: oklch(0.83 0.17 86);
+  --brand-emerald: oklch(0.72 0.19 45);
   --brand-emerald-soft: color-mix(in oklch, var(--brand-emerald) 22%, var(--card));
-  --brand-indigo: oklch(0.62 0.24 25);
+  --brand-indigo: oklch(0.62 0.21 35);
   --brand-indigo-soft: color-mix(in oklch, var(--brand-indigo) 22%, var(--card));
   --brand-navy: oklch(0.1 0.005 30);
 
