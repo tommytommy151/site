@@ -11,7 +11,7 @@ export function ProductGallery({ images, name }: { images: string[]; name: strin
   const [zoomed, setZoomed] = useState(false);
 
   return (
-    <div className="flex flex-col-reverse gap-4 sm:flex-row">
+    <div className="flex flex-col-reverse items-start gap-4 sm:flex-row">
       <div className="flex shrink-0 gap-3 overflow-x-auto sm:flex-col sm:overflow-visible">
         {images.map((img, i) => (
           <button

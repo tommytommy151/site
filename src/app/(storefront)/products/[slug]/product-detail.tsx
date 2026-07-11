@@ -102,7 +102,7 @@ export function ProductDetail({ slug }: { slug: string }) {
           <span className="text-foreground">{product.name}</span>
         </nav>
 
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-start">
           <ProductGallery images={product.images} name={product.name} />
           <VariantSelector product={product} />
         </div>
