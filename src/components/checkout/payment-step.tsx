@@ -7,7 +7,7 @@ import { useAuthStore } from "@/lib/store/auth-store";
 import { useCheckoutStore } from "@/lib/store/checkout-store";
 import { useCartStore } from "@/lib/store/cart-store";
 import { useOrderStore } from "@/lib/store/order-store";
-import { quantityUnitPrice, shippingCost } from "@/lib/pricing";
+import { computeCheckoutTotals, quantityUnitPrice, shippingCost } from "@/lib/pricing";
 import { formatPrice } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { OrderSummary } from "@/components/checkout/order-summary";
@@ -36,8 +36,12 @@ export function PaymentStep({ onBack }: { onBack: () => void }) {
   const [error, setError] = useState("");
 
   const shipping = shippingCost(shippingMethod, subtotal);
-  const discount = subtotal * (couponDiscountPct / 100);
-  const total = subtotal - discount + shipping;
+  const { cardDiscount, total } = computeCheckoutTotals(
+    subtotal,
+    couponDiscountPct,
+    shipping,
+    method === "card",
+  );
 
   const customerName = user?.name || contactName;
   const customerEmail = user?.email || contactEmail;
@@ -150,13 +154,22 @@ export function PaymentStep({ onBack }: { onBack: () => void }) {
               <span className="flex items-center gap-2">
                 <CreditCard className="size-4" /> Card bancar — plată securizată
               </span>
-              {method === "card" && <Check className="size-4" />}
+              <span className="flex items-center gap-2">
+                <span className="rounded-full bg-brand-emerald px-2 py-0.5 text-xs font-semibold text-primary-foreground">
+                  -20%
+                </span>
+                {method === "card" && <Check className="size-4" />}
+              </span>
             </button>
           </div>
-          {method === "card" && (
+          {method === "card" ? (
             <p className="mt-2 text-xs text-muted-foreground">
-              Vei fi redirecționat către o pagină securizată pentru a introduce datele
-              cardului.
+              Ai primit 20% reducere pentru plata cu cardul. Vei fi redirecționat către o pagină
+              securizată pentru a introduce datele cardului.
+            </p>
+          ) : (
+            <p className="mt-2 text-xs text-brand-emerald">
+              Plătește cu cardul și primești 20% reducere la toate produsele din comandă.
             </p>
           )}
         </section>
@@ -181,7 +194,7 @@ export function PaymentStep({ onBack }: { onBack: () => void }) {
         </div>
       </form>
 
-      <OrderSummary shippingAmount={shipping} />
+      <OrderSummary shippingAmount={shipping} isCardPayment={method === "card"} />
     </div>
   );
 }

@@ -49,3 +49,25 @@ export function shippingCost(methodId: ShippingMethod["id"], subtotal: number): 
   if (method.freeOverThreshold && subtotal >= method.freeOverThreshold) return 0;
   return method.price;
 }
+
+export const CARD_PAYMENT_DISCOUNT_PCT = 20;
+
+export interface CheckoutTotals {
+  couponDiscount: number;
+  cardDiscount: number;
+  total: number;
+}
+
+export function computeCheckoutTotals(
+  subtotal: number,
+  couponDiscountPct: number,
+  shipping: number,
+  isCardPayment: boolean,
+): CheckoutTotals {
+  const couponDiscount = subtotal * (couponDiscountPct / 100);
+  const cardDiscount = isCardPayment
+    ? (subtotal - couponDiscount) * (CARD_PAYMENT_DISCOUNT_PCT / 100)
+    : 0;
+  const total = subtotal - couponDiscount - cardDiscount + shipping;
+  return { couponDiscount, cardDiscount, total };
+}

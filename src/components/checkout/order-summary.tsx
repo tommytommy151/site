@@ -1,17 +1,27 @@
 "use client";
 
 import { useCartStore } from "@/lib/store/cart-store";
-import { quantityUnitPrice } from "@/lib/pricing";
+import { computeCheckoutTotals, quantityUnitPrice } from "@/lib/pricing";
 import { formatPrice } from "@/lib/format";
 
-export function OrderSummary({ shippingAmount }: { shippingAmount: number }) {
+export function OrderSummary({
+  shippingAmount,
+  isCardPayment = false,
+}: {
+  shippingAmount: number;
+  isCardPayment?: boolean;
+}) {
   const lines = useCartStore((s) => s.lines);
   const subtotal = useCartStore((s) => s.subtotal());
   const couponCode = useCartStore((s) => s.couponCode);
   const couponDiscountPct = useCartStore((s) => s.couponDiscountPct);
 
-  const discount = subtotal * (couponDiscountPct / 100);
-  const total = subtotal - discount + shippingAmount;
+  const { couponDiscount: discount, cardDiscount, total } = computeCheckoutTotals(
+    subtotal,
+    couponDiscountPct,
+    shippingAmount,
+    isCardPayment,
+  );
 
   return (
     <aside className="flex h-fit flex-col gap-4 rounded-2xl border border-border bg-card p-5">
@@ -38,6 +48,12 @@ export function OrderSummary({ shippingAmount }: { shippingAmount: number }) {
           <div className="flex justify-between text-brand-emerald">
             <span>Reducere {couponCode && `(${couponCode})`}</span>
             <span>-{formatPrice(discount)}</span>
+          </div>
+        )}
+        {cardDiscount > 0 && (
+          <div className="flex justify-between text-brand-emerald">
+            <span>Reducere plată cu cardul (20%)</span>
+            <span>-{formatPrice(cardDiscount)}</span>
           </div>
         )}
         <div className="flex justify-between text-muted-foreground">
