@@ -53,7 +53,7 @@ function parseCsv(text: string): ParsedRow[] {
 interface ScrapedProduct {
   name: string;
   description: string;
-  image: string;
+  images: string[];
   price: number | null;
   currency: string | null;
   sourceUrl: string;
@@ -112,7 +112,8 @@ function UrlImportSection() {
       categorySlug: category?.slug ?? "necategorizat",
       price: scraped.price ?? 0,
       stock,
-      image: scraped.image,
+      image: scraped.images[0] ?? "",
+      images: scraped.images,
       description: scraped.description,
       badges: ["new"],
     });
@@ -150,21 +151,38 @@ function UrlImportSection() {
 
       {scraped && (
         <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-4 sm:flex-row">
-          <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-xl bg-muted sm:w-40">
-            {scraped.image ? (
-              <Image
-                src={scraped.image}
-                alt={scraped.name}
-                fill
-                sizes="160px"
-                className="object-cover"
-                unoptimized
-              />
-            ) : (
-              <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
-                Fără imagine
+          <div className="flex shrink-0 flex-col gap-2 sm:w-40">
+            <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-muted">
+              {scraped.images[0] ? (
+                <Image
+                  src={scraped.images[0]}
+                  alt={scraped.name}
+                  fill
+                  sizes="160px"
+                  className="object-cover"
+                  unoptimized
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
+                  Fără imagine
+                </div>
+              )}
+            </div>
+            {scraped.images.length > 1 && (
+              <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-3">
+                {scraped.images.slice(1).map((src) => (
+                  <div
+                    key={src}
+                    className="relative aspect-square overflow-hidden rounded-lg bg-muted"
+                  >
+                    <Image src={src} alt="" fill sizes="60px" className="object-cover" unoptimized />
+                  </div>
+                ))}
               </div>
             )}
+            <p className="text-xs text-muted-foreground">
+              {scraped.images.length} {scraped.images.length === 1 ? "imagine găsită" : "imagini găsite"}
+            </p>
           </div>
 
           <div className="flex flex-1 flex-col gap-3">

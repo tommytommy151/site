@@ -4,7 +4,7 @@ import { stripBoilerplate } from "@/lib/strip-boilerplate";
 interface ScrapedProduct {
   name: string;
   description: string;
-  image: string;
+  images: string[];
   price: number | null;
   currency: string | null;
   sourceUrl: string;
@@ -22,6 +22,42 @@ function extractMeta(html: string, ...keys: string[]): string | null {
     if (match?.[1]) return decodeHtmlEntities(match[1]);
   }
   return null;
+}
+
+function extractAllMeta(html: string, key: string): string[] {
+  const results: string[] = [];
+  const patterns = [
+    new RegExp(`<meta[^>]+(?:property|name)=["']${key}["'][^>]+content=["']([^"']*)["']`, "gi"),
+    new RegExp(`<meta[^>]+content=["']([^"']*)["'][^>]+(?:property|name)=["']${key}["']`, "gi"),
+  ];
+  for (const pattern of patterns) {
+    for (const match of html.matchAll(pattern)) {
+      if (match[1]) results.push(decodeHtmlEntities(match[1]));
+    }
+  }
+  return results;
+}
+
+function resolveUrl(base: URL, maybeUrl: string): string | null {
+  try {
+    return new URL(maybeUrl, base).toString();
+  } catch {
+    return null;
+  }
+}
+
+function dedupeImages(urls: (string | null | undefined)[], base: URL, limit = 12): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of urls) {
+    if (!raw) continue;
+    const resolved = resolveUrl(base, raw);
+    if (!resolved || seen.has(resolved)) continue;
+    seen.add(resolved);
+    out.push(resolved);
+    if (out.length >= limit) break;
+  }
+  return out;
 }
 
 function decodeHtmlEntities(value: string): string {
@@ -51,14 +87,17 @@ function extractJsonLdProduct(html: string): Partial<ScrapedProduct> | null {
       if (offer && offer.price === undefined && Array.isArray(offer.offers)) {
         offer = offer.offers[0];
       }
-      const image = Array.isArray(product.image) ? product.image[0] : product.image;
+      const rawImages: unknown[] = Array.isArray(product.image) ? product.image : [product.image];
+      const images = rawImages.filter(
+        (entry): entry is string => typeof entry === "string" && entry.length > 0,
+      );
 
       const priceValue = offer?.price ?? offer?.lowPrice;
 
       return {
         name: typeof product.name === "string" ? product.name : undefined,
         description: typeof product.description === "string" ? product.description : undefined,
-        image: typeof image === "string" ? image : undefined,
+        images,
         price: priceValue !== undefined ? Number(priceValue) : undefined,
         currency: typeof offer?.priceCurrency === "string" ? offer.priceCurrency : undefined,
       };
@@ -142,7 +181,10 @@ export async function POST(req: NextRequest) {
     jsonLd?.description ?? extractMeta(html, "og:description", "description") ?? "",
   );
 
-  const image = jsonLd?.image ?? extractMeta(html, "og:image") ?? "";
+  const images = dedupeImages(
+    [...(jsonLd?.images ?? []), ...extractAllMeta(html, "og:image")],
+    targetUrl,
+  );
 
   const price = jsonLd?.price ?? extractPrice(html);
   const currency = jsonLd?.currency ?? extractMeta(html, "og:price:currency") ?? null;
@@ -157,7 +199,7 @@ export async function POST(req: NextRequest) {
   const result: ScrapedProduct = {
     name: decodeHtmlEntities(name),
     description: description ? decodeHtmlEntities(description) : "",
-    image,
+    images,
     price: price ?? null,
     currency,
     sourceUrl: targetUrl.toString(),

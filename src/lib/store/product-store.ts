@@ -17,12 +17,15 @@ export interface ProductFormInput {
   compareAtPrice?: number;
   stock: number;
   image: string;
+  images?: string[];
   description: string;
   badges: ProductBadge[];
 }
 
 function buildProduct(id: string, input: ProductFormInput): Product {
-  const image = input.image.trim() || `https://picsum.photos/seed/${id}/1200/1400`;
+  const gallery = (input.images ?? []).map((src) => src.trim()).filter(Boolean);
+  const image = input.image.trim() || gallery[0] || `https://picsum.photos/seed/${id}/1200/1400`;
+  const images = gallery.length ? gallery : [image];
   const reviews = generateSmallReviewSet(id);
   const rating = reviews.length
     ? Math.round((reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length) * 10) / 10
@@ -42,7 +45,7 @@ function buildProduct(id: string, input: ProductFormInput): Product {
     currency: "RON",
     rating,
     reviewCount: reviews.length,
-    images: [image],
+    images,
     variants: [
       {
         id: `${id}-default`,
@@ -126,9 +129,14 @@ export const useProductStore = create<ProductState>()(
         set((state) => ({
           products: state.products.map((p) => {
             if (p.id !== id) return p;
+            const built = buildProduct(id, input);
+            // The edit dialog only exposes a single image field, so don't let it
+            // collapse a multi-image gallery (e.g. from a URL import) down to one.
+            const images = input.images?.length || p.images.length <= 1 ? built.images : p.images;
             const updated = {
               ...p,
-              ...buildProduct(id, input),
+              ...built,
+              images,
               reviews: p.reviews,
               rating: p.rating,
               reviewCount: p.reviewCount,
