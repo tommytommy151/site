@@ -9,38 +9,6 @@ import { stripBoilerplate } from "@/lib/strip-boilerplate";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-function InlineTextField({
-  value,
-  onCommit,
-  className,
-}: {
-  value: string;
-  onCommit: (value: string) => void;
-  className?: string;
-}) {
-  const [draft, setDraft] = useState(value);
-
-  return (
-    <input
-      value={draft}
-      onChange={(e) => setDraft(e.target.value)}
-      onBlur={() => {
-        const next = draft.trim();
-        if (next && next !== value) onCommit(next);
-        else setDraft(value);
-      }}
-      onKeyDown={(e) => {
-        if (e.key === "Enter") e.currentTarget.blur();
-        if (e.key === "Escape") {
-          setDraft(value);
-          e.currentTarget.blur();
-        }
-      }}
-      className={`w-full rounded-md border border-transparent bg-transparent px-1.5 py-1 -mx-1.5 hover:border-border focus:border-primary focus:bg-background focus:outline-none ${className ?? ""}`}
-    />
-  );
-}
-
 function InlineNumberField({
   value,
   onCommit,
@@ -174,11 +142,13 @@ export default function AdminProductsPage() {
                     />
                   </div>
                   <div className="min-w-0">
-                    <InlineTextField
-                      value={product.name}
-                      onCommit={(name) => patchProduct(product.id, { name })}
-                      className="truncate font-medium text-foreground"
-                    />
+                    <Link
+                      href={`/products/${product.slug}`}
+                      target="_blank"
+                      className="block truncate font-medium text-foreground hover:underline"
+                    >
+                      {product.name}
+                    </Link>
                     <p className="text-xs text-muted-foreground">{product.brand}</p>
                   </div>
                 </td>
