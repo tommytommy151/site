@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripBoilerplate } from "@/lib/strip-boilerplate";
 import { rewriteDescription } from "@/lib/products/rewrite-description";
+import { getGoogleLongTailTags } from "@/lib/products/google-suggest";
 
 export const maxDuration = 60;
 
@@ -268,18 +269,18 @@ export async function POST(req: NextRequest) {
   const rawDescription = description ? decodeHtmlEntities(description) : "";
   const finalPrice = price ?? null;
 
-  const rewritten = await rewriteDescription({
-    name: decodedName,
-    rawDescription,
-    price: finalPrice,
-    currency,
-  });
+  const [rewritten, googleTags] = await Promise.all([
+    rewriteDescription({ name: decodedName, rawDescription, price: finalPrice, currency }),
+    getGoogleLongTailTags(decodedName),
+  ]);
+
+  const tags = [...new Set([...rewritten.tags, ...googleTags])].slice(0, 15);
 
   const result: ScrapedProduct = {
     name: decodedName,
     description: rewritten.description,
     images,
-    tags: rewritten.tags,
+    tags,
     price: finalPrice,
     currency,
     sourceUrl: targetUrl.toString(),
