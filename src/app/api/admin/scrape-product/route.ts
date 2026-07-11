@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripBoilerplate } from "@/lib/strip-boilerplate";
+import { rewriteDescription } from "@/lib/products/rewrite-description";
+
+export const maxDuration = 60;
 
 interface ScrapedProduct {
   name: string;
@@ -196,11 +199,22 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const decodedName = decodeHtmlEntities(name);
+  const rawDescription = description ? decodeHtmlEntities(description) : "";
+  const finalPrice = price ?? null;
+
+  const rewritten = await rewriteDescription({
+    name: decodedName,
+    rawDescription,
+    price: finalPrice,
+    currency,
+  });
+
   const result: ScrapedProduct = {
-    name: decodeHtmlEntities(name),
-    description: description ? decodeHtmlEntities(description) : "",
+    name: decodedName,
+    description: rewritten,
     images,
-    price: price ?? null,
+    price: finalPrice,
     currency,
     sourceUrl: targetUrl.toString(),
   };
