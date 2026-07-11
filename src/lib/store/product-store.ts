@@ -132,6 +132,6 @@ export const useProductStore = create<ProductState>()(
           return { products: state.products.filter((p) => p.id !== id) };
         }),
     }),
-    { name: "estelaoferta-products" },
+    { name: "estelaoferta-products-v2" },
   ),
 );
