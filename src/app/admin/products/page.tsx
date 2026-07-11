@@ -67,14 +67,25 @@ export default function AdminProductsPage() {
   const [editing, setEditing] = useState<Product | null>(null);
   const [form, setForm] = useState<ProductFormInput>(EMPTY_FORM);
 
+  const dedupedProducts = useMemo(() => {
+    const seen = new Set<string>();
+    return products.filter((p) => {
+      const key = p.slug || p.id;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [products]);
+  const uniqueProductCount = dedupedProducts.length;
+
   const filtered = useMemo(() => {
-    return products.filter(
+    return dedupedProducts.filter(
       (p) =>
         !query.trim() ||
         p.name.toLowerCase().includes(query.toLowerCase()) ||
         p.brand.toLowerCase().includes(query.toLowerCase()),
     );
-  }, [query, products]);
+  }, [query, dedupedProducts]);
 
   function openCreate() {
     setEditing(null);
@@ -118,7 +129,7 @@ export default function AdminProductsPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Produse</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{products.length} produse în catalog.</p>
+          <p className="mt-1 text-sm text-muted-foreground">{uniqueProductCount} produse în catalog.</p>
         </div>
         <div className="flex items-center gap-2">
           {affectedProducts.length > 0 && (
