@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Link2, Loader2, Upload } from "lucide-react";
+import { AlertCircle, Check, Loader2, Upload } from "lucide-react";
 import { useProductStore } from "@/lib/store/product-store";
 import { useCatalogStore, slugify } from "@/lib/store/catalog-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -60,69 +62,115 @@ interface ScrapedProduct {
   sourceUrl: string;
 }
 
+interface BatchItem {
+  url: string;
+  status: "pending" | "loading" | "done" | "error";
+  data: ScrapedProduct | null;
+  error: string | null;
+  price: number;
+  stock: number;
+  include: boolean;
+}
+
+async function runWithConcurrency<T>(items: T[], limit: number, worker: (item: T) => Promise<void>) {
+  let index = 0;
+  async function run() {
+    while (index < items.length) {
+      const item = items[index++];
+      await worker(item);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, run));
+}
+
 function UrlImportSection() {
   const addProduct = useProductStore((s) => s.addProduct);
   const categories = useCatalogStore((s) => s.categories);
   const brands = useCatalogStore((s) => s.brands);
 
-  const [url, setUrl] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [scraped, setScraped] = useState<ScrapedProduct | null>(null);
-  const [added, setAdded] = useState(false);
+  const [urlsText, setUrlsText] = useState("");
+  const [fetching, setFetching] = useState(false);
+  const [batch, setBatch] = useState<BatchItem[]>([]);
+  const [addedCount, setAddedCount] = useState<number | null>(null);
 
   const [brandSlug, setBrandSlug] = useState("");
   const [categorySlug, setCategorySlug] = useState("");
-  const [stock, setStock] = useState(20);
-  const [price, setPrice] = useState(0);
 
-  async function handleFetch(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setScraped(null);
-    setAdded(false);
-    try {
-      const res = await fetch("/api/admin/scrape-product", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error ?? "Nu am putut importa produsul.");
-        return;
-      }
-      const scrapedData = data as ScrapedProduct;
-      setScraped(scrapedData);
-      setPrice(scrapedData.price ?? 0);
-    } catch {
-      setError("Nu am putut accesa adresa URL furnizată.");
-    } finally {
-      setLoading(false);
-    }
+  const doneCount = batch.filter((b) => b.status === "done").length;
+  const includedCount = batch.filter((b) => b.status === "done" && b.include).length;
+  const allFetched = batch.length > 0 && batch.every((b) => b.status === "done" || b.status === "error");
+
+  function updateItem(url: string, patch: Partial<BatchItem>) {
+    setBatch((prev) => prev.map((it) => (it.url === url ? { ...it, ...patch } : it)));
   }
 
-  function handleAdd() {
-    if (!scraped) return;
+  async function handleFetchAll(e: React.FormEvent) {
+    e.preventDefault();
+    const urls = [...new Set(urlsText.split(/\r?\n/).map((u) => u.trim()).filter(Boolean))];
+    if (!urls.length) return;
+
+    setFetching(true);
+    setAddedCount(null);
+    setBatch(
+      urls.map((url) => ({
+        url,
+        status: "pending",
+        data: null,
+        error: null,
+        price: 0,
+        stock: 20,
+        include: true,
+      })),
+    );
+
+    await runWithConcurrency(urls, 3, async (url) => {
+      updateItem(url, { status: "loading" });
+      try {
+        const res = await fetch("/api/admin/scrape-product", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          updateItem(url, { status: "error", error: data.error ?? "Import eșuat." });
+          return;
+        }
+        const scraped = data as ScrapedProduct;
+        updateItem(url, { status: "done", data: scraped, price: scraped.price ?? 0 });
+      } catch {
+        updateItem(url, { status: "error", error: "Nu am putut accesa adresa URL." });
+      }
+    });
+
+    setFetching(false);
+  }
+
+  function handleAddAll() {
     const brand = brands.find((b) => b.slug === brandSlug);
     const category = categories.find((c) => c.slug === categorySlug);
-    addProduct({
-      name: scraped.name,
-      slug: slugify(scraped.name),
-      brand: brand?.name ?? "Fără brand",
-      brandSlug: brand?.slug ?? "fara-brand",
-      category: category?.name ?? "Necategorizat",
-      categorySlug: category?.slug ?? "necategorizat",
-      price,
-      stock,
-      image: scraped.images[0] ?? "",
-      images: scraped.images,
-      description: scraped.description,
-      badges: ["new"],
-      tags: scraped.tags,
-    });
-    setAdded(true);
+    let count = 0;
+    for (const item of batch) {
+      if (!item.include || item.status !== "done" || !item.data) continue;
+      addProduct({
+        name: item.data.name,
+        slug: slugify(item.data.name),
+        brand: brand?.name ?? "Fără brand",
+        brandSlug: brand?.slug ?? "fara-brand",
+        category: category?.name ?? "Necategorizat",
+        categorySlug: category?.slug ?? "necategorizat",
+        price: item.price,
+        stock: item.stock,
+        image: item.data.images[0] ?? "",
+        images: item.data.images,
+        description: item.data.description,
+        badges: ["new"],
+        tags: item.data.tags,
+      });
+      count++;
+    }
+    setAddedCount(count);
+    setBatch((prev) => prev.filter((it) => !(it.include && it.status === "done")));
   }
 
   return (
@@ -130,159 +178,167 @@ function UrlImportSection() {
       <div>
         <h2 className="text-lg font-semibold tracking-tight">Import de pe un alt site</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Lipește adresa unei pagini de produs. Citim titlul, descrierea, imaginea și prețul
-          (din datele Open Graph / schema.org ale paginii) și le pregătim pentru catalog.
+          Lipește una sau mai multe adrese de pagini de produs, câte una pe linie. Citim titlul,
+          descrierea (rescrisă automat SEO), imaginile și prețul pentru fiecare și le pregătim
+          pentru catalog.
         </p>
       </div>
 
-      <form onSubmit={handleFetch} className="flex flex-col gap-2 sm:flex-row sm:items-center">
-        <div className="relative flex-1">
-          <Link2 className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            type="url"
-            required
-            placeholder="https://alt-site.ro/produs/exemplu"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            className="pl-9"
-          />
-        </div>
-        <Button type="submit" disabled={loading}>
-          {loading ? <Loader2 className="size-4 animate-spin" /> : "Preia produsul"}
+      <form onSubmit={handleFetchAll} className="flex flex-col gap-2">
+        <Textarea
+          required
+          placeholder={"https://alt-site.ro/produs/exemplu-1\nhttps://alt-site.ro/produs/exemplu-2\nhttps://alt-site.ro/produs/exemplu-3"}
+          value={urlsText}
+          onChange={(e) => setUrlsText(e.target.value)}
+          className="min-h-28 font-mono text-sm"
+        />
+        <Button type="submit" disabled={fetching} className="self-start">
+          {fetching ? (
+            <>
+              <Loader2 className="size-4 animate-spin" />
+              Se preiau produsele...
+            </>
+          ) : (
+            "Preia produsele"
+          )}
         </Button>
       </form>
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
-
-      {scraped && (
-        <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-4 sm:flex-row">
-          <div className="flex shrink-0 flex-col gap-2 sm:w-40">
-            <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-muted">
-              {scraped.images[0] ? (
-                <Image
-                  src={scraped.images[0]}
-                  alt={scraped.name}
-                  fill
-                  sizes="160px"
-                  className="object-cover"
-                  unoptimized
-                />
-              ) : (
-                <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
-                  Fără imagine
-                </div>
-              )}
-            </div>
-            {scraped.images.length > 1 && (
-              <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-3">
-                {scraped.images.slice(1).map((src) => (
-                  <div
-                    key={src}
-                    className="relative aspect-square overflow-hidden rounded-lg bg-muted"
-                  >
-                    <Image src={src} alt="" fill sizes="60px" className="object-cover" unoptimized />
-                  </div>
-                ))}
-              </div>
-            )}
-            <p className="text-xs text-muted-foreground">
-              {scraped.images.length} {scraped.images.length === 1 ? "imagine găsită" : "imagini găsite"}
-            </p>
-          </div>
-
-          <div className="flex flex-1 flex-col gap-3">
+      {batch.length > 0 && (
+        <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-              <p className="font-medium text-foreground">{scraped.name}</p>
-              {scraped.description && (
-                <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                  {scraped.description}
-                </p>
-              )}
-              {scraped.price === null && (
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Preț nedetectat automat — completează-l mai jos.
-                </p>
-              )}
-              {scraped.tags.length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {scraped.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-full bg-muted px-2.5 py-1 text-xs text-foreground/85"
-                    >
-                      {tag}
-                    </span>
+              <Label className="mb-1.5">Brand (aplicat tuturor produselor)</Label>
+              <Select value={brandSlug} onValueChange={setBrandSlug}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Alege brand" />
+                </SelectTrigger>
+                <SelectContent>
+                  {brands.map((brand) => (
+                    <SelectItem key={brand.id} value={brand.slug}>
+                      {brand.name}
+                    </SelectItem>
                   ))}
-                </div>
-              )}
+                </SelectContent>
+              </Select>
             </div>
-
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <div>
-                <Label className="mb-1.5">Brand</Label>
-                <Select value={brandSlug} onValueChange={setBrandSlug}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Alege brand" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {brands.map((brand) => (
-                      <SelectItem key={brand.id} value={brand.slug}>
-                        {brand.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label className="mb-1.5">Categorie</Label>
-                <Select value={categorySlug} onValueChange={setCategorySlug}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Alege categoria" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.slug}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="import-price" className="mb-1.5">
-                  Preț (RON)
-                </Label>
-                <Input
-                  id="import-price"
-                  type="number"
-                  min={0}
-                  value={price}
-                  onChange={(e) => setPrice(Number(e.target.value) || 0)}
-                />
-              </div>
-              <div>
-                <Label htmlFor="import-stock" className="mb-1.5">
-                  Stoc inițial
-                </Label>
-                <Input
-                  id="import-stock"
-                  type="number"
-                  min={0}
-                  value={stock}
-                  onChange={(e) => setStock(Number(e.target.value) || 0)}
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <Button onClick={handleAdd}>Adaugă în catalog</Button>
-              {added && (
-                <span className="text-sm text-muted-foreground">
-                  Produsul a fost adăugat. Îl poți edita din Produse.
-                </span>
-              )}
+            <div>
+              <Label className="mb-1.5">Categorie (aplicată tuturor produselor)</Label>
+              <Select value={categorySlug} onValueChange={setCategorySlug}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Alege categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.slug}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
+
+          <div className="flex flex-col divide-y divide-border">
+            {batch.map((item) => (
+              <div key={item.url} className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row">
+                <div className="relative size-16 shrink-0 overflow-hidden rounded-lg bg-muted">
+                  {item.data?.images[0] ? (
+                    <Image
+                      src={item.data.images[0]}
+                      alt={item.data.name}
+                      fill
+                      sizes="64px"
+                      className="object-cover"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center">
+                      {item.status === "loading" || item.status === "pending" ? (
+                        <Loader2 className="size-4 animate-spin text-muted-foreground" />
+                      ) : (
+                        <AlertCircle className="size-4 text-muted-foreground" />
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-1 flex-col gap-1 min-w-0">
+                  <p className="truncate text-sm font-medium text-foreground">
+                    {item.data?.name ?? item.url}
+                  </p>
+                  {item.status === "loading" && (
+                    <p className="text-xs text-muted-foreground">Se preiau datele...</p>
+                  )}
+                  {item.status === "error" && (
+                    <p className="text-xs text-destructive">{item.error}</p>
+                  )}
+                  {item.status === "done" && item.data && (
+                    <p className="text-xs text-muted-foreground">
+                      {item.data.images.length}{" "}
+                      {item.data.images.length === 1 ? "imagine" : "imagini"}
+                      {item.data.tags.length > 0 && ` · ${item.data.tags.length} etichete`}
+                    </p>
+                  )}
+                </div>
+
+                {item.status === "done" && (
+                  <div className="flex shrink-0 items-center gap-2">
+                    <label className="flex items-center gap-1.5">
+                      <span className="text-xs text-muted-foreground">Preț</span>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={item.price}
+                        onChange={(e) =>
+                          updateItem(item.url, { price: Number(e.target.value) || 0 })
+                        }
+                        className="h-8 w-24"
+                      />
+                    </label>
+                    <label className="flex items-center gap-1.5">
+                      <span className="text-xs text-muted-foreground">Stoc</span>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={item.stock}
+                        onChange={(e) =>
+                          updateItem(item.url, { stock: Number(e.target.value) || 0 })
+                        }
+                        className="h-8 w-20"
+                      />
+                    </label>
+                    <Checkbox
+                      checked={item.include}
+                      onCheckedChange={(v) => updateItem(item.url, { include: Boolean(v) })}
+                    />
+                  </div>
+                )}
+                {item.status === "loading" && (
+                  <Loader2 className="size-4 shrink-0 animate-spin self-center text-muted-foreground" />
+                )}
+              </div>
+            ))}
+          </div>
+
+          {allFetched && (
+            <div className="flex items-center gap-3 border-t border-border pt-4">
+              <Button onClick={handleAddAll} disabled={includedCount === 0}>
+                <Check className="size-4" />
+                Adaugă {includedCount} {includedCount === 1 ? "produs" : "produse"} în catalog
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                {doneCount} din {batch.length} preluate cu succes
+              </span>
+            </div>
+          )}
+
+          {addedCount !== null && (
+            <p className="text-sm text-muted-foreground">
+              {addedCount} {addedCount === 1 ? "produs a fost adăugat" : "produse au fost adăugate"}{" "}
+              în catalog. Le poți edita din Produse.
+            </p>
+          )}
         </div>
       )}
     </div>
