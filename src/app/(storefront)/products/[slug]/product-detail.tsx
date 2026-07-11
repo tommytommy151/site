@@ -11,6 +11,7 @@ import { ProductTabs } from "@/components/product/product-tabs";
 import { FrequentlyBoughtTogether } from "@/components/product/frequently-bought-together";
 import { ProductRail } from "@/components/sections/product-rail";
 import { TrackRecentlyViewed } from "@/components/product/track-recently-viewed";
+import { TrackProductClick } from "@/components/product/track-product-click";
 import { useProductStore } from "@/lib/store/product-store";
 import type { Product } from "@/types/product";
 
@@ -96,6 +97,7 @@ export function ProductDetail({ slug }: { slug: string }) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <TrackRecentlyViewed productId={product.id} />
+      <TrackProductClick productId={product.id} productName={product.name} />
       <Container>
         <nav className="mb-6 flex items-center gap-1.5 text-xs text-muted-foreground">
           <span>Acasă</span> <span>/</span>

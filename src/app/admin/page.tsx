@@ -1,11 +1,14 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
   ArrowDownRight,
   ArrowRight,
   ArrowUpRight,
+  Globe,
+  MousePointerClick,
   Package,
   ShoppingCart,
   TrendingUp,
@@ -25,9 +28,23 @@ function formatDelta(current: number, previous: number) {
   return `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%`;
 }
 
+interface AnalyticsSummary {
+  totalVisits: number;
+  referrers: { source: string; count: number }[];
+  topProducts: { productId: string; name: string; count: number }[];
+}
+
 export default function AdminDashboardPage() {
   const orders = useOrderStore((s) => s.orders);
   const products = useProductStore((s) => s.products);
+
+  const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(null);
+  useEffect(() => {
+    fetch("/api/track/summary")
+      .then((res) => (res.ok ? res.json() : null))
+      .then(setAnalytics)
+      .catch(() => {});
+  }, []);
 
   const revenue = orders.reduce((sum, o) => sum + o.total, 0);
   const customerCount = new Set(orders.map((o) => o.customerEmail)).size;
@@ -167,6 +184,61 @@ export default function AdminDashboardPage() {
               </div>
             ))}
           </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-semibold">Vizite site</h2>
+            <span className="flex size-9 items-center justify-center rounded-lg bg-brand-emerald-soft text-brand-emerald">
+              <Users className="size-4.5" />
+            </span>
+          </div>
+          <p className="mt-4 text-3xl font-semibold tracking-tight">
+            {analytics ? analytics.totalVisits : "—"}
+          </p>
+          <p className="text-xs text-muted-foreground">total, de la activarea urmăririi</p>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-base font-semibold">De unde au venit</h2>
+            <Globe className="size-4.5 text-muted-foreground" />
+          </div>
+          {analytics && analytics.referrers.length > 0 ? (
+            <div className="flex flex-col divide-y divide-border">
+              {analytics.referrers.map((r) => (
+                <div key={r.source} className="flex items-center justify-between py-2.5 first:pt-0 last:pb-0">
+                  <span className="truncate text-sm text-foreground/85">
+                    {r.source === "direct" ? "Acces direct" : r.source}
+                  </span>
+                  <span className="text-sm font-medium text-foreground">{r.count}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">Încă nu sunt date.</p>
+          )}
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-base font-semibold">Produse cele mai vizualizate</h2>
+            <MousePointerClick className="size-4.5 text-muted-foreground" />
+          </div>
+          {analytics && analytics.topProducts.length > 0 ? (
+            <div className="flex flex-col divide-y divide-border">
+              {analytics.topProducts.map((p) => (
+                <div key={p.productId} className="flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0">
+                  <span className="truncate text-sm text-foreground/85">{p.name}</span>
+                  <span className="shrink-0 text-sm font-medium text-foreground">{p.count}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">Încă nu sunt date.</p>
+          )}
         </div>
       </div>
 

@@ -4,10 +4,12 @@ import { CartDrawer } from "@/components/cart/cart-drawer";
 import { PageTransition } from "@/components/motion/page-transition";
 import { PushSubscribePrompt } from "@/components/push/push-subscribe-prompt";
 import { CategorySidebar } from "@/components/layout/category-sidebar";
+import { PageviewTracker } from "@/components/analytics/pageview-tracker";
 
 export default function StorefrontLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col">
+      <PageviewTracker />
       <Header />
       <main className="flex-1">
         <div className="mx-auto flex w-full max-w-[1660px] gap-6">
