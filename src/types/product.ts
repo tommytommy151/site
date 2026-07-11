@@ -47,6 +47,7 @@ export interface Product {
   sizeOptions?: string[];
   variants: ProductVariant[];
   badges: ProductBadge[];
+  tags?: string[];
   stock: number;
   sku: string;
   features: string[];

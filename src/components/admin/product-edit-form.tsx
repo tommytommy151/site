@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink, Trash2, X } from "lucide-react";
+import { TagInput } from "@/components/admin/tag-input";
 import { useProductStore, type ProductFormInput } from "@/lib/store/product-store";
 import { useCatalogStore, slugify } from "@/lib/store/catalog-store";
 import type { Product, ProductBadge } from "@/types/product";
@@ -45,6 +46,7 @@ function emptyForm(): ProductFormInput {
     images: [],
     description: "",
     badges: [],
+    tags: [],
   };
 }
 
@@ -63,6 +65,7 @@ function formFromProduct(product: Product): ProductFormInput {
     images: product.images,
     description: product.description,
     badges: product.badges,
+    tags: product.tags ?? [],
   };
 }
 
@@ -372,7 +375,7 @@ export function ProductEditForm({ product }: { product?: Product }) {
             </div>
           </SidebarBox>
 
-          <SidebarBox title="Etichete">
+          <SidebarBox title="Repere">
             <div className="flex flex-col gap-2">
               {(Object.keys(BADGE_LABELS) as ProductBadge[]).map((badge) => (
                 <label key={badge} className="flex cursor-pointer items-center gap-2.5 text-sm">
@@ -384,6 +387,14 @@ export function ProductEditForm({ product }: { product?: Product }) {
                 </label>
               ))}
             </div>
+          </SidebarBox>
+
+          <SidebarBox title="Etichete">
+            <TagInput
+              value={form.tags ?? []}
+              onChange={(tags) => setForm((f) => ({ ...f, tags }))}
+              placeholder="Scrie o etichetă și apasă Enter"
+            />
           </SidebarBox>
         </div>
       </div>
