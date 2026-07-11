@@ -16,11 +16,11 @@ export function PromoBanner() {
   return (
     <section className="relative isolate overflow-hidden py-16 sm:py-20">
       <motion.div
-        className="absolute inset-0 -z-10 bg-[linear-gradient(120deg,var(--brand-navy)_0%,var(--brand-indigo)_45%,var(--brand-emerald)_100%)] bg-[length:200%_200%]"
+        className="absolute inset-0 -z-10 bg-[linear-gradient(120deg,#c2410c_0%,var(--brand-indigo)_45%,var(--brand-emerald)_100%)] bg-[length:200%_200%]"
         animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
         transition={{ duration: 14, repeat: Infinity, ease: "linear" }}
       />
-      <div className="absolute inset-0 -z-10 bg-black/35" />
+      <div className="absolute inset-0 -z-10 bg-black/10" />
 
       {FLOATING_TAGS.map(({ icon: Icon, label, className }) => (
         <motion.div

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCatalogStore } from "@/lib/store/catalog-store";
@@ -24,12 +25,17 @@ export function CategorySidebar() {
               <Link
                 href={`/categories/${cat.slug}`}
                 className={cn(
-                  "rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                   active
                     ? "bg-brand-emerald-soft text-brand-emerald"
                     : "text-foreground/80 hover:bg-muted hover:text-foreground",
                 )}
               >
+                <span className="relative size-4 shrink-0 overflow-hidden rounded-full bg-muted">
+                  {cat.image && (
+                    <Image src={cat.image} alt="" fill sizes="16px" className="object-cover" unoptimized />
+                  )}
+                </span>
                 {cat.name}
               </Link>
               {children.length > 0 && (
@@ -41,12 +47,24 @@ export function CategorySidebar() {
                         key={child.id}
                         href={`/categories/${child.slug}`}
                         className={cn(
-                          "rounded-lg px-3 py-1.5 pl-6 text-sm transition-colors",
+                          "flex items-center gap-2 rounded-lg px-3 py-1.5 pl-6 text-sm transition-colors",
                           childActive
                             ? "text-brand-emerald"
                             : "text-muted-foreground hover:bg-muted hover:text-foreground",
                         )}
                       >
+                        <span className="relative size-3.5 shrink-0 overflow-hidden rounded-full bg-muted">
+                          {child.image && (
+                            <Image
+                              src={child.image}
+                              alt=""
+                              fill
+                              sizes="14px"
+                              className="object-cover"
+                              unoptimized
+                            />
+                          )}
+                        </span>
                         {child.name}
                       </Link>
                     );
