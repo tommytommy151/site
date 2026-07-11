@@ -49,14 +49,77 @@ function resolveUrl(base: URL, maybeUrl: string): string | null {
   }
 }
 
-function dedupeImages(urls: (string | null | undefined)[], base: URL, limit = 12): string[] {
+// Product galleries are usually rendered as plain <img> tags in the page
+// body (often lazy-loaded via data-src/srcset), not exposed through
+// og:image or JSON-LD — those two only ever carry one or two "official"
+// images. This scans the raw HTML for every plausible image URL so the
+// gallery import isn't limited to just the meta-tag images.
+const SKIP_IMAGE_PATTERN =
+  /sprite|icon|logo|favicon|placeholder|avatar|payment|badge|banner-ad|pixel|blank\.gif|spinner|loading|1x1/i;
+
+function extractImgTagUrls(html: string): string[] {
+  const results: string[] = [];
+  for (const match of html.matchAll(/<img\b[^>]*>/gi)) {
+    const tag = match[0];
+    for (const attrMatch of tag.matchAll(
+      /(?:src|data-src|data-lazy-src|data-original|data-zoom-image)=["']([^"']+)["']/gi,
+    )) {
+      if (attrMatch[1]) results.push(attrMatch[1]);
+    }
+    const srcsetMatch = tag.match(/srcset=["']([^"']+)["']/i);
+    if (srcsetMatch) {
+      const candidates = srcsetMatch[1]
+        .split(",")
+        .map((c) => c.trim().split(/\s+/)[0])
+        .filter(Boolean);
+      if (candidates.length) results.push(candidates[candidates.length - 1]);
+    }
+  }
+  return results
+    .map((u) => decodeHtmlEntities(u))
+    .filter((u) => u && !u.startsWith("data:") && !SKIP_IMAGE_PATTERN.test(u) && !/\.svg(\?|$)/i.test(u));
+}
+
+// Pages with "related/recommended products" carousels can have dozens of
+// <img> tags that have nothing to do with the product being imported.
+// Only keep candidates whose URL contains a meaningful word from the
+// product name, so we don't pull in photos of unrelated products.
+function filterByNameRelevance(urls: string[], name: string): string[] {
+  const tokens = name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .split(/[^a-z0-9]+/)
+    .filter((t) => t.length >= 4);
+  if (!tokens.length) return urls;
+  return urls.filter((u) => {
+    const lower = u.toLowerCase();
+    return tokens.some((t) => lower.includes(t));
+  });
+}
+
+function normalizeForDedupe(url: string): string {
+  try {
+    const parsed = new URL(url);
+    for (const param of ["width", "height", "w", "h", "quality", "q", "fit", "resize"]) {
+      parsed.searchParams.delete(param);
+    }
+    return parsed.toString();
+  } catch {
+    return url;
+  }
+}
+
+function dedupeImages(urls: (string | null | undefined)[], base: URL, limit = 16): string[] {
   const seen = new Set<string>();
   const out: string[] = [];
   for (const raw of urls) {
     if (!raw) continue;
     const resolved = resolveUrl(base, raw);
-    if (!resolved || seen.has(resolved)) continue;
-    seen.add(resolved);
+    if (!resolved) continue;
+    const key = normalizeForDedupe(resolved);
+    if (seen.has(key)) continue;
+    seen.add(key);
     out.push(resolved);
     if (out.length >= limit) break;
   }
@@ -184,8 +247,9 @@ export async function POST(req: NextRequest) {
     jsonLd?.description ?? extractMeta(html, "og:description", "description") ?? "",
   );
 
+  const bodyImages = name ? filterByNameRelevance(extractImgTagUrls(html), name) : [];
   const images = dedupeImages(
-    [...(jsonLd?.images ?? []), ...extractAllMeta(html, "og:image")],
+    [...(jsonLd?.images ?? []), ...extractAllMeta(html, "og:image"), ...bodyImages],
     targetUrl,
   );
 
