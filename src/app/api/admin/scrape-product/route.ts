@@ -8,6 +8,7 @@ interface ScrapedProduct {
   name: string;
   description: string;
   images: string[];
+  tags: string[];
   price: number | null;
   currency: string | null;
   sourceUrl: string;
@@ -276,8 +277,9 @@ export async function POST(req: NextRequest) {
 
   const result: ScrapedProduct = {
     name: decodedName,
-    description: rewritten,
+    description: rewritten.description,
     images,
+    tags: rewritten.tags,
     price: finalPrice,
     currency,
     sourceUrl: targetUrl.toString(),

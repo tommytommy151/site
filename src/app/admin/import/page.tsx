@@ -54,6 +54,7 @@ interface ScrapedProduct {
   name: string;
   description: string;
   images: string[];
+  tags: string[];
   price: number | null;
   currency: string | null;
   sourceUrl: string;
@@ -116,6 +117,7 @@ function UrlImportSection() {
       images: scraped.images,
       description: scraped.description,
       badges: ["new"],
+      tags: scraped.tags,
     });
     setAdded(true);
   }
@@ -199,6 +201,18 @@ function UrlImportSection() {
                   ? `${scraped.price} ${scraped.currency ?? "RON"}`
                   : "nedetectat — completează manual la editare"}
               </p>
+              {scraped.tags.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {scraped.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-full bg-muted px-2.5 py-1 text-xs text-foreground/85"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">

@@ -16,7 +16,8 @@ AVANTAJE:
 - <avantaj scurt 2>
 - <avantaj scurt 3>
 - <avantaj scurt 4>
-DE_CE: <2-3 propoziții persuasive despre motivul pentru care merită cumpărat acest produs>`;
+DE_CE: <2-3 propoziții persuasive despre motivul pentru care merită cumpărat acest produs>
+ETICHETE: <6-10 etichete long-tail SEO, în română, separate prin virgulă, fiecare de 2-4 cuvinte, specifice produsului (ex: caracteristici, material, brand, categorie de utilizare) — nu cuvinte singure și nu termeni generici precum "calitate" sau "reducere">`;
 }
 
 interface RewrittenDescription {
@@ -24,13 +25,15 @@ interface RewrittenDescription {
   description: string;
   advantages: string[];
   whyBuy: string;
+  tags: string[];
 }
 
 function parseResponse(text: string): RewrittenDescription | null {
   const titleMatch = text.match(/TITLU:\s*(.+)/);
   const descMatch = text.match(/DESCRIERE:\s*(.+)/);
-  const whyMatch = text.match(/DE_CE:\s*([\s\S]+)/);
+  const whyMatch = text.match(/DE_CE:\s*(.+)/);
   const advantagesBlock = text.match(/AVANTAJE:\s*([\s\S]*?)(?=DE_CE:|$)/);
+  const tagsMatch = text.match(/ETICHETE:\s*(.+)/);
 
   const title = titleMatch?.[1]?.trim();
   const description = descMatch?.[1]?.trim();
@@ -39,9 +42,13 @@ function parseResponse(text: string): RewrittenDescription | null {
     ?.split("\n")
     .map((line) => line.replace(/^[-•]\s*/, "").trim())
     .filter(Boolean);
+  const tags = tagsMatch?.[1]
+    ?.split(",")
+    .map((t) => t.trim().toLowerCase())
+    .filter((t) => t.split(/\s+/).length >= 2);
 
   if (!title || !description || !whyBuy || !advantages?.length) return null;
-  return { title, description, advantages, whyBuy };
+  return { title, description, advantages, whyBuy, tags: tags ?? [] };
 }
 
 function formatDescription(name: string, parsed: RewrittenDescription): string {
@@ -51,17 +58,17 @@ function formatDescription(name: string, parsed: RewrittenDescription): string {
 
 /**
  * Rewrites a scraped product description into a structured, SEO-friendly
- * format (hook title, description, advantages, why-buy). Falls back to the
- * original raw description (trimmed) if generation or parsing fails, so an
- * import never blocks on this.
+ * format (hook title, description, advantages, why-buy) and generates a set
+ * of long-tail SEO tags. Falls back to the original raw description (and no
+ * tags) if generation or parsing fails, so an import never blocks on this.
  */
 export async function rewriteDescription(input: {
   name: string;
   rawDescription: string;
   price: number | null;
   currency: string | null;
-}): Promise<string> {
-  const fallback = input.rawDescription.trim();
+}): Promise<{ description: string; tags: string[] }> {
+  const fallback = { description: input.rawDescription.trim(), tags: [] };
   if (!process.env.GEMINI_API_KEY) return fallback;
 
   try {
@@ -79,7 +86,7 @@ export async function rewriteDescription(input: {
     const parsed = parseResponse(text);
     if (!parsed) return fallback;
 
-    return formatDescription(input.name, parsed);
+    return { description: formatDescription(input.name, parsed), tags: parsed.tags };
   } catch {
     return fallback;
   }
