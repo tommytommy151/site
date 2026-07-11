@@ -463,12 +463,28 @@ function UrlImportSection() {
   );
 }
 
+async function suggestTags(name: string): Promise<string[]> {
+  try {
+    const res = await fetch("/api/admin/suggest-tags", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data.tags) ? data.tags : [];
+  } catch {
+    return [];
+  }
+}
+
 function CsvImportSection() {
   const addProduct = useProductStore((s) => s.addProduct);
 
   const [fileName, setFileName] = useState<string | null>(null);
   const [rows, setRows] = useState<ParsedRow[]>([]);
   const [imported, setImported] = useState(false);
+  const [importing, setImporting] = useState(false);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -483,8 +499,18 @@ function CsvImportSection() {
     reader.readAsText(file);
   }
 
-  function handleImport() {
-    for (const row of rows) {
+  async function handleImport() {
+    setImporting(true);
+    const tagsByRow = new Array<string[]>(rows.length).fill([]);
+    await runWithConcurrency(
+      rows.map((_, i) => i),
+      3,
+      async (i) => {
+        tagsByRow[i] = await suggestTags(rows[i].name);
+      },
+    );
+
+    rows.forEach((row, i) => {
       addProduct({
         name: row.name,
         slug: slugify(row.name),
@@ -497,8 +523,10 @@ function CsvImportSection() {
         image: "",
         description: "",
         badges: [],
+        tags: tagsByRow[i],
       });
-    }
+    });
+    setImporting(false);
     setImported(true);
   }
 
@@ -551,10 +579,19 @@ function CsvImportSection() {
           </div>
 
           <div className="flex items-center gap-3">
-            <Button onClick={handleImport}>Importă {rows.length} produse</Button>
+            <Button onClick={handleImport} disabled={importing}>
+              {importing ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" />
+                  Se generează etichete...
+                </>
+              ) : (
+                `Importă ${rows.length} produse`
+              )}
+            </Button>
             {imported && (
               <span className="text-sm text-muted-foreground">
-                Produsele au fost adăugate în catalog.
+                Produsele au fost adăugate în catalog, cu etichete long-tail generate automat.
               </span>
             )}
           </div>
