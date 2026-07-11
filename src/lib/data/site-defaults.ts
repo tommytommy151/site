@@ -31,7 +31,6 @@ export const DEFAULT_HOME_SECTIONS: HomeSection[] = [
   { id: "promo-banner", label: "Banner Black Friday", visible: true },
   { id: "todays-offers", label: "Ofertele zilei", visible: true },
   { id: "popular-rail", label: "Produse în tendințe", visible: true },
-  { id: "categories-grid", label: "Grilă de categorii", visible: true },
   { id: "bestseller-rail", label: "Cele mai vândute", visible: true },
   { id: "flash-deals", label: "Oferte Flash", visible: true },
   { id: "recently-viewed", label: "Văzute recent", visible: true },

@@ -5,7 +5,6 @@ import { HomeSections } from "@/components/sections/home-sections";
 import { PromoBanner } from "@/components/sections/promo-banner";
 import { TodaysOffers } from "@/components/sections/todays-offers";
 import { ProductRail } from "@/components/sections/product-rail";
-import { CategoriesGrid } from "@/components/sections/categories-grid";
 import { FlashDeals } from "@/components/sections/flash-deals";
 import { RecentlyViewed } from "@/components/sections/recently-viewed";
 import { Testimonials } from "@/components/sections/testimonials";
@@ -36,7 +35,6 @@ export default function Home() {
               products={trending}
             />
           ),
-          "categories-grid": <CategoriesGrid />,
           "bestseller-rail": (
             <ProductRail
               eyebrow="Preferatele clienților"
