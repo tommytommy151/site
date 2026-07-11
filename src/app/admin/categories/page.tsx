@@ -7,6 +7,7 @@ import { useCatalogStore, slugify } from "@/lib/store/catalog-store";
 import type { Category } from "@/types/product";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ImageUploadInput } from "@/components/admin/image-upload-input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -290,11 +291,10 @@ export default function AdminCategoriesPage() {
               <Label htmlFor="cat-image" className="mb-1.5">
                 URL imagine
               </Label>
-              <Input
+              <ImageUploadInput
                 id="cat-image"
                 value={form.image}
-                onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
-                placeholder="https://..."
+                onChange={(image) => setForm((f) => ({ ...f, image }))}
               />
             </div>
             <div>

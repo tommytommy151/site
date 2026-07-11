@@ -9,6 +9,7 @@ import type { BlogPost } from "@/types/product";
 import { formatDate } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ImageUploadInput } from "@/components/admin/image-upload-input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -252,11 +253,10 @@ export default function AdminBlogPage() {
               <Label htmlFor="post-image" className="mb-1.5">
                 URL imagine
               </Label>
-              <Input
+              <ImageUploadInput
                 id="post-image"
                 value={form.image}
-                onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
-                placeholder="https://..."
+                onChange={(image) => setForm((f) => ({ ...f, image }))}
               />
             </div>
             <div>

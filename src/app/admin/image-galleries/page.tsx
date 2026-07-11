@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Pencil, Plus, Trash2, X } from "lucide-react";
+import { useRef, useState } from "react";
+import { Pencil, Plus, Trash2, Upload, X } from "lucide-react";
 import { useImageGalleriesStore, type ImageGallery } from "@/lib/store/image-galleries-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +28,7 @@ export default function AdminImageGalleriesPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [imageDraft, setImageDraft] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   function openCreate() {
     setEditingId(null);
@@ -52,6 +53,18 @@ export default function AdminImageGalleriesPage() {
 
   function removeImage(image: string) {
     setForm((f) => ({ ...f, images: f.images.filter((i) => i !== image) }));
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = String(reader.result);
+      setForm((f) => (f.images.includes(dataUrl) ? f : { ...f, images: [...f.images, dataUrl] }));
+    };
+    reader.readAsDataURL(file);
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -157,6 +170,17 @@ export default function AdminImageGalleriesPage() {
                 />
                 <Button type="button" variant="outline" onClick={addImage}>
                   Adaugă
+                </Button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+                <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}>
+                  <Upload className="size-4" />
+                  Încarcă
                 </Button>
               </div>
               <div className="mt-2 flex flex-wrap gap-1.5">
