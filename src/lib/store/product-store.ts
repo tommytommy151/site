@@ -87,42 +87,16 @@ interface ProductState {
   mergeCustomProducts: (products: Product[]) => void;
 }
 
-const OLD_STORAGE_KEY = "estelaoferta-products";
-const STORAGE_KEY = "estelaoferta-products-v2";
-
-// Migration: the persist key was renamed to force a reseed from updated
-// seed data, which orphaned any browser-only products (e.g. from admin
-// imports) still sitting under the old key. Carry forward anything from
-// the old key that isn't already in the new key's state (diffed by slug,
-// not gated on the new key being empty, since a visit between the rename
-// and this fix could already have written default-only data to it).
+// Both prior storage keys turned out to hold stale/placeholder data rather
+// than real product data (the old key predates the current seed data, and
+// carrying it forward re-surfaced test products, not genuine imports).
+// Drop them so every browser starts clean from the current seed data in
+// src/lib/data/products.ts; legitimate custom products going forward are
+// recovered via mergeCustomProducts + the Redis-backed /api/products sync.
+const STORAGE_KEY = "estelaoferta-products-v3";
 if (typeof window !== "undefined") {
-  try {
-    const oldRaw = localStorage.getItem(OLD_STORAGE_KEY);
-    if (oldRaw) {
-      const oldProducts: Product[] = JSON.parse(oldRaw)?.state?.products ?? [];
-      const defaultSlugs = new Set(DEFAULT_PRODUCTS.map((p) => p.slug));
-      const imported = oldProducts.filter((p) => !defaultSlugs.has(p.slug));
-
-      if (imported.length) {
-        const newRaw = localStorage.getItem(STORAGE_KEY);
-        const newParsed = newRaw
-          ? JSON.parse(newRaw)
-          : { state: { products: DEFAULT_PRODUCTS }, version: 0 };
-        const existingSlugs = new Set(
-          (newParsed.state?.products ?? []).map((p: Product) => p.slug),
-        );
-        const toAdd = imported.filter((p) => !existingSlugs.has(p.slug));
-
-        if (toAdd.length) {
-          newParsed.state.products = [...toAdd, ...(newParsed.state.products ?? [])];
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(newParsed));
-        }
-      }
-    }
-  } catch {
-    // Corrupt old data — nothing safe to migrate, fall through to defaults.
-  }
+  localStorage.removeItem("estelaoferta-products");
+  localStorage.removeItem("estelaoferta-products-v2");
 }
 
 export const useProductStore = create<ProductState>()(
