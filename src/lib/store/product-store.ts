@@ -90,12 +90,39 @@ interface ProductState {
 const OLD_STORAGE_KEY = "estelaoferta-products";
 const STORAGE_KEY = "estelaoferta-products-v2";
 
-// One-time migration: the persist key was renamed to force a reseed from
-// updated seed data, which orphaned any browser-only products (e.g. from
-// admin imports) still sitting under the old key. Carry them forward.
-if (typeof window !== "undefined" && !localStorage.getItem(STORAGE_KEY)) {
-  const old = localStorage.getItem(OLD_STORAGE_KEY);
-  if (old) localStorage.setItem(STORAGE_KEY, old);
+// Migration: the persist key was renamed to force a reseed from updated
+// seed data, which orphaned any browser-only products (e.g. from admin
+// imports) still sitting under the old key. Carry forward anything from
+// the old key that isn't already in the new key's state (diffed by slug,
+// not gated on the new key being empty, since a visit between the rename
+// and this fix could already have written default-only data to it).
+if (typeof window !== "undefined") {
+  try {
+    const oldRaw = localStorage.getItem(OLD_STORAGE_KEY);
+    if (oldRaw) {
+      const oldProducts: Product[] = JSON.parse(oldRaw)?.state?.products ?? [];
+      const defaultSlugs = new Set(DEFAULT_PRODUCTS.map((p) => p.slug));
+      const imported = oldProducts.filter((p) => !defaultSlugs.has(p.slug));
+
+      if (imported.length) {
+        const newRaw = localStorage.getItem(STORAGE_KEY);
+        const newParsed = newRaw
+          ? JSON.parse(newRaw)
+          : { state: { products: DEFAULT_PRODUCTS }, version: 0 };
+        const existingSlugs = new Set(
+          (newParsed.state?.products ?? []).map((p: Product) => p.slug),
+        );
+        const toAdd = imported.filter((p) => !existingSlugs.has(p.slug));
+
+        if (toAdd.length) {
+          newParsed.state.products = [...toAdd, ...(newParsed.state.products ?? [])];
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(newParsed));
+        }
+      }
+    }
+  } catch {
+    // Corrupt old data — nothing safe to migrate, fall through to defaults.
+  }
 }
 
 export const useProductStore = create<ProductState>()(
