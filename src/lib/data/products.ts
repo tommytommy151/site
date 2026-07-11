@@ -1,5 +1,5 @@
 import type { Product, ProductBadge, ProductVariant } from "@/types/product";
-import { generateReviews, generateFixedRatioReviews } from "./reviews";
+import { generateSmallReviewSet } from "./reviews";
 
 const COLORS = {
   black: { name: "Negru Onyx", hex: "#161616" },
@@ -739,7 +739,7 @@ function buildVariants(seed: Seed): ProductVariant[] {
   return variants;
 }
 
-export const products: Product[] = SEEDS.map((seed, index) => {
+export const products: Product[] = SEEDS.map((seed) => {
   const images = seed.realImage
     ? [seed.realImage]
     : [1, 2, 3, 4].map((n) => `https://picsum.photos/seed/${seed.id}-${n}/1200/1400`);
@@ -767,10 +767,7 @@ export const products: Product[] = SEEDS.map((seed, index) => {
     stock: seed.stock,
     sku: `LC-${seed.id.toUpperCase()}`,
     features: seed.features,
-    reviews:
-      (index + 1) % 3 === 0
-        ? generateFixedRatioReviews(seed.id)
-        : generateReviews(seed.id, Math.min(8, Math.max(3, Math.round(seed.reviewCount / 40)))),
+    reviews: generateSmallReviewSet(seed.id),
     relatedIds: [],
     weightGrams: seed.weightGrams,
     freeShipping: seed.freeShipping,

@@ -4,6 +4,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Product, ProductBadge } from "@/types/product";
 import { products as DEFAULT_PRODUCTS } from "@/lib/data/products";
+import { generateSmallReviewSet } from "@/lib/data/reviews";
 
 export interface ProductFormInput {
   name: string;
@@ -22,6 +23,10 @@ export interface ProductFormInput {
 
 function buildProduct(id: string, input: ProductFormInput): Product {
   const image = input.image.trim() || `https://picsum.photos/seed/${id}/1200/1400`;
+  const reviews = generateSmallReviewSet(id);
+  const rating = reviews.length
+    ? Math.round((reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length) * 10) / 10
+    : 0;
   return {
     id,
     slug: input.slug,
@@ -35,8 +40,8 @@ function buildProduct(id: string, input: ProductFormInput): Product {
     price: input.price,
     compareAtPrice: input.compareAtPrice,
     currency: "RON",
-    rating: 0,
-    reviewCount: 0,
+    rating,
+    reviewCount: reviews.length,
     images: [image],
     variants: [
       {
@@ -52,7 +57,7 @@ function buildProduct(id: string, input: ProductFormInput): Product {
     stock: input.stock,
     sku: `LC-${id.toUpperCase()}`,
     features: [],
-    reviews: [],
+    reviews,
     relatedIds: [],
   };
 }

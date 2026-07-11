@@ -75,6 +75,12 @@ export function generateFixedRatioReviews(productId: string): ProductReview[] {
   return reviews.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
+export function generateSmallReviewSet(productId: string): ProductReview[] {
+  const rand = seededRandom(hashString(`${productId}-count`));
+  const count = 2 + Math.floor(rand() * 3); // 2-4
+  return generateReviews(productId, count);
+}
+
 export function generateReviews(productId: string, count: number): ProductReview[] {
   const rand = seededRandom(hashString(productId));
   const reviews: ProductReview[] = [];
