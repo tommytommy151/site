@@ -3,11 +3,63 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Pencil, Plus, Search, Sparkles, Trash2 } from "lucide-react";
+import { Download, Pencil, Plus, Search, Sparkles, Trash2 } from "lucide-react";
 import { useProductStore } from "@/lib/store/product-store";
 import { stripBoilerplate } from "@/lib/strip-boilerplate";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import type { Product } from "@/types/product";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://lucent-commerce.vercel.app";
+
+function csvCell(value: string) {
+  return `"${value.replace(/"/g, '""')}"`;
+}
+
+function exportProductsToCsv(products: Product[]) {
+  const headers = [
+    "id",
+    "title",
+    "description",
+    "link",
+    "image_link",
+    "availability",
+    "price",
+    "brand",
+    "condition",
+    "google_product_category",
+    "product_type",
+    "mpn",
+  ];
+
+  const rows = products.map((p) =>
+    [
+      p.id,
+      p.name,
+      p.description,
+      `${SITE_URL}/products/${p.slug}`,
+      p.images[0] ?? "",
+      p.stock > 0 ? "in stock" : "out of stock",
+      `${p.price.toFixed(2)} ${p.currency}`,
+      p.brand,
+      "new",
+      p.category,
+      p.category,
+      p.sku,
+    ]
+      .map((cell) => csvCell(String(cell)))
+      .join(","),
+  );
+
+  const csv = [headers.join(","), ...rows].join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `produse-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 function InlineNumberField({
   value,
@@ -97,6 +149,10 @@ export default function AdminProductsPage() {
               Curăță &quot;Engros - EngrossOnline&quot; ({affectedProducts.length})
             </Button>
           )}
+          <Button variant="outline" onClick={() => exportProductsToCsv(dedupedProducts)}>
+            <Download className="size-4" />
+            Exportă produse
+          </Button>
           <Button asChild>
             <Link href="/admin/products/new">
               <Plus className="size-4" />
