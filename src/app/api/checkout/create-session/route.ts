@@ -32,6 +32,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Date de comandă incomplete." }, { status: 400 });
   }
 
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) {
+    return NextResponse.json(
+      { error: "Adresa de email nu este validă." },
+      { status: 400 },
+    );
+  }
+
   const origin = req.headers.get("origin") ?? new URL(req.url).origin;
 
   const lineItems: Array<{
@@ -61,14 +68,21 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const session = await stripe.checkout.sessions.create({
-    mode: "payment",
-    customer_email: customerEmail,
-    line_items: lineItems,
-    metadata: { orderId },
-    success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${origin}/checkout?step=plata`,
-  });
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      customer_email: customerEmail,
+      line_items: lineItems,
+      metadata: { orderId },
+      success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/checkout?step=plata`,
+    });
 
-  return NextResponse.json({ url: session.url });
+    return NextResponse.json({ url: session.url });
+  } catch {
+    return NextResponse.json(
+      { error: "Nu am putut iniția plata cu cardul. Încearcă din nou." },
+      { status: 502 },
+    );
+  }
 }
