@@ -1,7 +1,7 @@
 const BOILERPLATE_PATTERNS = [
-  /\s*[-|·]\s*Engros\s*-\s*EngrossOnline\s*/gi,
-  /\s*Engros\s*-\s*EngrossOnline\s*/gi,
-  /\bEngros(Online)?\b/gi,
+  /\s*[-|·]\s*Engross?\s*-\s*Engross?Online\s*/gi,
+  /\s*Engross?\s*-\s*Engross?Online\s*/gi,
+  /\bEngross?(Online)?\b/gi,
 ];
 
 export function stripBoilerplate(text: string): string {

@@ -146,7 +146,7 @@ export default function AdminProductsPage() {
           {affectedProducts.length > 0 && (
             <Button variant="outline" onClick={cleanupBoilerplate}>
               <Sparkles className="size-4" />
-              Curăță &quot;Engros - EngrossOnline&quot; ({affectedProducts.length})
+              Curăță &quot;Engros/Engross - Engros(s)Online&quot; ({affectedProducts.length})
             </Button>
           )}
           <Button variant="outline" onClick={() => exportProductsToCsv(dedupedProducts)}>
