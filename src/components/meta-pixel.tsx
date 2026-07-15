@@ -5,6 +5,18 @@ import { useCookieConsentStore } from "@/lib/store/cookie-consent-store";
 
 const META_PIXEL_ID = "1921102271842119";
 
+declare global {
+  interface Window {
+    fbq?: (...args: unknown[]) => void;
+  }
+}
+
+export function trackMetaEvent(name: string, params?: Record<string, unknown>) {
+  if (useCookieConsentStore.getState().status !== "accepted") return;
+  if (typeof window === "undefined" || !window.fbq) return;
+  window.fbq("track", name, params);
+}
+
 export function MetaPixel() {
   const status = useCookieConsentStore((s) => s.status);
 

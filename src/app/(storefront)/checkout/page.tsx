@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ShoppingBag } from "lucide-react";
@@ -8,6 +8,7 @@ import { Container } from "@/components/layout/container";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/lib/store/auth-store";
 import { useCartStore } from "@/lib/store/cart-store";
+import { trackMetaEvent } from "@/components/meta-pixel";
 import { CheckoutStepIndicator, type CheckoutStep } from "@/components/checkout/checkout-step-indicator";
 import { AccountStep } from "@/components/checkout/account-step";
 import { ShippingStep } from "@/components/checkout/shipping-step";
@@ -29,6 +30,18 @@ function CheckoutContent() {
 
   const stepParam = searchParams.get("step") as CheckoutStep | null;
   const [step, setStep] = useState<CheckoutStep>(stepParam ?? (user ? "livrare" : "cont"));
+
+  const trackedInitiate = useRef(false);
+  useEffect(() => {
+    if (trackedInitiate.current || lines.length === 0) return;
+    trackedInitiate.current = true;
+    trackMetaEvent("InitiateCheckout", {
+      content_ids: lines.map((l) => l.productId),
+      num_items: lines.reduce((sum, l) => sum + l.quantity, 0),
+      value: lines.reduce((sum, l) => sum + l.price * l.quantity, 0),
+      currency: "RON",
+    });
+  }, [lines]);
 
   function goTo(next: CheckoutStep) {
     setStep(next);

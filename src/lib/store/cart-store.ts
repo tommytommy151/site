@@ -5,6 +5,7 @@ import { persist } from "zustand/middleware";
 import type { Product, ProductVariant } from "@/types/product";
 import { useCouponStore } from "@/lib/store/coupon-store";
 import { quantityLineTotal } from "@/lib/pricing";
+import { trackMetaEvent } from "@/components/meta-pixel";
 
 export interface CartLine {
   productId: string;
@@ -81,6 +82,13 @@ export const useCartStore = create<CartState>()(
             maxStock: variant.stock,
           };
           return { lines: [...state.lines, line], isOpen: true };
+        });
+        trackMetaEvent("AddToCart", {
+          content_ids: [product.id],
+          content_name: product.name,
+          content_type: "product",
+          value: variant.price,
+          currency: product.currency,
         });
       },
 

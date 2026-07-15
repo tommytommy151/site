@@ -12,6 +12,7 @@ interface CreateSessionBody {
   customerEmail: string;
   items: CreateSessionItem[];
   shippingAmount: number;
+  discountAmount?: number;
 }
 
 export async function POST(req: NextRequest) {
@@ -26,7 +27,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body: CreateSessionBody = await req.json();
-  const { orderId, customerEmail, items, shippingAmount } = body;
+  const { orderId, customerEmail, items, shippingAmount, discountAmount } = body;
 
   if (!orderId || !customerEmail || !items?.length) {
     return NextResponse.json({ error: "Date de comandă incomplete." }, { status: 400 });
@@ -69,10 +70,22 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    let discounts: { coupon: string }[] | undefined;
+    if (discountAmount && discountAmount > 0) {
+      const coupon = await stripe.coupons.create({
+        amount_off: Math.round(discountAmount * 100),
+        currency: "ron",
+        duration: "once",
+        name: "Reducere comandă",
+      });
+      discounts = [{ coupon: coupon.id }];
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       customer_email: customerEmail,
       line_items: lineItems,
+      discounts,
       metadata: { orderId },
       success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/checkout?step=plata`,

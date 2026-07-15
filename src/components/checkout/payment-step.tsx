@@ -36,7 +36,7 @@ export function PaymentStep({ onBack }: { onBack: () => void }) {
   const [error, setError] = useState("");
 
   const shipping = shippingCost(shippingMethod, subtotal);
-  const { cardDiscount, total } = computeCheckoutTotals(
+  const { couponDiscount, cardDiscount, total } = computeCheckoutTotals(
     subtotal,
     couponDiscountPct,
     shipping,
@@ -103,6 +103,7 @@ export function PaymentStep({ onBack }: { onBack: () => void }) {
             unitAmount: item.price,
           })),
           shippingAmount: shipping,
+          discountAmount: Math.round(couponDiscount + cardDiscount),
         }),
       });
       const data = await res.json();

@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Check, Loader2, XCircle } from "lucide-react";
@@ -11,6 +11,7 @@ import { useCheckoutStore } from "@/lib/store/checkout-store";
 import { useCartStore } from "@/lib/store/cart-store";
 import { useOrderStore } from "@/lib/store/order-store";
 import { shippingCost } from "@/lib/pricing";
+import { trackMetaEvent } from "@/components/meta-pixel";
 import type { Order } from "@/types/order";
 
 export default function CheckoutSuccessPage() {
@@ -110,6 +111,18 @@ function CheckoutSuccessContent() {
 
   const orderId = isCod ? codOrderId : pendingOrderId;
   const order = orderId ? orders.find((o) => o.id === orderId) : undefined;
+
+  const trackedPurchase = useRef<string | null>(null);
+  useEffect(() => {
+    if (status !== "success" || !order || trackedPurchase.current === order.id) return;
+    trackedPurchase.current = order.id;
+    trackMetaEvent("Purchase", {
+      content_ids: order.items.map((i) => i.productId),
+      num_items: order.items.reduce((sum, i) => sum + i.quantity, 0),
+      value: order.total,
+      currency: "RON",
+    });
+  }, [status, order]);
 
   return (
     <div className="py-16 sm:py-20">
