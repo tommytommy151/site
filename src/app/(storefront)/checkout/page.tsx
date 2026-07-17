@@ -25,11 +25,14 @@ export default function CheckoutPage() {
 function CheckoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const user = useAuthStore((s) => s.user);
+  // An admin logged into /admin in the same browser shares this auth store, but
+  // that's not a real customer session — don't let it skip the account step.
+  const authUser = useAuthStore((s) => s.user);
+  const isCustomer = authUser?.role === "customer";
   const lines = useCartStore((s) => s.lines);
 
   const stepParam = searchParams.get("step") as CheckoutStep | null;
-  const [step, setStep] = useState<CheckoutStep>(stepParam ?? (user ? "livrare" : "cont"));
+  const [step, setStep] = useState<CheckoutStep>(stepParam ?? (isCustomer ? "livrare" : "cont"));
 
   const trackedInitiate = useRef(false);
   useEffect(() => {

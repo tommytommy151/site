@@ -30,7 +30,11 @@ function CheckoutSuccessContent() {
   const codOrderId = searchParams.get("order");
   const isCod = searchParams.get("method") === "cod";
 
-  const user = useAuthStore((s) => s.user);
+  // An admin logged into /admin in the same browser shares this auth store, but
+  // their "email" is really just their admin username — never treat that as a
+  // real customer identity here.
+  const authUser = useAuthStore((s) => s.user);
+  const user = authUser?.role === "customer" ? authUser : null;
   const contactName = useCheckoutStore((s) => s.contactName);
   const contactEmail = useCheckoutStore((s) => s.contactEmail);
   const address = useCheckoutStore((s) => s.address);
