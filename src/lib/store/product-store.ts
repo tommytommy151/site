@@ -126,9 +126,15 @@ export const useProductStore = create<ProductState>()(
 
       mergeCustomProducts: (incoming) =>
         set((state) => {
+          // The server copy is the source of truth for anything an admin has
+          // edited elsewhere (e.g. adding a category to an existing product) —
+          // only adding unseen slugs would leave every other browser stuck on
+          // whatever version it already had locally.
+          const incomingBySlug = new Map(incoming.map((p) => [p.slug, p]));
+          const merged = state.products.map((p) => incomingBySlug.get(p.slug) ?? p);
           const existingSlugs = new Set(state.products.map((p) => p.slug));
           const toAdd = incoming.filter((p) => !existingSlugs.has(p.slug));
-          return toAdd.length ? { products: [...toAdd, ...state.products] } : {};
+          return { products: [...toAdd, ...merged] };
         }),
 
       addProduct: (input) =>
