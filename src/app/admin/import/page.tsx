@@ -32,6 +32,7 @@ interface ParsedRow {
   name: string;
   price: number;
   stock: number;
+  images: string[];
 }
 
 function parseCsv(text: string): ParsedRow[] {
@@ -45,11 +46,15 @@ function parseCsv(text: string): ParsedRow[] {
   const nameIdx = header.indexOf("name");
   const priceIdx = header.indexOf("price");
   const stockIdx = header.indexOf("stock");
+  const hasHeader = nameIdx !== -1 || priceIdx !== -1 || stockIdx !== -1;
+  const imagesIdx = hasHeader
+    ? header.findIndex((h) => h === "image" || h === "images")
+    : -1;
 
-  const dataLines = nameIdx === -1 && priceIdx === -1 && stockIdx === -1 ? lines : lines.slice(1);
-  const useIdx = nameIdx === -1 && priceIdx === -1 && stockIdx === -1
-    ? { name: 0, price: 1, stock: 2 }
-    : { name: nameIdx, price: priceIdx, stock: stockIdx };
+  const dataLines = hasHeader ? lines.slice(1) : lines;
+  const useIdx = hasHeader
+    ? { name: nameIdx, price: priceIdx, stock: stockIdx }
+    : { name: 0, price: 1, stock: 2 };
 
   return dataLines
     .map((line) => {
@@ -57,7 +62,14 @@ function parseCsv(text: string): ParsedRow[] {
       const name = cols[useIdx.name] ?? "";
       const price = Number(cols[useIdx.price] ?? 0) || 0;
       const stock = Number(cols[useIdx.stock] ?? 0) || 0;
-      return { name, price, stock };
+      const images =
+        imagesIdx !== -1
+          ? (cols[imagesIdx] ?? "")
+              .split("|")
+              .map((url) => url.trim())
+              .filter(Boolean)
+          : [];
+      return { name, price, stock, images };
     })
     .filter((row) => row.name.length > 0);
 }
@@ -520,7 +532,8 @@ function CsvImportSection() {
         categorySlug: "necategorizat",
         price: row.price,
         stock: row.stock,
-        image: "",
+        image: row.images[0] ?? "",
+        images: row.images,
         description: "",
         badges: [],
         tags: tagsByRow[i],
@@ -536,9 +549,11 @@ function CsvImportSection() {
         <h2 className="text-lg font-semibold tracking-tight">Import din CSV</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Încarcă un fișier CSV cu coloanele <code className="rounded bg-muted px-1 py-0.5">name</code>,{" "}
-          <code className="rounded bg-muted px-1 py-0.5">price</code> și{" "}
-          <code className="rounded bg-muted px-1 py-0.5">stock</code> pentru a adăuga rapid mai multe
-          produse în catalog.
+          <code className="rounded bg-muted px-1 py-0.5">price</code>,{" "}
+          <code className="rounded bg-muted px-1 py-0.5">stock</code> și, opțional,{" "}
+          <code className="rounded bg-muted px-1 py-0.5">images</code> (adrese de imagini separate
+          prin <code className="rounded bg-muted px-1 py-0.5">|</code>) pentru a adăuga rapid mai
+          multe produse în catalog, cu fotografiile lor.
         </p>
       </div>
 
@@ -549,7 +564,7 @@ function CsvImportSection() {
             {fileName ?? "Alege un fișier CSV"}
           </span>
           <span className="text-xs text-muted-foreground">
-            ex. name,price,stock
+            ex. name,price,stock,images
           </span>
           <input type="file" accept=".csv" onChange={handleFileChange} className="mt-2 text-sm" />
         </label>
@@ -564,6 +579,7 @@ function CsvImportSection() {
                   <th className="px-4 py-3 font-medium">Nume</th>
                   <th className="px-4 py-3 font-medium">Preț</th>
                   <th className="px-4 py-3 font-medium">Stoc</th>
+                  <th className="px-4 py-3 font-medium">Foto</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -572,6 +588,9 @@ function CsvImportSection() {
                     <td className="px-4 py-3 text-foreground">{row.name}</td>
                     <td className="px-4 py-3 text-foreground">{row.price} lei</td>
                     <td className="px-4 py-3 text-foreground">{row.stock}</td>
+                    <td className="px-4 py-3 text-muted-foreground">
+                      {row.images.length > 0 ? row.images.length : "—"}
+                    </td>
                   </tr>
                 ))}
               </tbody>
