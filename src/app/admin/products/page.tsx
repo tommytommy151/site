@@ -173,7 +173,15 @@ export default function AdminProductsPage() {
       </div>
 
       <div className="overflow-x-auto rounded-2xl border border-border bg-card">
-        <table className="w-full text-sm">
+        <table className="w-full table-fixed text-sm">
+          <colgroup>
+            <col className="w-[34%]" />
+            <col className="w-[16%]" />
+            <col className="w-[14%]" />
+            <col className="w-[10%]" />
+            <col className="w-[10%]" />
+            <col className="w-[16%]" />
+          </colgroup>
           <thead>
             <tr className="border-b border-border text-left text-xs text-muted-foreground uppercase">
               <th className="p-4 font-medium">Produs</th>
@@ -187,28 +195,30 @@ export default function AdminProductsPage() {
           <tbody className="divide-y divide-border">
             {filtered.map((product) => (
               <tr key={product.id}>
-                <td className="flex items-center gap-3 p-4">
-                  <div className="relative size-11 shrink-0 overflow-hidden rounded-lg bg-muted">
-                    <Image
-                      src={product.images[0]}
-                      alt={product.name}
-                      fill
-                      className="object-cover"
-                      unoptimized
-                    />
-                  </div>
-                  <div className="min-w-0">
-                    <Link
-                      href={`/products/${product.slug}`}
-                      target="_blank"
-                      className="block truncate font-medium text-foreground hover:underline"
-                    >
-                      {product.name}
-                    </Link>
-                    <p className="text-xs text-muted-foreground">{product.brand}</p>
+                <td className="p-4">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="relative size-11 shrink-0 overflow-hidden rounded-lg bg-muted">
+                      <Image
+                        src={product.images[0]}
+                        alt={product.name}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <Link
+                        href={`/products/${product.slug}`}
+                        target="_blank"
+                        className="block truncate font-medium text-foreground hover:underline"
+                      >
+                        {product.name}
+                      </Link>
+                      <p className="truncate text-xs text-muted-foreground">{product.brand}</p>
+                    </div>
                   </div>
                 </td>
-                <td className="p-4 text-muted-foreground">{product.category}</td>
+                <td className="truncate p-4 text-muted-foreground">{product.category}</td>
                 <td className="p-4 font-medium text-foreground">
                   <div className="flex items-center gap-1">
                     <InlineNumberField
