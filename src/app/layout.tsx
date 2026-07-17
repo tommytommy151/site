@@ -7,6 +7,7 @@ import { ProductStoreHydrator } from "@/components/product-store-hydrator";
 import { OrderStoreHydrator } from "@/components/order-store-hydrator";
 import { CatalogStoreHydrator } from "@/components/catalog-store-hydrator";
 import { MetaPixel } from "@/components/meta-pixel";
+import { TikTokPixel } from "@/components/tiktok-pixel";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -93,6 +94,7 @@ export default function RootLayout({
           <OrderStoreHydrator />
           <CatalogStoreHydrator />
           <MetaPixel />
+          <TikTokPixel />
           {children}
           <CookieConsent />
         </Providers>
