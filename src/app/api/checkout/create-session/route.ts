@@ -84,6 +84,9 @@ export async function POST(req: NextRequest) {
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
+      // Restricting to card only keeps Stripe from offering Link, which shows
+      // its own "Confirm it's you" phone-verification screen before card entry.
+      payment_method_types: ["card"],
       customer_email: customerEmail,
       line_items: lineItems,
       discounts,
