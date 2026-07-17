@@ -77,6 +77,15 @@ export const categories: Category[] = [
     parentId: "cat-articole-pentru-casa",
   },
   {
+    id: "cat-piscine",
+    name: "Piscine",
+    slug: "piscine",
+    image: "https://images.unsplash.com/photo-1572331165267-854da2b10ccf?w=900&h=1100&fit=crop&q=80",
+    productCount: 0,
+    description: "Piscine, accesorii și echipamente pentru curte și grădină.",
+    parentId: "cat-gradina",
+  },
+  {
     id: "cat-produse-hot",
     name: "Produse Hot",
     slug: "produse-hot",
