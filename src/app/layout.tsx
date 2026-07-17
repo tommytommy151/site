@@ -4,6 +4,7 @@ import { Providers } from "@/components/providers";
 import { ThemeApplier } from "@/components/theme-applier";
 import { CookieConsent } from "@/components/cookie-consent";
 import { ProductStoreHydrator } from "@/components/product-store-hydrator";
+import { OrderStoreHydrator } from "@/components/order-store-hydrator";
 import { MetaPixel } from "@/components/meta-pixel";
 import "./globals.css";
 
@@ -88,6 +89,7 @@ export default function RootLayout({
         <Providers>
           <ThemeApplier />
           <ProductStoreHydrator />
+          <OrderStoreHydrator />
           <MetaPixel />
           {children}
           <CookieConsent />
