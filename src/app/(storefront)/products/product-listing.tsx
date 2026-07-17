@@ -19,6 +19,7 @@ import { ProductCard } from "@/components/product/product-card";
 import { RatingStars } from "@/components/ui/rating-stars";
 import { useProductStore } from "@/lib/store/product-store";
 import { useCatalogStore } from "@/lib/store/catalog-store";
+import { productCategorySlugs } from "@/lib/products/category-slugs";
 import { formatPrice } from "@/lib/format";
 import type { Product, ProductBadge } from "@/types/product";
 
@@ -103,7 +104,8 @@ export function ProductListing({ initialCategorySlug }: { initialCategorySlug?: 
 
   const filtered = useMemo(() => {
     let list = allProducts.filter((p) => {
-      if (filters.categories.length && !filters.categories.includes(p.categorySlug)) return false;
+      if (filters.categories.length && !productCategorySlugs(p).some((slug) => filters.categories.includes(slug)))
+        return false;
       if (filters.brands.length && !filters.brands.includes(p.brandSlug)) return false;
       if (p.price > filters.priceMax) return false;
       if (p.rating < filters.minRating) return false;

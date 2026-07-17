@@ -13,6 +13,7 @@ export interface ProductFormInput {
   brandSlug: string;
   category: string;
   categorySlug: string;
+  categorySlugs?: string[];
   price: number;
   compareAtPrice?: number;
   stock: number;
@@ -39,6 +40,7 @@ function buildProduct(id: string, input: ProductFormInput): Product {
     brandSlug: input.brandSlug,
     category: input.category,
     categorySlug: input.categorySlug,
+    categorySlugs: input.categorySlugs?.length ? input.categorySlugs : [input.categorySlug],
     tagline: input.description.slice(0, 120),
     description: input.description,
     price: input.price,

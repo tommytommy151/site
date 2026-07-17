@@ -752,6 +752,7 @@ export const products: Product[] = SEEDS.map((seed) => {
     brandSlug: seed.brandSlug,
     category: seed.category,
     categorySlug: seed.categorySlug,
+    categorySlugs: [seed.categorySlug],
     tagline: seed.tagline,
     description: seed.description,
     price: seed.price,

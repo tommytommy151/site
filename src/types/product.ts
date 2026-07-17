@@ -35,6 +35,8 @@ export interface Product {
   brandSlug: string;
   category: string;
   categorySlug: string;
+  /** All categories this product should be listed under (parent, category, subcategory, or any combination). Falls back to [categorySlug] when absent on older records. */
+  categorySlugs?: string[];
   tagline: string;
   description: string;
   price: number;

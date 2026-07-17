@@ -8,7 +8,8 @@ import { ArrowLeft, ExternalLink, Trash2, X } from "lucide-react";
 import { TagInput } from "@/components/admin/tag-input";
 import { useProductStore, type ProductFormInput } from "@/lib/store/product-store";
 import { useCatalogStore, slugify } from "@/lib/store/catalog-store";
-import type { Product, ProductBadge } from "@/types/product";
+import type { Category, Product, ProductBadge } from "@/types/product";
+import { productCategorySlugs } from "@/lib/products/category-slugs";
 import { Input } from "@/components/ui/input";
 import { ImageUploadInput } from "@/components/admin/image-upload-input";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,7 @@ function emptyForm(): ProductFormInput {
     brandSlug: "",
     category: "",
     categorySlug: "",
+    categorySlugs: [],
     price: 0,
     compareAtPrice: undefined,
     stock: 0,
@@ -58,6 +60,7 @@ function formFromProduct(product: Product): ProductFormInput {
     brandSlug: product.brandSlug,
     category: product.category,
     categorySlug: product.categorySlug,
+    categorySlugs: productCategorySlugs(product),
     price: product.price,
     compareAtPrice: product.compareAtPrice,
     stock: product.stock,
@@ -67,6 +70,28 @@ function formFromProduct(product: Product): ProductFormInput {
     badges: product.badges,
     tags: product.tags ?? [],
   };
+}
+
+interface CategoryTreeNode {
+  category: Category;
+  depth: number;
+}
+
+function flattenCategoryTree(categories: Category[]): CategoryTreeNode[] {
+  const byParent = new Map<string | null, Category[]>();
+  for (const category of categories) {
+    const key = category.parentId ?? null;
+    byParent.set(key, [...(byParent.get(key) ?? []), category]);
+  }
+  const result: CategoryTreeNode[] = [];
+  function visit(parentId: string | null, depth: number) {
+    for (const category of byParent.get(parentId) ?? []) {
+      result.push({ category, depth });
+      visit(category.id, depth + 1);
+    }
+  }
+  visit(null, 0);
+  return result;
 }
 
 function SidebarBox({ title, children }: { title: string; children: React.ReactNode }) {
@@ -92,6 +117,25 @@ export function ProductEditForm({ product }: { product?: Product }) {
   const [error, setError] = useState<string | null>(null);
 
   const gallery = form.images ?? [];
+  const categoryTree = flattenCategoryTree(categories);
+
+  function toggleCategory(slug: string) {
+    setForm((f) => {
+      const current = f.categorySlugs ?? [];
+      const nextSlugs = current.includes(slug) ? current.filter((s) => s !== slug) : [...current, slug];
+      // The deepest selected node (e.g. the subcategory over its parents) is the
+      // most specific one, so it's what breadcrumbs/search should treat as primary.
+      const primary = categoryTree
+        .filter((node) => nextSlugs.includes(node.category.slug))
+        .sort((a, b) => b.depth - a.depth)[0]?.category;
+      return {
+        ...f,
+        categorySlugs: nextSlugs,
+        category: primary?.name ?? "",
+        categorySlug: primary?.slug ?? "",
+      };
+    });
+  }
 
   function updateGalleryImage(index: number, url: string) {
     setForm((f) => {
@@ -123,7 +167,7 @@ export function ProductEditForm({ product }: { product?: Product }) {
     e.preventDefault();
     if (!form.name.trim()) return setError("Numele produsului este obligatoriu.");
     if (!form.brand) return setError("Alege un brand.");
-    if (!form.category) return setError("Alege o categorie.");
+    if (!form.categorySlugs?.length) return setError("Alege cel puțin o categorie.");
     setError(null);
 
     const payload: ProductFormInput = {
@@ -303,26 +347,27 @@ export function ProductEditForm({ product }: { product?: Product }) {
                 </Select>
               </div>
               <div>
-                <Label className="mb-1.5">Categorie</Label>
-                <Select
-                  value={form.categorySlug}
-                  onValueChange={(value) => {
-                    const category = categories.find((c) => c.slug === value);
-                    if (!category) return;
-                    setForm((f) => ({ ...f, category: category.name, categorySlug: category.slug }));
-                  }}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Alege categoria" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.slug}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label className="mb-1.5">
+                  Categorii{" "}
+                  <span className="font-normal text-muted-foreground">
+                    (poți bifa mai multe — categorie părinte, categorie și subcategorie)
+                  </span>
+                </Label>
+                <div className="flex max-h-64 flex-col gap-0.5 overflow-y-auto rounded-lg border border-border p-2">
+                  {categoryTree.map(({ category, depth }) => (
+                    <label
+                      key={category.id}
+                      className="flex cursor-pointer items-center gap-2 rounded-md px-1.5 py-1 text-sm hover:bg-muted"
+                      style={{ paddingLeft: `${depth * 16 + 6}px` }}
+                    >
+                      <Checkbox
+                        checked={(form.categorySlugs ?? []).includes(category.slug)}
+                        onCheckedChange={() => toggleCategory(category.slug)}
+                      />
+                      <span className="text-foreground/85">{category.name}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
             </div>
           </SidebarBox>
