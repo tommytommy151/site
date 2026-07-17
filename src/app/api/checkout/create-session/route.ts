@@ -27,7 +27,8 @@ export async function POST(req: NextRequest) {
   }
 
   const body: CreateSessionBody = await req.json();
-  const { orderId, customerEmail, items, shippingAmount, discountAmount } = body;
+  const { orderId, items, shippingAmount, discountAmount } = body;
+  const customerEmail = body.customerEmail?.trim() ?? "";
 
   if (!orderId || !customerEmail || !items?.length) {
     return NextResponse.json({ error: "Date de comandă incomplete." }, { status: 400 });

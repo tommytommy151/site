@@ -40,7 +40,8 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
 
-      login: (email) => {
+      login: (rawEmail) => {
+        const email = rawEmail.trim();
         const user: AuthUser = {
           id: `user-${Date.now()}`,
           name: nameFromEmail(email),
@@ -52,7 +53,8 @@ export const useAuthStore = create<AuthState>()(
         return user;
       },
 
-      loginAsAdmin: (email) => {
+      loginAsAdmin: (rawEmail) => {
+        const email = rawEmail.trim();
         const user: AuthUser = {
           id: `admin-${Date.now()}`,
           name: nameFromEmail(email) || "Administrator",
@@ -64,10 +66,11 @@ export const useAuthStore = create<AuthState>()(
         return user;
       },
 
-      register: (name, email) => {
+      register: (rawName, rawEmail) => {
+        const email = rawEmail.trim();
         const user: AuthUser = {
           id: `user-${Date.now()}`,
-          name,
+          name: rawName.trim(),
           email,
           avatar: `https://picsum.photos/seed/user-${encodeURIComponent(email)}/200/200`,
           role: "customer",

@@ -48,9 +48,9 @@ export function AccountStep({ onDone }: { onDone: () => void }) {
     }
 
     if (mode === "login") {
-      login(email, password);
+      login(email.trim(), password);
     } else {
-      register(name, email, password);
+      register(name.trim(), email.trim(), password);
     }
     onDone();
   }
