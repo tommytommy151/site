@@ -115,7 +115,7 @@ export function ProductListing({ initialCategorySlug }: { initialCategorySlug?: 
     });
     list = sortProducts(list, sort);
     return list;
-  }, [filters, sort]);
+  }, [allProducts, filters, sort]);
 
   function toggleArrayFilter<K extends "categories" | "brands">(key: K, value: string) {
     setFilters((f) => ({
