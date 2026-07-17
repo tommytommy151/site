@@ -140,12 +140,16 @@ export const useSiteStore = create<SiteState>()(
     }),
     {
       name: "estelaoferta-site",
-      version: 3,
+      version: 4,
       migrate: (persisted) => {
         const state = persisted as SiteState;
         const existingSections = state.homeSections ?? DEFAULT_HOME_SECTIONS;
         const missingSections = DEFAULT_HOME_SECTIONS.filter(
           (defaultSection) => !existingSections.some((s) => s.id === defaultSection.id),
+        );
+        const existingMenu = state.menu ?? DEFAULT_MENU;
+        const missingMenuItems = DEFAULT_MENU.filter(
+          (defaultItem) => !existingMenu.some((m) => m.id === defaultItem.id),
         );
         return {
           ...state,
@@ -153,7 +157,7 @@ export const useSiteStore = create<SiteState>()(
             ...p,
             showInHeader: p.showInHeader ?? false,
           })),
-          menu: state.menu ?? DEFAULT_MENU,
+          menu: [...existingMenu, ...missingMenuItems],
           hero: state.hero ?? DEFAULT_HERO,
           homeSections: [...missingSections, ...existingSections],
         };
