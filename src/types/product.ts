@@ -55,6 +55,8 @@ export interface Product {
   features: string[];
   reviews: ProductReview[];
   relatedIds: string[];
+  /** Curated by admins in the product editor to drive the "Frecvent cumpărate împreună" widget. */
+  boughtTogetherIds?: string[];
   weightGrams?: number;
   freeShipping?: boolean;
 }

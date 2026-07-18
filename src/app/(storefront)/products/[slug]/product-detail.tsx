@@ -79,6 +79,10 @@ export function ProductDetail({ slug }: { slug: string }) {
     .map((id) => products.find((p) => p.id === id))
     .filter((p): p is (typeof products)[number] => Boolean(p));
 
+  const boughtTogether = (product.boughtTogetherIds ?? [])
+    .map((id) => products.find((p) => p.id === id))
+    .filter((p): p is (typeof products)[number] => Boolean(p));
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -123,9 +127,12 @@ export function ProductDetail({ slug }: { slug: string }) {
           <VariantSelector product={product} />
         </div>
 
-        {related.length > 0 && (
+        {(boughtTogether.length > 0 || related.length > 0) && (
           <div className="mt-10">
-            <FrequentlyBoughtTogether product={product} related={related.slice(0, 2)} />
+            <FrequentlyBoughtTogether
+              product={product}
+              related={(boughtTogether.length > 0 ? boughtTogether : related).slice(0, 2)}
+            />
           </div>
         )}
 

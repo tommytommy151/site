@@ -22,6 +22,7 @@ export interface ProductFormInput {
   description: string;
   badges: ProductBadge[];
   tags?: string[];
+  boughtTogetherIds?: string[];
 }
 
 function buildProduct(id: string, input: ProductFormInput): Product {
@@ -66,6 +67,7 @@ function buildProduct(id: string, input: ProductFormInput): Product {
     features: [],
     reviews,
     relatedIds: [],
+    boughtTogetherIds: (input.boughtTogetherIds ?? []).filter(Boolean),
   };
 }
 

@@ -49,6 +49,7 @@ function emptyForm(): ProductFormInput {
     description: "",
     badges: [],
     tags: [],
+    boughtTogetherIds: [],
   };
 }
 
@@ -69,6 +70,7 @@ function formFromProduct(product: Product): ProductFormInput {
     description: product.description,
     badges: product.badges,
     tags: product.tags ?? [],
+    boughtTogetherIds: product.boughtTogetherIds ?? [],
   };
 }
 
@@ -108,6 +110,7 @@ export function ProductEditForm({ product }: { product?: Product }) {
   const addProduct = useProductStore((s) => s.addProduct);
   const updateProduct = useProductStore((s) => s.updateProduct);
   const deleteProduct = useProductStore((s) => s.deleteProduct);
+  const allProducts = useProductStore((s) => s.products);
   const categories = useCatalogStore((s) => s.categories);
   const brands = useCatalogStore((s) => s.brands);
 
@@ -115,9 +118,24 @@ export function ProductEditForm({ product }: { product?: Product }) {
     product ? formFromProduct(product) : emptyForm(),
   );
   const [error, setError] = useState<string | null>(null);
+  const [boughtTogetherSearch, setBoughtTogetherSearch] = useState("");
 
   const gallery = form.images ?? [];
   const categoryTree = flattenCategoryTree(categories);
+
+  const boughtTogetherIds = form.boughtTogetherIds ?? [];
+  const boughtTogetherCandidates = allProducts
+    .filter((p) => p.id !== product?.id)
+    .filter((p) => p.name.toLowerCase().includes(boughtTogetherSearch.trim().toLowerCase()));
+  const selectedBoughtTogether = allProducts.filter((p) => boughtTogetherIds.includes(p.id));
+
+  function toggleBoughtTogether(id: string) {
+    setForm((f) => {
+      const current = f.boughtTogetherIds ?? [];
+      const next = current.includes(id) ? current.filter((x) => x !== id) : [...current, id];
+      return { ...f, boughtTogetherIds: next };
+    });
+  }
 
   function toggleCategory(slug: string) {
     setForm((f) => {
@@ -440,6 +458,53 @@ export function ProductEditForm({ product }: { product?: Product }) {
               onChange={(tags) => setForm((f) => ({ ...f, tags }))}
               placeholder="Scrie o etichetă și apasă Enter"
             />
+          </SidebarBox>
+
+          <SidebarBox title="Cumpărate frecvent împreună">
+            <div className="flex flex-col gap-2">
+              {selectedBoughtTogether.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {selectedBoughtTogether.map((p) => (
+                    <span
+                      key={p.id}
+                      className="flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs text-foreground/85"
+                    >
+                      {p.name}
+                      <button
+                        type="button"
+                        onClick={() => toggleBoughtTogether(p.id)}
+                        aria-label={`Elimină ${p.name}`}
+                        className="text-muted-foreground hover:text-foreground"
+                      >
+                        <X className="size-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              <Input
+                value={boughtTogetherSearch}
+                onChange={(e) => setBoughtTogetherSearch(e.target.value)}
+                placeholder="Caută un produs după nume..."
+              />
+              <div className="flex max-h-52 flex-col gap-0.5 overflow-y-auto rounded-lg border border-border p-2">
+                {boughtTogetherCandidates.length === 0 && (
+                  <p className="px-1.5 py-1 text-sm text-muted-foreground">Niciun produs găsit.</p>
+                )}
+                {boughtTogetherCandidates.slice(0, 30).map((p) => (
+                  <label
+                    key={p.id}
+                    className="flex cursor-pointer items-center gap-2 rounded-md px-1.5 py-1 text-sm hover:bg-muted"
+                  >
+                    <Checkbox
+                      checked={boughtTogetherIds.includes(p.id)}
+                      onCheckedChange={() => toggleBoughtTogether(p.id)}
+                    />
+                    <span className="text-foreground/85">{p.name}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
           </SidebarBox>
         </div>
       </div>
