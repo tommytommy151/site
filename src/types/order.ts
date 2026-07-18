@@ -13,6 +13,7 @@ export interface Order {
   number: string;
   customerName: string;
   customerEmail: string;
+  customerPhone?: string;
   date: string;
   status: OrderStatus;
   items: OrderItem[];

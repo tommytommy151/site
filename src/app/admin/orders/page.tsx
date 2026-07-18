@@ -104,7 +104,10 @@ export default function AdminOrdersPage() {
                 <td className="p-4 font-medium text-foreground">{order.number}</td>
                 <td className="p-4">
                   <p className="text-foreground">{order.customerName}</p>
-                  <p className="text-xs text-muted-foreground">{order.customerEmail}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {order.customerEmail || order.customerPhone}
+                    {order.customerEmail && order.customerPhone ? ` · ${order.customerPhone}` : ""}
+                  </p>
                 </td>
                 <td className="p-4 text-muted-foreground">{formatDate(order.date)}</td>
                 <td className="p-4 text-muted-foreground">{order.paymentMethod}</td>

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { MessageCircleQuestion, ThumbsUp, BadgeCheck } from "lucide-react";
+import { ThumbsUp, BadgeCheck } from "lucide-react";
 import { RatingStars } from "@/components/ui/rating-stars";
 import { Button } from "@/components/ui/button";
+import { QuickOrderForm } from "@/components/product/quick-order-form";
 import { formatDate } from "@/lib/format";
 import type { Product } from "@/types/product";
 
@@ -93,49 +93,9 @@ export function ProductTabs({ product }: { product: Product }) {
       </section>
 
       <section className="pt-12">
-        <h2 className="mb-5 text-xl font-semibold tracking-tight">Întrebări & Răspunsuri</h2>
-        <QuestionsAndAnswers />
+        <h2 className="mb-5 text-xl font-semibold tracking-tight">Comandă rapidă</h2>
+        <QuickOrderForm product={product} />
       </section>
-    </div>
-  );
-}
-
-function QuestionsAndAnswers() {
-  const [question, setQuestion] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-
-  return (
-    <div className="max-w-2xl">
-      <div className="flex flex-col items-start gap-3 rounded-2xl border border-dashed border-border p-6">
-        <MessageCircleQuestion className="size-6 text-brand-emerald" />
-        <p className="text-sm font-medium text-foreground">Nicio întrebare încă</p>
-        <p className="text-sm text-muted-foreground">
-          Fii primul care pune o întrebare despre acest produs.
-        </p>
-        {submitted ? (
-          <p className="text-sm font-medium text-brand-emerald">
-            Mulțumim — te vom anunța când primește un răspuns.
-          </p>
-        ) : (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (question.trim()) setSubmitted(true);
-            }}
-            className="flex w-full flex-col gap-3 sm:flex-row"
-          >
-            <input
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              placeholder="Pune o întrebare despre acest produs..."
-              className="h-10 flex-1 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-brand-emerald"
-            />
-            <Button type="submit" size="sm" className="h-10">
-              Trimite
-            </Button>
-          </form>
-        )}
-      </div>
     </div>
   );
 }
