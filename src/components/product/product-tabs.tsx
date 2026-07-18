@@ -24,15 +24,8 @@ export function ProductTabs({ product }: { product: Product }) {
       </section>
 
       <section className="py-12">
-        <h2 className="mb-5 text-xl font-semibold tracking-tight">Caracteristici</h2>
-        <ul className="grid max-w-2xl grid-cols-1 gap-3 sm:grid-cols-2">
-          {product.features.map((feature) => (
-            <li key={feature} className="flex items-start gap-2.5 text-sm text-foreground/90">
-              <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-brand-emerald" />
-              {feature}
-            </li>
-          ))}
-        </ul>
+        <h2 className="mb-5 text-xl font-semibold tracking-tight">Comandă rapidă</h2>
+        <QuickOrderForm product={product} />
       </section>
 
       <section className="py-12">
@@ -90,11 +83,6 @@ export function ProductTabs({ product }: { product: Product }) {
             ))}
           </div>
         </div>
-      </section>
-
-      <section className="pt-12">
-        <h2 className="mb-5 text-xl font-semibold tracking-tight">Comandă rapidă</h2>
-        <QuickOrderForm product={product} />
       </section>
     </div>
   );
