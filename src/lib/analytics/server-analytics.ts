@@ -12,14 +12,10 @@ const EMPTY_STATS: AnalyticsStats = { totalVisits: 0, referrers: {}, productClic
 
 async function readStats(): Promise<AnalyticsStats> {
   if (!process.env.BLOB_READ_WRITE_TOKEN) return EMPTY_STATS;
-  try {
-    const blob = await get(BLOB_PATHNAME, { access: "private", useCache: false });
-    if (!blob) return EMPTY_STATS;
-    const text = await new Response(blob.stream).text();
-    return { ...EMPTY_STATS, ...JSON.parse(text) };
-  } catch {
-    return EMPTY_STATS;
-  }
+  const blob = await get(BLOB_PATHNAME, { access: "private", useCache: false });
+  if (!blob) return EMPTY_STATS;
+  const text = await new Response(blob.stream).text();
+  return { ...EMPTY_STATS, ...JSON.parse(text) };
 }
 
 async function writeStats(stats: AnalyticsStats) {
