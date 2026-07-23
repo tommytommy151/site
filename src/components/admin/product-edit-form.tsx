@@ -8,8 +8,9 @@ import { ArrowLeft, ExternalLink, Trash2, X } from "lucide-react";
 import { TagInput } from "@/components/admin/tag-input";
 import { useProductStore, type ProductFormInput } from "@/lib/store/product-store";
 import { useCatalogStore, slugify } from "@/lib/store/catalog-store";
-import type { Category, Product, ProductBadge } from "@/types/product";
+import type { Product, ProductBadge } from "@/types/product";
 import { productCategorySlugs } from "@/lib/products/category-slugs";
+import { flattenCategoryTree, pickPrimaryCategory } from "@/lib/products/category-tree";
 import { Input } from "@/components/ui/input";
 import { ImageUploadInput } from "@/components/admin/image-upload-input";
 import { Button } from "@/components/ui/button";
@@ -74,28 +75,6 @@ function formFromProduct(product: Product): ProductFormInput {
   };
 }
 
-interface CategoryTreeNode {
-  category: Category;
-  depth: number;
-}
-
-function flattenCategoryTree(categories: Category[]): CategoryTreeNode[] {
-  const byParent = new Map<string | null, Category[]>();
-  for (const category of categories) {
-    const key = category.parentId ?? null;
-    byParent.set(key, [...(byParent.get(key) ?? []), category]);
-  }
-  const result: CategoryTreeNode[] = [];
-  function visit(parentId: string | null, depth: number) {
-    for (const category of byParent.get(parentId) ?? []) {
-      result.push({ category, depth });
-      visit(category.id, depth + 1);
-    }
-  }
-  visit(null, 0);
-  return result;
-}
-
 function SidebarBox({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="rounded-2xl border border-border bg-card p-4">
@@ -141,11 +120,7 @@ export function ProductEditForm({ product }: { product?: Product }) {
     setForm((f) => {
       const current = f.categorySlugs ?? [];
       const nextSlugs = current.includes(slug) ? current.filter((s) => s !== slug) : [...current, slug];
-      // The deepest selected node (e.g. the subcategory over its parents) is the
-      // most specific one, so it's what breadcrumbs/search should treat as primary.
-      const primary = categoryTree
-        .filter((node) => nextSlugs.includes(node.category.slug))
-        .sort((a, b) => b.depth - a.depth)[0]?.category;
+      const primary = pickPrimaryCategory(categoryTree, nextSlugs);
       return {
         ...f,
         categorySlugs: nextSlugs,

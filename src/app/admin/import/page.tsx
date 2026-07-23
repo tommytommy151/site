@@ -6,6 +6,7 @@ import { AlertCircle, Check, Loader2, Upload } from "lucide-react";
 import { useProductStore } from "@/lib/store/product-store";
 import { useCatalogStore, slugify } from "@/lib/store/catalog-store";
 import type { ProductBadge } from "@/types/product";
+import { flattenCategoryTree, pickPrimaryCategory } from "@/lib/products/category-tree";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -92,7 +93,7 @@ interface BatchItem {
   price: number;
   stock: number;
   brandSlug: string;
-  categorySlug: string;
+  categorySlugs: string[];
   badges: ProductBadge[];
   tags: string[];
   include: boolean;
@@ -120,7 +121,8 @@ function UrlImportSection() {
   const [addedCount, setAddedCount] = useState<number | null>(null);
 
   const [brandSlug, setBrandSlug] = useState("");
-  const [categorySlug, setCategorySlug] = useState("");
+  const [categorySlugs, setCategorySlugs] = useState<string[]>([]);
+  const categoryTree = flattenCategoryTree(categories);
 
   const doneCount = batch.filter((b) => b.status === "done").length;
   const includedCount = batch.filter((b) => b.status === "done" && b.include).length;
@@ -146,7 +148,7 @@ function UrlImportSection() {
         price: 0,
         stock: 20,
         brandSlug: "",
-        categorySlug: "",
+        categorySlugs: [],
         badges: ["new"],
         tags: [],
         include: true,
@@ -182,7 +184,7 @@ function UrlImportSection() {
   }
 
   function applyDefaultsToAll() {
-    setBatch((prev) => prev.map((it) => ({ ...it, brandSlug, categorySlug })));
+    setBatch((prev) => prev.map((it) => ({ ...it, brandSlug, categorySlugs })));
   }
 
   function toggleItemBadge(url: string, badge: ProductBadge) {
@@ -200,19 +202,35 @@ function UrlImportSection() {
     );
   }
 
+  function toggleItemCategory(url: string, slug: string) {
+    setBatch((prev) =>
+      prev.map((it) =>
+        it.url === url
+          ? {
+              ...it,
+              categorySlugs: it.categorySlugs.includes(slug)
+                ? it.categorySlugs.filter((s) => s !== slug)
+                : [...it.categorySlugs, slug],
+            }
+          : it,
+      ),
+    );
+  }
+
   function handleAddAll() {
     let count = 0;
     for (const item of batch) {
       if (!item.include || item.status !== "done" || !item.data) continue;
       const brand = brands.find((b) => b.slug === item.brandSlug);
-      const category = categories.find((c) => c.slug === item.categorySlug);
+      const primaryCategory = pickPrimaryCategory(categoryTree, item.categorySlugs);
       addProduct({
         name: item.data.name,
         slug: slugify(item.data.name),
         brand: brand?.name ?? "Fără brand",
         brandSlug: brand?.slug ?? "fara-brand",
-        category: category?.name ?? "Necategorizat",
-        categorySlug: category?.slug ?? "necategorizat",
+        category: primaryCategory?.name ?? "Necategorizat",
+        categorySlug: primaryCategory?.slug ?? "necategorizat",
+        categorySlugs: item.categorySlugs.length ? item.categorySlugs : ["necategorizat"],
         price: item.price,
         stock: item.stock,
         image: item.data.images[0] ?? "",
@@ -260,45 +278,59 @@ function UrlImportSection() {
 
       {batch.length > 0 && (
         <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-4">
-          <div className="flex flex-col gap-3 rounded-xl border border-dashed border-border p-3 sm:flex-row sm:items-end">
-            <div className="flex-1">
-              <Label className="mb-1.5">Brand implicit</Label>
-              <Select value={brandSlug} onValueChange={setBrandSlug}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Alege brand" />
-                </SelectTrigger>
-                <SelectContent>
-                  {brands.map((brand) => (
-                    <SelectItem key={brand.id} value={brand.slug}>
-                      {brand.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          <div className="flex flex-col gap-3 rounded-xl border border-dashed border-border p-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+              <div className="flex-1">
+                <Label className="mb-1.5">Brand implicit</Label>
+                <Select value={brandSlug} onValueChange={setBrandSlug}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Alege brand" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {brands.map((brand) => (
+                      <SelectItem key={brand.id} value={brand.slug}>
+                        {brand.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={applyDefaultsToAll}
+                disabled={!brandSlug && categorySlugs.length === 0}
+              >
+                Aplică tuturor
+              </Button>
             </div>
-            <div className="flex-1">
-              <Label className="mb-1.5">Categorie implicită</Label>
-              <Select value={categorySlug} onValueChange={setCategorySlug}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Alege categoria" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.slug}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div>
+              <Label className="mb-1.5">
+                Categorii implicite{" "}
+                <span className="font-normal text-muted-foreground">(poți bifa mai multe)</span>
+              </Label>
+              <div className="flex max-h-48 flex-col gap-0.5 overflow-y-auto rounded-lg border border-border p-2">
+                {categoryTree.map(({ category, depth }) => (
+                  <label
+                    key={category.id}
+                    className="flex cursor-pointer items-center gap-2 rounded-md px-1.5 py-1 text-sm hover:bg-muted"
+                    style={{ paddingLeft: `${depth * 16 + 6}px` }}
+                  >
+                    <Checkbox
+                      checked={categorySlugs.includes(category.slug)}
+                      onCheckedChange={() =>
+                        setCategorySlugs((prev) =>
+                          prev.includes(category.slug)
+                            ? prev.filter((s) => s !== category.slug)
+                            : [...prev, category.slug],
+                        )
+                      }
+                    />
+                    <span className="text-foreground/85">{category.name}</span>
+                  </label>
+                ))}
+              </div>
             </div>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={applyDefaultsToAll}
-              disabled={!brandSlug && !categorySlug}
-            >
-              Aplică tuturor
-            </Button>
           </div>
 
           <div className="flex flex-col divide-y divide-border">
@@ -403,22 +435,25 @@ function UrlImportSection() {
                         </Select>
                       </div>
                       <div>
-                        <Label className="mb-1.5 text-xs">Categorie</Label>
-                        <Select
-                          value={item.categorySlug}
-                          onValueChange={(v) => updateItem(item.url, { categorySlug: v })}
-                        >
-                          <SelectTrigger className="h-8 w-full text-xs">
-                            <SelectValue placeholder="Alege categoria" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {categories.map((category) => (
-                              <SelectItem key={category.id} value={category.slug}>
-                                {category.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <Label className="mb-1.5 text-xs">
+                          Categorii{" "}
+                          <span className="font-normal text-muted-foreground">(mai multe)</span>
+                        </Label>
+                        <div className="flex max-h-40 flex-col gap-0.5 overflow-y-auto rounded-lg border border-border p-1.5">
+                          {categoryTree.map(({ category, depth }) => (
+                            <label
+                              key={category.id}
+                              className="flex cursor-pointer items-center gap-1.5 rounded-md px-1 py-0.5 text-xs hover:bg-muted"
+                              style={{ paddingLeft: `${depth * 14 + 4}px` }}
+                            >
+                              <Checkbox
+                                checked={item.categorySlugs.includes(category.slug)}
+                                onCheckedChange={() => toggleItemCategory(item.url, category.slug)}
+                              />
+                              <span className="text-foreground/85">{category.name}</span>
+                            </label>
+                          ))}
+                        </div>
                       </div>
                     </div>
 
