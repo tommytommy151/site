@@ -18,7 +18,7 @@ function store() {
 // recordPageview/recordProductClick (read-modify-write) abort rather than
 // overwriting good stats with EMPTY_STATS.
 async function readStats(): Promise<AnalyticsStats> {
-  const data = await store().get(BLOB_KEY, { type: "json" });
+  const data = await store().get(BLOB_KEY, { type: "json", consistency: "strong" });
   return { ...EMPTY_STATS, ...(data as Partial<AnalyticsStats> | null) };
 }
 

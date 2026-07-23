@@ -11,7 +11,7 @@ function store() {
 // save/delete (read-modify-write) abort rather than overwriting good data
 // with an empty set.
 async function readAll(): Promise<Record<string, Product>> {
-  const data = await store().get(BLOB_KEY, { type: "json" });
+  const data = await store().get(BLOB_KEY, { type: "json", consistency: "strong" });
   return (data as Record<string, Product> | null) ?? {};
 }
 

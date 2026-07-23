@@ -15,7 +15,7 @@ function store() {
 
 export async function readCatalogSnapshot(): Promise<CatalogSnapshot | null> {
   try {
-    const data = await store().get(BLOB_KEY, { type: "json" });
+    const data = await store().get(BLOB_KEY, { type: "json", consistency: "strong" });
     return (data as CatalogSnapshot | null) ?? null;
   } catch {
     // Read-only lookup used for page rendering — degrade to defaults on a
