@@ -249,7 +249,14 @@ export async function POST(req: NextRequest) {
     jsonLd?.description ?? extractMeta(html, "og:description", "description") ?? "",
   );
 
-  const bodyImages = name ? filterByNameRelevance(extractImgTagUrls(html), name) : [];
+  // Many product galleries live on CDN paths with no product-name words at
+  // all (e.g. /files/8391029.jpg), so the name-relevance filter can wipe out
+  // every real gallery photo and leave just the 1-2 og:image/JSON-LD images.
+  // Only trust the filtered set when it actually kept something back —
+  // otherwise fall back to every extracted image rather than importing just one.
+  const allBodyImages = extractImgTagUrls(html);
+  const nameFilteredImages = name ? filterByNameRelevance(allBodyImages, name) : [];
+  const bodyImages = nameFilteredImages.length > 0 ? nameFilteredImages : allBodyImages;
   const images = dedupeImages(
     [...(jsonLd?.images ?? []), ...extractAllMeta(html, "og:image"), ...bodyImages],
     targetUrl,
