@@ -5,14 +5,10 @@ const BLOB_PATHNAME = "products/custom.json";
 
 async function readAll(): Promise<Record<string, Product>> {
   if (!process.env.BLOB_READ_WRITE_TOKEN) return {};
-  try {
-    const blob = await get(BLOB_PATHNAME, { access: "private", useCache: false });
-    if (!blob) return {};
-    const text = await new Response(blob.stream).text();
-    return JSON.parse(text) as Record<string, Product>;
-  } catch {
-    return {};
-  }
+  const blob = await get(BLOB_PATHNAME, { access: "private", useCache: false });
+  if (!blob) return {};
+  const text = await new Response(blob.stream).text();
+  return JSON.parse(text) as Record<string, Product>;
 }
 
 async function writeAll(products: Record<string, Product>) {
