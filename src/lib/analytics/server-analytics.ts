@@ -10,12 +10,25 @@ interface AnalyticsStats {
 
 const EMPTY_STATS: AnalyticsStats = { totalVisits: 0, referrers: {}, productClicks: {} };
 
+// Throws on a transient read failure instead of swallowing it, so
+// recordPageview/recordProductClick (read-modify-write) abort rather than
+// overwriting good stats with EMPTY_STATS.
 async function readStats(): Promise<AnalyticsStats> {
   if (!process.env.BLOB_READ_WRITE_TOKEN) return EMPTY_STATS;
   const blob = await get(BLOB_PATHNAME, { access: "private", useCache: false });
   if (!blob) return EMPTY_STATS;
   const text = await new Response(blob.stream).text();
   return { ...EMPTY_STATS, ...JSON.parse(text) };
+}
+
+// Used by the admin dashboard summary — degrade to zeros on a transient
+// blob error instead of failing the whole request.
+async function safeReadStats(): Promise<AnalyticsStats> {
+  try {
+    return await readStats();
+  } catch {
+    return EMPTY_STATS;
+  }
 }
 
 async function writeStats(stats: AnalyticsStats) {
@@ -44,7 +57,7 @@ export async function recordProductClick(productId: string, productName: string)
 }
 
 export async function getAnalyticsSummary() {
-  const stats = await readStats();
+  const stats = await safeReadStats();
   return {
     totalVisits: stats.totalVisits,
     referrers: Object.entries(stats.referrers)
