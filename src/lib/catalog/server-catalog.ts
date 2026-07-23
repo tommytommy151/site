@@ -11,10 +11,16 @@ const BLOB_PATHNAME = "catalog/custom.json";
 
 export async function readCatalogSnapshot(): Promise<CatalogSnapshot | null> {
   if (!process.env.BLOB_READ_WRITE_TOKEN) return null;
-  const blob = await get(BLOB_PATHNAME, { access: "private", useCache: false });
-  if (!blob) return null;
-  const text = await new Response(blob.stream).text();
-  return JSON.parse(text) as CatalogSnapshot;
+  try {
+    const blob = await get(BLOB_PATHNAME, { access: "private", useCache: false });
+    if (!blob) return null;
+    const text = await new Response(blob.stream).text();
+    return JSON.parse(text) as CatalogSnapshot;
+  } catch {
+    // Read-only lookup used for page rendering — degrade to defaults on a
+    // transient blob error instead of crashing the page.
+    return null;
+  }
 }
 
 export async function writeCatalogSnapshot(snapshot: CatalogSnapshot) {
