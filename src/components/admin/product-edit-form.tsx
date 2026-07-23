@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ExternalLink, Trash2, X } from "lucide-react";
+import { ArrowLeft, ExternalLink, Star, Trash2, X } from "lucide-react";
 import { TagInput } from "@/components/admin/tag-input";
 import { useProductStore, type ProductFormInput } from "@/lib/store/product-store";
 import { useCatalogStore, slugify } from "@/lib/store/catalog-store";
@@ -145,6 +145,17 @@ export function ProductEditForm({ product }: { product?: Product }) {
     });
   }
 
+  function setMainImage(index: number) {
+    setForm((f) => {
+      const current = f.images ?? [];
+      if (index <= 0 || index >= current.length) return f;
+      const chosen = current[index];
+      const rest = current.filter((_, i) => i !== index);
+      const next = [chosen, ...rest];
+      return { ...f, images: next, image: chosen };
+    });
+  }
+
   function addGalleryImage() {
     setForm((f) => ({ ...f, images: [...(f.images ?? []), ""] }));
   }
@@ -260,10 +271,21 @@ export function ProductEditForm({ product }: { product?: Product }) {
                       >
                         <X className="size-3.5" />
                       </button>
+                      {index !== 0 && src && (
+                        <button
+                          type="button"
+                          onClick={() => setMainImage(index)}
+                          aria-label="Fă imagine principală"
+                          title="Fă imagine principală"
+                          className="absolute bottom-1 left-1 flex size-6 items-center justify-center rounded-full bg-background/90 text-foreground hover:bg-primary hover:text-primary-foreground"
+                        >
+                          <Star className="size-3.5" />
+                        </button>
+                      )}
                     </div>
-                    {index === 0 && (
-                      <span className="text-center text-[11px] text-muted-foreground">Principală</span>
-                    )}
+                    <span className="text-center text-[11px] text-muted-foreground">
+                      {index === 0 ? "Principală" : " "}
+                    </span>
                   </div>
                 ))}
               </div>
