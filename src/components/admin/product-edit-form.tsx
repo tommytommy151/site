@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ExternalLink, Star, Trash2, X } from "lucide-react";
+import { ArrowLeft, ExternalLink, GripVertical, Trash2, X } from "lucide-react";
 import { TagInput } from "@/components/admin/tag-input";
 import { useProductStore, type ProductFormInput } from "@/lib/store/product-store";
 import { useCatalogStore, slugify } from "@/lib/store/catalog-store";
@@ -98,6 +98,8 @@ export function ProductEditForm({ product }: { product?: Product }) {
   );
   const [error, setError] = useState<string | null>(null);
   const [boughtTogetherSearch, setBoughtTogetherSearch] = useState("");
+  const [draggedImageIndex, setDraggedImageIndex] = useState<number | null>(null);
+  const [dragOverImageIndex, setDragOverImageIndex] = useState<number | null>(null);
 
   const gallery = form.images ?? [];
   const categoryTree = flattenCategoryTree(categories);
@@ -145,14 +147,16 @@ export function ProductEditForm({ product }: { product?: Product }) {
     });
   }
 
-  function setMainImage(index: number) {
+  function reorderGalleryImages(from: number, to: number) {
     setForm((f) => {
       const current = f.images ?? [];
-      if (index <= 0 || index >= current.length) return f;
-      const chosen = current[index];
-      const rest = current.filter((_, i) => i !== index);
-      const next = [chosen, ...rest];
-      return { ...f, images: next, image: chosen };
+      if (from === to || from < 0 || from >= current.length || to < 0 || to >= current.length) {
+        return f;
+      }
+      const next = [...current];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      return { ...f, images: next, image: next[0] ?? "" };
     });
   }
 
@@ -258,8 +262,39 @@ export function ProductEditForm({ product }: { product?: Product }) {
             {gallery.length > 0 && (
               <div className="mb-3 grid grid-cols-3 gap-3 sm:grid-cols-4">
                 {gallery.map((src, index) => (
-                  <div key={index} className="flex flex-col gap-1.5">
-                    <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
+                  <div
+                    key={index}
+                    draggable={Boolean(src)}
+                    onDragStart={() => setDraggedImageIndex(index)}
+                    onDragOver={(e) => {
+                      if (draggedImageIndex === null) return;
+                      e.preventDefault();
+                      if (dragOverImageIndex !== index) setDragOverImageIndex(index);
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      if (draggedImageIndex !== null) reorderGalleryImages(draggedImageIndex, index);
+                      setDraggedImageIndex(null);
+                      setDragOverImageIndex(null);
+                    }}
+                    onDragEnd={() => {
+                      setDraggedImageIndex(null);
+                      setDragOverImageIndex(null);
+                    }}
+                    className={[
+                      "flex flex-col gap-1.5",
+                      src ? "cursor-grab active:cursor-grabbing" : "",
+                      draggedImageIndex === index ? "opacity-40" : "",
+                    ].join(" ")}
+                  >
+                    <div
+                      className={[
+                        "relative aspect-square overflow-hidden rounded-lg bg-muted",
+                        dragOverImageIndex === index && draggedImageIndex !== null && draggedImageIndex !== index
+                          ? "ring-2 ring-primary"
+                          : "",
+                      ].join(" ")}
+                    >
                       {src ? (
                         <Image src={src} alt="" fill sizes="120px" className="object-cover" unoptimized />
                       ) : null}
@@ -271,16 +306,13 @@ export function ProductEditForm({ product }: { product?: Product }) {
                       >
                         <X className="size-3.5" />
                       </button>
-                      {index !== 0 && src && (
-                        <button
-                          type="button"
-                          onClick={() => setMainImage(index)}
-                          aria-label="Fă imagine principală"
-                          title="Fă imagine principală"
-                          className="absolute bottom-1 left-1 flex size-6 items-center justify-center rounded-full bg-background/90 text-foreground hover:bg-primary hover:text-primary-foreground"
+                      {src && (
+                        <div
+                          title="Trage pentru a reordona"
+                          className="absolute bottom-1 left-1 flex size-6 items-center justify-center rounded-full bg-background/90 text-muted-foreground"
                         >
-                          <Star className="size-3.5" />
-                        </button>
+                          <GripVertical className="size-3.5" />
+                        </div>
                       )}
                     </div>
                     <span className="text-center text-[11px] text-muted-foreground">
