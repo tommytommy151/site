@@ -1,17 +1,18 @@
-import { get, put, del } from "@vercel/blob";
+import { getStore } from "@netlify/blobs";
 import type { Order } from "@/types/order";
 
-const BLOB_PATHNAME = "orders/custom.json";
+const BLOB_KEY = "orders/custom.json";
+
+function store() {
+  return getStore("app-data");
+}
 
 // Throws on a transient read failure instead of swallowing it, so
 // save/delete (read-modify-write) abort rather than overwriting good data
 // with an empty set.
 async function readAll(): Promise<Record<string, Order>> {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return {};
-  const blob = await get(BLOB_PATHNAME, { access: "private", useCache: false });
-  if (!blob) return {};
-  const text = await new Response(blob.stream).text();
-  return JSON.parse(text) as Record<string, Order>;
+  const data = await store().get(BLOB_KEY, { type: "json" });
+  return (data as Record<string, Order> | null) ?? {};
 }
 
 // Used for page rendering — degrade to "no orders" on a transient blob
@@ -25,28 +26,21 @@ async function safeReadAll(): Promise<Record<string, Order>> {
 }
 
 async function writeAll(orders: Record<string, Order>) {
-  await put(BLOB_PATHNAME, JSON.stringify(orders), {
-    access: "private",
-    contentType: "application/json",
-    addRandomSuffix: false,
-    allowOverwrite: true,
-  });
+  await store().setJSON(BLOB_KEY, orders);
 }
 
 export async function saveOrder(order: Order) {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return;
   const all = await readAll();
   all[order.id] = order;
   await writeAll(all);
 }
 
 export async function deleteOrder(id: string) {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return;
   const all = await readAll();
   if (!(id in all)) return;
   delete all[id];
   if (Object.keys(all).length === 0) {
-    await del(BLOB_PATHNAME).catch(() => {});
+    await store().delete(BLOB_KEY).catch(() => {});
   } else {
     await writeAll(all);
   }

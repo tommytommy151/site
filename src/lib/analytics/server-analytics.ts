@@ -1,6 +1,6 @@
-import { get, put } from "@vercel/blob";
+import { getStore } from "@netlify/blobs";
 
-const BLOB_PATHNAME = "analytics/stats.json";
+const BLOB_KEY = "analytics/stats.json";
 
 interface AnalyticsStats {
   totalVisits: number;
@@ -10,15 +10,16 @@ interface AnalyticsStats {
 
 const EMPTY_STATS: AnalyticsStats = { totalVisits: 0, referrers: {}, productClicks: {} };
 
+function store() {
+  return getStore("app-data");
+}
+
 // Throws on a transient read failure instead of swallowing it, so
 // recordPageview/recordProductClick (read-modify-write) abort rather than
 // overwriting good stats with EMPTY_STATS.
 async function readStats(): Promise<AnalyticsStats> {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return EMPTY_STATS;
-  const blob = await get(BLOB_PATHNAME, { access: "private", useCache: false });
-  if (!blob) return EMPTY_STATS;
-  const text = await new Response(blob.stream).text();
-  return { ...EMPTY_STATS, ...JSON.parse(text) };
+  const data = await store().get(BLOB_KEY, { type: "json" });
+  return { ...EMPTY_STATS, ...(data as Partial<AnalyticsStats> | null) };
 }
 
 // Used by the admin dashboard summary — degrade to zeros on a transient
@@ -32,16 +33,10 @@ async function safeReadStats(): Promise<AnalyticsStats> {
 }
 
 async function writeStats(stats: AnalyticsStats) {
-  await put(BLOB_PATHNAME, JSON.stringify(stats), {
-    access: "private",
-    contentType: "application/json",
-    addRandomSuffix: false,
-    allowOverwrite: true,
-  });
+  await store().setJSON(BLOB_KEY, stats);
 }
 
 export async function recordPageview(referrerSource: string) {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return;
   const stats = await readStats();
   stats.totalVisits += 1;
   stats.referrers[referrerSource] = (stats.referrers[referrerSource] ?? 0) + 1;
@@ -49,7 +44,6 @@ export async function recordPageview(referrerSource: string) {
 }
 
 export async function recordProductClick(productId: string, productName: string) {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return;
   const stats = await readStats();
   const existing = stats.productClicks[productId];
   stats.productClicks[productId] = { name: productName, count: (existing?.count ?? 0) + 1 };
