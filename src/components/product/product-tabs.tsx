@@ -17,13 +17,6 @@ export function ProductTabs({ product }: { product: Product }) {
   return (
     <div className="mt-16 flex flex-col divide-y divide-border">
       <section className="pb-12">
-        <h2 className="mb-5 text-xl font-semibold tracking-tight">Descriere</h2>
-        <div className="max-w-2xl text-[15px] leading-relaxed whitespace-pre-line text-foreground/90">
-          {product.description}
-        </div>
-      </section>
-
-      <section className="py-12">
         <h2 className="mb-5 text-xl font-semibold tracking-tight">Comandă rapidă</h2>
         <QuickOrderForm product={product} />
       </section>

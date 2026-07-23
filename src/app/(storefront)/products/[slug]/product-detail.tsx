@@ -127,6 +127,13 @@ export function ProductDetail({ slug }: { slug: string }) {
           <VariantSelector product={product} />
         </div>
 
+        <section className="mt-12">
+          <h2 className="mb-5 text-xl font-semibold tracking-tight">Descriere</h2>
+          <div className="max-w-2xl text-[15px] leading-relaxed whitespace-pre-line text-foreground/90">
+            {product.description}
+          </div>
+        </section>
+
         {(boughtTogether.length > 0 || related.length > 0) && (
           <div className="mt-10">
             <FrequentlyBoughtTogether
