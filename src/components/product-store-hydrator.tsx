@@ -10,8 +10,10 @@ export function ProductStoreHydrator() {
   useEffect(() => {
     let cancelled = false;
 
+    let synced = false;
+
     async function loadWithRetry() {
-      const delays = [0, 1000, 3000];
+      const delays = [0, 1000, 3000, 5000, 10000, 15000];
       for (const delay of delays) {
         if (delay) await new Promise((r) => setTimeout(r, delay));
         if (cancelled) return;
@@ -21,6 +23,7 @@ export function ProductStoreHydrator() {
           const data: Product[] = await res.json();
           if (Array.isArray(data) && data.length && !cancelled) {
             mergeCustomProducts(data);
+            synced = true;
             return;
           }
         } catch {
@@ -29,9 +32,17 @@ export function ProductStoreHydrator() {
       }
     }
 
+    function resyncIfNeeded() {
+      if (!synced && !cancelled) loadWithRetry();
+    }
+
     loadWithRetry();
+    window.addEventListener("online", resyncIfNeeded);
+    document.addEventListener("visibilitychange", resyncIfNeeded);
     return () => {
       cancelled = true;
+      window.removeEventListener("online", resyncIfNeeded);
+      document.removeEventListener("visibilitychange", resyncIfNeeded);
     };
   }, [mergeCustomProducts]);
 
