@@ -116,6 +116,7 @@ interface ProductState {
 // src/lib/data/products.ts; legitimate custom products going forward are
 // recovered via mergeCustomProducts + the Redis-backed /api/products sync.
 const STORAGE_KEY = "estelaoferta-products-v3";
+const DEFAULT_SLUGS = new Set(DEFAULT_PRODUCTS.map((p) => p.slug));
 if (typeof window !== "undefined") {
   localStorage.removeItem("estelaoferta-products");
   localStorage.removeItem("estelaoferta-products-v2");
@@ -133,7 +134,13 @@ export const useProductStore = create<ProductState>()(
           // only adding unseen slugs would leave every other browser stuck on
           // whatever version it already had locally.
           const incomingBySlug = new Map(incoming.map((p) => [p.slug, p]));
-          const merged = state.products.map((p) => incomingBySlug.get(p.slug) ?? p);
+          const merged = state.products
+            // Drop leftover seed/placeholder demo products once we have a real
+            // server catalog — otherwise they linger forever since the server
+            // never "removes" what it never had, and every fresh browser (or
+            // one reset by a storage-key bump) starts out seeded with them.
+            .filter((p) => incomingBySlug.has(p.slug) || !DEFAULT_SLUGS.has(p.slug))
+            .map((p) => incomingBySlug.get(p.slug) ?? p);
           const existingSlugs = new Set(state.products.map((p) => p.slug));
           const toAdd = incoming.filter((p) => !existingSlugs.has(p.slug));
           return { products: [...toAdd, ...merged] };
