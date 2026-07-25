@@ -24,6 +24,33 @@ export default function CheckoutSuccessPage() {
 
 type Status = "loading" | "success" | "error";
 
+// The success page can be reached again for the same order (page reload, browser
+// back/forward, Stripe redirecting twice) long after the in-memory tracking ref has
+// reset, so the "already fired Purchase" flag has to survive a fresh mount.
+const TRACKED_PURCHASES_KEY = "eo-tracked-purchases";
+
+function hasTrackedPurchase(orderId: string): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const ids = JSON.parse(window.localStorage.getItem(TRACKED_PURCHASES_KEY) ?? "[]");
+    return Array.isArray(ids) && ids.includes(orderId);
+  } catch {
+    return false;
+  }
+}
+
+function markPurchaseTracked(orderId: string) {
+  if (typeof window === "undefined") return;
+  try {
+    const ids = JSON.parse(window.localStorage.getItem(TRACKED_PURCHASES_KEY) ?? "[]");
+    const next = Array.isArray(ids) ? ids.filter((id) => id !== orderId) : [];
+    next.push(orderId);
+    window.localStorage.setItem(TRACKED_PURCHASES_KEY, JSON.stringify(next.slice(-50)));
+  } catch {
+    // localStorage unavailable (private mode, quota) — worst case this reload re-fires once.
+  }
+}
+
 function CheckoutSuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
@@ -124,6 +151,8 @@ function CheckoutSuccessContent() {
   useEffect(() => {
     if (status !== "success" || !order || trackedPurchase.current === order.id) return;
     trackedPurchase.current = order.id;
+    if (hasTrackedPurchase(order.id)) return;
+    markPurchaseTracked(order.id);
     trackMetaEvent(
       "Purchase",
       {
