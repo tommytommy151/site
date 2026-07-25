@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStore } from "@netlify/blobs";
+import { getPool } from "@/lib/db/pool";
 
 export async function POST(req: NextRequest) {
   const form = await req.formData();
@@ -10,9 +10,12 @@ export async function POST(req: NextRequest) {
 
   const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
   const key = `${crypto.randomUUID()}.${ext}`;
-  await getStore("product-images").set(key, file, {
-    metadata: { contentType: file.type || "application/octet-stream" },
-  });
+  const data = Buffer.from(await file.arrayBuffer());
+
+  await getPool().query(
+    "INSERT INTO product_images (key, content_type, data) VALUES ($1, $2, $3)",
+    [key, file.type || "application/octet-stream", data],
+  );
 
   return NextResponse.json({ url: `/api/images/${key}` });
 }

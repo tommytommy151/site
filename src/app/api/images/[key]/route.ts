@@ -1,18 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStore } from "@netlify/blobs";
+import { getPool } from "@/lib/db/pool";
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ key: string }> }) {
   const { key } = await params;
-  const store = getStore("product-images");
-  const result = await store.getWithMetadata(key, { type: "arrayBuffer" });
+  const { rows } = await getPool().query<{ content_type: string; data: Buffer }>(
+    "SELECT content_type, data FROM product_images WHERE key = $1",
+    [key],
+  );
+  const result = rows[0];
   if (!result) {
     return NextResponse.json({ error: "Imaginea nu a fost găsită." }, { status: 404 });
   }
 
-  const contentType = (result.metadata.contentType as string | undefined) || "application/octet-stream";
-  return new NextResponse(result.data, {
+  return new NextResponse(new Uint8Array(result.data), {
     headers: {
-      "Content-Type": contentType,
+      "Content-Type": result.content_type || "application/octet-stream",
       "Cache-Control": "public, max-age=31536000, immutable",
     },
   });

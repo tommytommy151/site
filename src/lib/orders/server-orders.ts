@@ -1,26 +1,21 @@
-import { getStore } from "@netlify/blobs";
+import { getJSON, setJSON, deleteKey } from "@/lib/db/kv-store";
 import type { Order } from "@/types/order";
 
 const BLOB_KEY = "orders/custom.json";
-
-function store() {
-  return getStore("app-data");
-}
 
 // Throws on a transient read failure instead of swallowing it, so
 // save/delete (read-modify-write) abort rather than overwriting good data
 // with an empty set.
 async function readAll(): Promise<Record<string, Order>> {
   try {
-    const data = await store().get(BLOB_KEY, { type: "json", consistency: "strong" });
-    return (data as Record<string, Order> | null) ?? {};
+    return (await getJSON<Record<string, Order>>(BLOB_KEY)) ?? {};
   } catch (err) {
     console.error("[orders] readAll failed:", err);
     throw err;
   }
 }
 
-// Used for page rendering — degrade to "no orders" on a transient blob
+// Used for page rendering — degrade to "no orders" on a transient DB
 // error instead of crashing the page.
 async function safeReadAll(): Promise<Record<string, Order>> {
   try {
@@ -32,7 +27,7 @@ async function safeReadAll(): Promise<Record<string, Order>> {
 
 async function writeAll(orders: Record<string, Order>) {
   try {
-    await store().setJSON(BLOB_KEY, orders);
+    await setJSON(BLOB_KEY, orders);
   } catch (err) {
     console.error("[orders] writeAll failed:", err);
     throw err;
@@ -52,7 +47,7 @@ export async function deleteOrder(id: string) {
   if (!(id in all)) return;
   delete all[id];
   if (Object.keys(all).length === 0) {
-    await store().delete(BLOB_KEY).catch(() => {});
+    await deleteKey(BLOB_KEY);
   } else {
     await writeAll(all);
   }

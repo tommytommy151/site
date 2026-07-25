@@ -1,22 +1,17 @@
-import { getStore } from "@netlify/blobs";
+import { getJSON, setJSON, deleteKey } from "@/lib/db/kv-store";
 import type { Product } from "@/types/product";
 
 const BLOB_KEY = "products/custom.json";
-
-function store() {
-  return getStore("app-data");
-}
 
 // Throws on a transient read failure instead of swallowing it, so
 // save/delete (read-modify-write) abort rather than overwriting good data
 // with an empty set.
 async function readAll(): Promise<Record<string, Product>> {
-  const data = await store().get(BLOB_KEY, { type: "json", consistency: "strong" });
-  return (data as Record<string, Product> | null) ?? {};
+  return (await getJSON<Record<string, Product>>(BLOB_KEY)) ?? {};
 }
 
 // Used for page rendering — degrade to "no custom products" on a transient
-// blob error instead of crashing the page.
+// DB error instead of crashing the page.
 async function safeReadAll(): Promise<Record<string, Product>> {
   try {
     return await readAll();
@@ -26,7 +21,7 @@ async function safeReadAll(): Promise<Record<string, Product>> {
 }
 
 async function writeAll(products: Record<string, Product>) {
-  await store().setJSON(BLOB_KEY, products);
+  await setJSON(BLOB_KEY, products);
 }
 
 export async function saveCustomProduct(product: Product) {
@@ -40,7 +35,7 @@ export async function deleteCustomProduct(slug: string) {
   if (!(slug in all)) return;
   delete all[slug];
   if (Object.keys(all).length === 0) {
-    await store().delete(BLOB_KEY).catch(() => {});
+    await deleteKey(BLOB_KEY);
   } else {
     await writeAll(all);
   }

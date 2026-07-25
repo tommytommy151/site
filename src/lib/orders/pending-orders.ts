@@ -1,4 +1,4 @@
-import { getStore } from "@netlify/blobs";
+import { getJSON, setJSON, deleteKey } from "@/lib/db/kv-store";
 import type { OrderItem } from "@/types/order";
 
 const BLOB_KEY = "orders/pending.json";
@@ -18,14 +18,9 @@ export interface PendingOrder {
   createdAt: number;
 }
 
-function store() {
-  return getStore("app-data");
-}
-
 async function readAll(): Promise<Record<string, PendingOrder>> {
   try {
-    const data = await store().get(BLOB_KEY, { type: "json", consistency: "strong" });
-    return (data as Record<string, PendingOrder> | null) ?? {};
+    return (await getJSON<Record<string, PendingOrder>>(BLOB_KEY)) ?? {};
   } catch (err) {
     console.error("[orders/pending] readAll failed:", err);
     throw err;
@@ -33,7 +28,7 @@ async function readAll(): Promise<Record<string, PendingOrder>> {
 }
 
 async function writeAll(all: Record<string, PendingOrder>) {
-  await store().setJSON(BLOB_KEY, all);
+  await setJSON(BLOB_KEY, all);
 }
 
 function pruneStale(all: Record<string, PendingOrder>) {
@@ -59,5 +54,9 @@ export async function deletePendingOrder(orderId: string) {
   const all = await readAll();
   if (!(orderId in all)) return;
   delete all[orderId];
-  await writeAll(all);
+  if (Object.keys(all).length === 0) {
+    await deleteKey(BLOB_KEY);
+  } else {
+    await writeAll(all);
+  }
 }

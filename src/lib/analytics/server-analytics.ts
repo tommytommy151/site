@@ -1,4 +1,4 @@
-import { getStore } from "@netlify/blobs";
+import { getJSON, setJSON } from "@/lib/db/kv-store";
 
 const BLOB_KEY = "analytics/stats.json";
 
@@ -10,20 +10,16 @@ interface AnalyticsStats {
 
 const EMPTY_STATS: AnalyticsStats = { totalVisits: 0, referrers: {}, productClicks: {} };
 
-function store() {
-  return getStore("app-data");
-}
-
 // Throws on a transient read failure instead of swallowing it, so
 // recordPageview/recordProductClick (read-modify-write) abort rather than
 // overwriting good stats with EMPTY_STATS.
 async function readStats(): Promise<AnalyticsStats> {
-  const data = await store().get(BLOB_KEY, { type: "json", consistency: "strong" });
-  return { ...EMPTY_STATS, ...(data as Partial<AnalyticsStats> | null) };
+  const data = await getJSON<Partial<AnalyticsStats>>(BLOB_KEY);
+  return { ...EMPTY_STATS, ...data };
 }
 
 // Used by the admin dashboard summary — degrade to zeros on a transient
-// blob error instead of failing the whole request.
+// DB error instead of failing the whole request.
 async function safeReadStats(): Promise<AnalyticsStats> {
   try {
     return await readStats();
@@ -33,7 +29,7 @@ async function safeReadStats(): Promise<AnalyticsStats> {
 }
 
 async function writeStats(stats: AnalyticsStats) {
-  await store().setJSON(BLOB_KEY, stats);
+  await setJSON(BLOB_KEY, stats);
 }
 
 export async function recordPageview(referrerSource: string) {

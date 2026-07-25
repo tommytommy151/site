@@ -1,0 +1,3 @@
+estelaoferta.ro, www.estelaoferta.ro {
+	reverse_proxy app:3000
+}
