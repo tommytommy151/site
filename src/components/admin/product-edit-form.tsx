@@ -8,7 +8,7 @@ import { ArrowLeft, ExternalLink, GripVertical, Trash2, X } from "lucide-react";
 import { TagInput } from "@/components/admin/tag-input";
 import { useProductStore, type ProductFormInput } from "@/lib/store/product-store";
 import { useCatalogStore, slugify } from "@/lib/store/catalog-store";
-import type { Product, ProductBadge } from "@/types/product";
+import type { Product, ProductBadge, ProductVariant } from "@/types/product";
 import { productCategorySlugs } from "@/lib/products/category-slugs";
 import { flattenCategoryTree, pickPrimaryCategory } from "@/lib/products/category-tree";
 import { Input } from "@/components/ui/input";
@@ -51,7 +51,60 @@ function emptyForm(): ProductFormInput {
     badges: [],
     tags: [],
     boughtTogetherIds: [],
+    colorOptions: [],
+    sizeOptions: [],
+    variants: [],
   };
+}
+
+function slugPart(s: string) {
+  return s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+/** Rebuilds the variant list from the current color/size options, preserving any
+ * manually edited stock/price/sku for combos that still exist. */
+function regenerateVariants(
+  productKey: string,
+  colorOptions: { name: string; hex: string }[],
+  sizeOptions: string[],
+  existing: ProductVariant[],
+  basePrice: number,
+  baseCompareAtPrice: number | undefined,
+  baseStock: number,
+): ProductVariant[] {
+  if (!colorOptions.length && !sizeOptions.length) return [];
+  const colors = colorOptions.length ? colorOptions.map((c) => c.name) : [null];
+  const sizes = sizeOptions.length ? sizeOptions : [null];
+  const existingByKey = new Map(
+    existing.map((v) => [`${v.options.Culoare ?? ""}__${v.options.Mărime ?? ""}`, v]),
+  );
+  const key = productKey || "produs";
+  const variants: ProductVariant[] = [];
+  colors.forEach((color) => {
+    sizes.forEach((size) => {
+      const combo = `${color ?? ""}__${size ?? ""}`;
+      const prev = existingByKey.get(combo);
+      const options: Record<string, string> = {};
+      if (color) options.Culoare = color;
+      if (size) options.Mărime = size;
+      const idSuffix = [color ? slugPart(color) : "", size ? slugPart(size) : ""].filter(Boolean).join("-");
+      variants.push({
+        id: prev?.id ?? [key, idSuffix].filter(Boolean).join("-"),
+        sku: prev?.sku ?? `LC-${key.toUpperCase()}${idSuffix ? `-${idSuffix.toUpperCase()}` : ""}`,
+        options,
+        price: prev?.price ?? basePrice,
+        compareAtPrice: prev?.compareAtPrice ?? baseCompareAtPrice,
+        stock: prev?.stock ?? baseStock,
+        image: prev?.image,
+      });
+    });
+  });
+  return variants;
 }
 
 function formFromProduct(product: Product): ProductFormInput {
@@ -72,6 +125,9 @@ function formFromProduct(product: Product): ProductFormInput {
     badges: product.badges,
     tags: product.tags ?? [],
     boughtTogetherIds: product.boughtTogetherIds ?? [],
+    colorOptions: product.colorOptions ?? [],
+    sizeOptions: product.sizeOptions ?? [],
+    variants: product.variants?.some((v) => Object.keys(v.options).length > 0) ? product.variants : [],
   };
 }
 
@@ -100,8 +156,68 @@ export function ProductEditForm({ product }: { product?: Product }) {
   const [boughtTogetherSearch, setBoughtTogetherSearch] = useState("");
   const [draggedImageIndex, setDraggedImageIndex] = useState<number | null>(null);
   const [dragOverImageIndex, setDragOverImageIndex] = useState<number | null>(null);
+  const [newColorName, setNewColorName] = useState("");
+  const [newColorHex, setNewColorHex] = useState("#161616");
 
   const gallery = form.images ?? [];
+  const productKey = form.slug || product?.id || slugify(form.name) || "produs";
+
+  function addColor() {
+    const name = newColorName.trim();
+    if (!name) return;
+    setForm((f) => {
+      const colorOptions = [...(f.colorOptions ?? []), { name, hex: newColorHex }];
+      const variants = regenerateVariants(
+        productKey,
+        colorOptions,
+        f.sizeOptions ?? [],
+        f.variants ?? [],
+        f.price,
+        f.compareAtPrice,
+        f.stock,
+      );
+      return { ...f, colorOptions, variants };
+    });
+    setNewColorName("");
+  }
+
+  function removeColor(index: number) {
+    setForm((f) => {
+      const colorOptions = (f.colorOptions ?? []).filter((_, i) => i !== index);
+      const variants = regenerateVariants(
+        productKey,
+        colorOptions,
+        f.sizeOptions ?? [],
+        f.variants ?? [],
+        f.price,
+        f.compareAtPrice,
+        f.stock,
+      );
+      return { ...f, colorOptions, variants };
+    });
+  }
+
+  function updateSizeOptions(sizeOptions: string[]) {
+    setForm((f) => {
+      const variants = regenerateVariants(
+        productKey,
+        f.colorOptions ?? [],
+        sizeOptions,
+        f.variants ?? [],
+        f.price,
+        f.compareAtPrice,
+        f.stock,
+      );
+      return { ...f, sizeOptions, variants };
+    });
+  }
+
+  function updateVariantField(id: string, field: "sku" | "stock" | "price", value: string | number) {
+    setForm((f) => ({
+      ...f,
+      variants: (f.variants ?? []).map((v) => (v.id === id ? { ...v, [field]: value } : v)),
+    }));
+  }
   const categoryTree = flattenCategoryTree(categories);
 
   const boughtTogetherIds = form.boughtTogetherIds ?? [];
@@ -343,6 +459,127 @@ export function ProductEditForm({ product }: { product?: Product }) {
                 + Adaugă altă imagine
               </Button>
             </div>
+          </div>
+
+          <div className="rounded-2xl border border-border bg-card p-5">
+            <p className="mb-1 text-sm font-medium text-foreground">Culori & mărimi</p>
+            <p className="mb-3 text-xs text-muted-foreground">
+              Adaugă culorile și mărimile disponibile — clienții vor putea alege varianta dorită pe pagina produsului.
+            </p>
+
+            <Label className="mb-1.5">Culori</Label>
+            {(form.colorOptions?.length ?? 0) > 0 && (
+              <div className="mb-2 flex flex-wrap gap-1.5">
+                {form.colorOptions!.map((c, i) => (
+                  <span
+                    key={i}
+                    className="flex items-center gap-1.5 rounded-full border border-border bg-muted px-2.5 py-1 text-xs text-foreground/85"
+                  >
+                    <span
+                      className="size-3 rounded-full border border-border"
+                      style={{ backgroundColor: c.hex }}
+                    />
+                    {c.name}
+                    <button
+                      type="button"
+                      onClick={() => removeColor(i)}
+                      aria-label={`Elimină culoarea ${c.name}`}
+                      className="text-muted-foreground hover:text-destructive"
+                    >
+                      <X className="size-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+            <div className="mb-4 flex items-center gap-2">
+              <Input
+                value={newColorName}
+                onChange={(e) => setNewColorName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addColor();
+                  }
+                }}
+                placeholder="Nume culoare (ex. Negru)"
+                className="h-9"
+              />
+              <input
+                type="color"
+                value={newColorHex}
+                onChange={(e) => setNewColorHex(e.target.value)}
+                aria-label="Alege nuanța"
+                className="h-9 w-9 shrink-0 cursor-pointer rounded border border-border bg-transparent p-0.5"
+              />
+              <Button type="button" variant="outline" size="sm" onClick={addColor} className="shrink-0">
+                + Adaugă
+              </Button>
+            </div>
+
+            <Label className="mb-1.5">Mărimi</Label>
+            <TagInput
+              value={form.sizeOptions ?? []}
+              onChange={updateSizeOptions}
+              placeholder="Scrie o mărime (ex. M) și apasă Enter"
+            />
+
+            {(form.variants?.length ?? 0) > 0 && (
+              <div className="mt-4 overflow-x-auto rounded-lg border border-border">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/50 text-xs text-muted-foreground">
+                    <tr>
+                      {(form.colorOptions?.length ?? 0) > 0 && (
+                        <th className="px-3 py-2 text-left font-medium">Culoare</th>
+                      )}
+                      {(form.sizeOptions?.length ?? 0) > 0 && (
+                        <th className="px-3 py-2 text-left font-medium">Mărime</th>
+                      )}
+                      <th className="px-3 py-2 text-left font-medium">SKU</th>
+                      <th className="px-3 py-2 text-left font-medium">Stoc</th>
+                      <th className="px-3 py-2 text-left font-medium">Preț (RON)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {form.variants!.map((v) => (
+                      <tr key={v.id} className="border-t border-border">
+                        {(form.colorOptions?.length ?? 0) > 0 && (
+                          <td className="px-3 py-1.5 text-foreground/85">{v.options.Culoare ?? "—"}</td>
+                        )}
+                        {(form.sizeOptions?.length ?? 0) > 0 && (
+                          <td className="px-3 py-1.5 text-foreground/85">{v.options.Mărime ?? "—"}</td>
+                        )}
+                        <td className="px-3 py-1.5">
+                          <Input
+                            value={v.sku}
+                            onChange={(e) => updateVariantField(v.id, "sku", e.target.value)}
+                            className="h-8 w-36"
+                          />
+                        </td>
+                        <td className="px-3 py-1.5">
+                          <Input
+                            type="number"
+                            min={0}
+                            value={v.stock}
+                            onChange={(e) => updateVariantField(v.id, "stock", Number(e.target.value) || 0)}
+                            className="h-8 w-20"
+                          />
+                        </td>
+                        <td className="px-3 py-1.5">
+                          <Input
+                            type="number"
+                            min={0}
+                            value={v.price}
+                            onChange={(e) => updateVariantField(v.id, "price", Number(e.target.value) || 0)}
+                            className="h-8 w-24"
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
 
