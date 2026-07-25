@@ -54,6 +54,7 @@ function emptyForm(): ProductFormInput {
     colorOptions: [],
     sizeOptions: [],
     variants: [],
+    attributes: [],
   };
 }
 
@@ -128,6 +129,7 @@ function formFromProduct(product: Product): ProductFormInput {
     colorOptions: product.colorOptions ?? [],
     sizeOptions: product.sizeOptions ?? [],
     variants: product.variants?.some((v) => Object.keys(v.options).length > 0) ? product.variants : [],
+    attributes: product.attributes ?? [],
   };
 }
 
@@ -158,6 +160,8 @@ export function ProductEditForm({ product }: { product?: Product }) {
   const [dragOverImageIndex, setDragOverImageIndex] = useState<number | null>(null);
   const [newColorName, setNewColorName] = useState("");
   const [newColorHex, setNewColorHex] = useState("#161616");
+  const [newAttrName, setNewAttrName] = useState("");
+  const [newAttrValue, setNewAttrValue] = useState("");
 
   const gallery = form.images ?? [];
   const productKey = form.slug || product?.id || slugify(form.name) || "produs";
@@ -217,6 +221,19 @@ export function ProductEditForm({ product }: { product?: Product }) {
       ...f,
       variants: (f.variants ?? []).map((v) => (v.id === id ? { ...v, [field]: value } : v)),
     }));
+  }
+
+  function addAttribute() {
+    const name = newAttrName.trim();
+    const value = newAttrValue.trim();
+    if (!name || !value) return;
+    setForm((f) => ({ ...f, attributes: [...(f.attributes ?? []), { name, value }] }));
+    setNewAttrName("");
+    setNewAttrValue("");
+  }
+
+  function removeAttribute(index: number) {
+    setForm((f) => ({ ...f, attributes: (f.attributes ?? []).filter((_, i) => i !== index) }));
   }
   const categoryTree = flattenCategoryTree(categories);
 
@@ -580,6 +597,61 @@ export function ProductEditForm({ product }: { product?: Product }) {
                 </table>
               </div>
             )}
+          </div>
+
+          <div className="rounded-2xl border border-border bg-card p-5">
+            <p className="mb-1 text-sm font-medium text-foreground">Atribute (specificații)</p>
+            <p className="mb-3 text-xs text-muted-foreground">
+              Perechi nume-valoare afișate pe pagina produsului (ex. Material: Lemn, Greutate: 2kg).
+            </p>
+
+            {(form.attributes?.length ?? 0) > 0 && (
+              <div className="mb-3 flex flex-col gap-1.5">
+                {form.attributes!.map((attr, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-sm"
+                  >
+                    <span>
+                      <span className="font-medium text-foreground">{attr.name}</span>
+                      <span className="text-muted-foreground"> — {attr.value}</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeAttribute(i)}
+                      aria-label={`Elimină atributul ${attr.name}`}
+                      className="text-muted-foreground hover:text-destructive"
+                    >
+                      <X className="size-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="flex items-center gap-2">
+              <Input
+                value={newAttrName}
+                onChange={(e) => setNewAttrName(e.target.value)}
+                placeholder="Nume (ex. Material)"
+                className="h-9"
+              />
+              <Input
+                value={newAttrValue}
+                onChange={(e) => setNewAttrValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addAttribute();
+                  }
+                }}
+                placeholder="Valoare (ex. Lemn)"
+                className="h-9"
+              />
+              <Button type="button" variant="outline" size="sm" onClick={addAttribute} className="shrink-0">
+                + Adaugă
+              </Button>
+            </div>
           </div>
         </div>
 
