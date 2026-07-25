@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Check, CreditCard, Loader2, Truck } from "lucide-react";
 import { useAuthStore } from "@/lib/store/auth-store";
-import { useCheckoutStore } from "@/lib/store/checkout-store";
+import { formatShippingAddress, useCheckoutStore } from "@/lib/store/checkout-store";
 import { useCartStore } from "@/lib/store/cart-store";
 import { useOrderStore } from "@/lib/store/order-store";
 import { computeCheckoutTotals, quantityUnitPrice, shippingCost } from "@/lib/pricing";
@@ -105,12 +105,12 @@ export function PaymentStep({ onBack }: { onBack: () => void }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           orderId,
+          customerName,
           customerEmail,
-          items: items.map((item) => ({
-            name: item.name,
-            quantity: item.quantity,
-            unitAmount: item.price,
-          })),
+          shippingAddress: formatShippingAddress(address),
+          items,
+          subtotal,
+          total,
           shippingAmount: shipping,
           discountAmount: Math.round(couponDiscount + cardDiscount),
         }),

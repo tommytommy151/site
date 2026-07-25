@@ -14,6 +14,10 @@ export interface CheckoutAddress {
   postalCode: string;
 }
 
+export function formatShippingAddress(address: CheckoutAddress): string {
+  return `${address.line1}, ${address.city}, ${address.county} ${address.postalCode}`.trim();
+}
+
 const EMPTY_ADDRESS: CheckoutAddress = {
   fullName: "",
   phone: "",

@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStripe } from "@/lib/stripe";
-
-interface CreateSessionItem {
-  name: string;
-  quantity: number;
-  unitAmount: number;
-}
+import { savePendingOrder } from "@/lib/orders/pending-orders";
+import type { OrderItem } from "@/types/order";
 
 interface CreateSessionBody {
   orderId: string;
+  customerName: string;
   customerEmail: string;
-  items: CreateSessionItem[];
+  shippingAddress: string;
+  items: OrderItem[];
+  subtotal: number;
+  total: number;
   shippingAmount: number;
   discountAmount?: number;
 }
@@ -27,7 +27,8 @@ export async function POST(req: NextRequest) {
   }
 
   const body: CreateSessionBody = await req.json();
-  const { orderId, items, shippingAmount, discountAmount } = body;
+  const { orderId, items, subtotal, total, shippingAmount, discountAmount } = body;
+  const customerName = body.customerName?.trim() ?? "";
   const customerEmail = body.customerEmail?.trim() ?? "";
 
   if (!orderId || !customerEmail || !items?.length) {
@@ -54,7 +55,7 @@ export async function POST(req: NextRequest) {
     price_data: {
       currency: "ron",
       product_data: { name: item.name },
-      unit_amount: Math.round(item.unitAmount * 100),
+      unit_amount: Math.round(item.price * 100),
     },
     quantity: item.quantity,
   }));
@@ -94,6 +95,24 @@ export async function POST(req: NextRequest) {
       success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/checkout?step=plata`,
     });
+
+    // Best-effort backstop: if the customer's browser never makes it back to
+    // /checkout/success, the checkout.session.completed webhook uses this
+    // draft to save the order anyway. The client-side path stays primary —
+    // this must not block returning the checkout URL.
+    try {
+      await savePendingOrder(orderId, {
+        customerName,
+        customerEmail,
+        items,
+        subtotal,
+        shipping: shippingAmount,
+        total,
+        shippingAddress: body.shippingAddress ?? "",
+      });
+    } catch (err) {
+      console.error("[checkout/create-session] savePendingOrder failed", orderId, err);
+    }
 
     return NextResponse.json({ url: session.url });
   } catch {

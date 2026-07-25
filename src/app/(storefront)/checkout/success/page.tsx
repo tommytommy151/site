@@ -7,7 +7,7 @@ import { Check, Loader2, XCircle } from "lucide-react";
 import { Container } from "@/components/layout/container";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/lib/store/auth-store";
-import { useCheckoutStore } from "@/lib/store/checkout-store";
+import { formatShippingAddress, useCheckoutStore } from "@/lib/store/checkout-store";
 import { useCartStore } from "@/lib/store/cart-store";
 import { useOrderStore } from "@/lib/store/order-store";
 import { shippingCost } from "@/lib/pricing";
@@ -95,7 +95,7 @@ function CheckoutSuccessContent() {
           shipping,
           total,
           paymentMethod: "Card bancar",
-          shippingAddress: `${address.line1}, ${address.city}, ${address.county} ${address.postalCode}`.trim(),
+          shippingAddress: formatShippingAddress(address),
         };
         console.log("[checkout/success] creating order", order.id);
         addOrder(order);
