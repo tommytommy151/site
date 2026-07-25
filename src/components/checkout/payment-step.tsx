@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Check, CreditCard, Loader2, Truck } from "lucide-react";
 import { useAuthStore } from "@/lib/store/auth-store";
@@ -38,6 +38,9 @@ export function PaymentStep({ onBack }: { onBack: () => void }) {
   const [method, setMethod] = useState<Method>("cod");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  // setSubmitting alone isn't enough to block a second click fired before the
+  // re-render lands — this ref blocks synchronously, on the very first line.
+  const submittingRef = useRef(false);
 
   const shipping = shippingCost(shippingMethod, subtotal);
   const { couponDiscount, cardDiscount, total } = computeCheckoutTotals(
@@ -79,6 +82,9 @@ export function PaymentStep({ onBack }: { onBack: () => void }) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+    setSubmitting(true);
     setError("");
 
     if (method === "cod") {
@@ -89,7 +95,6 @@ export function PaymentStep({ onBack }: { onBack: () => void }) {
       return;
     }
 
-    setSubmitting(true);
     const orderId = `order-${Date.now()}`;
     const items = buildItems();
     setPendingOrder(orderId, items);
@@ -113,12 +118,14 @@ export function PaymentStep({ onBack }: { onBack: () => void }) {
       const data = await res.json();
       if (!res.ok || !data.url) {
         setError(data.error || "Plata cu cardul nu este disponibilă momentan.");
+        submittingRef.current = false;
         setSubmitting(false);
         return;
       }
       window.location.href = data.url;
     } catch {
       setError("A apărut o eroare la conectarea cu procesatorul de plăți.");
+      submittingRef.current = false;
       setSubmitting(false);
     }
   }

@@ -11,10 +11,16 @@ declare global {
   }
 }
 
-export function trackMetaEvent(name: string, params?: Record<string, unknown>) {
+// eventId lets Meta dedupe if the same event is ever reported twice (e.g. a
+// retried request) — pass a stable id such as the order id for Purchase.
+export function trackMetaEvent(name: string, params?: Record<string, unknown>, eventId?: string) {
   if (useCookieConsentStore.getState().status !== "accepted") return;
   if (typeof window === "undefined" || !window.fbq) return;
-  window.fbq("track", name, params);
+  if (eventId) {
+    window.fbq("track", name, params, { eventID: eventId });
+  } else {
+    window.fbq("track", name, params);
+  }
 }
 
 export function MetaPixel() {

@@ -120,12 +120,16 @@ function CheckoutSuccessContent() {
   useEffect(() => {
     if (status !== "success" || !order || trackedPurchase.current === order.id) return;
     trackedPurchase.current = order.id;
-    trackMetaEvent("Purchase", {
-      content_ids: order.items.map((i) => i.productId),
-      num_items: order.items.reduce((sum, i) => sum + i.quantity, 0),
-      value: order.total,
-      currency: "RON",
-    });
+    trackMetaEvent(
+      "Purchase",
+      {
+        content_ids: order.items.map((i) => i.productId),
+        num_items: order.items.reduce((sum, i) => sum + i.quantity, 0),
+        value: order.total,
+        currency: "RON",
+      },
+      order.id,
+    );
   }, [status, order]);
 
   return (
