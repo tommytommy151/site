@@ -134,6 +134,23 @@ export function ProductDetail({ slug }: { slug: string }) {
           </div>
         </section>
 
+        {(product.attributes?.length ?? 0) > 0 && (
+          <section className="mt-12">
+            <h2 className="mb-5 text-xl font-semibold tracking-tight">Specificații</h2>
+            <dl className="grid max-w-2xl grid-cols-1 divide-y divide-border rounded-xl border border-border sm:grid-cols-2 sm:divide-y-0">
+              {product.attributes!.map((attr, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between gap-4 border-b border-border px-4 py-3 text-sm last:border-b-0 sm:odd:border-r sm:[&:nth-last-child(-n+2)]:border-b-0"
+                >
+                  <dt className="text-muted-foreground">{attr.name}</dt>
+                  <dd className="font-medium text-foreground">{attr.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        )}
+
         {(boughtTogether.length > 0 || related.length > 0) && (
           <div className="mt-10">
             <FrequentlyBoughtTogether

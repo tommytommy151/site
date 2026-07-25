@@ -48,6 +48,8 @@ export interface Product {
   colorOptions?: { name: string; hex: string }[];
   sizeOptions?: string[];
   variants: ProductVariant[];
+  /** Free-form specification pairs shown on the product page (e.g. Material: Lemn). */
+  attributes?: { name: string; value: string }[];
   badges: ProductBadge[];
   tags?: string[];
   stock: number;

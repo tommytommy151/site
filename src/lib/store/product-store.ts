@@ -26,6 +26,7 @@ export interface ProductFormInput {
   colorOptions?: { name: string; hex: string }[];
   sizeOptions?: string[];
   variants?: ProductVariant[];
+  attributes?: { name: string; value: string }[];
 }
 
 function buildProduct(id: string, input: ProductFormInput): Product {
@@ -55,6 +56,7 @@ function buildProduct(id: string, input: ProductFormInput): Product {
     images,
     colorOptions: input.colorOptions?.length ? input.colorOptions : undefined,
     sizeOptions: input.sizeOptions?.length ? input.sizeOptions : undefined,
+    attributes: input.attributes?.filter((a) => a.name.trim() && a.value.trim()),
     variants: input.variants?.length
       ? input.variants
       : [
