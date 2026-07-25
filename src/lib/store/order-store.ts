@@ -9,14 +9,17 @@ import { orders as DEFAULT_ORDERS } from "@/lib/data/orders";
 // that fails here would otherwise vanish silently from the admin's view while
 // still counting as a real conversion everywhere else (Stripe, Meta Pixel).
 async function syncOrder(order: Order): Promise<boolean> {
+  console.log("[order-store] syncOrder start", order.id);
   try {
     const res = await fetch("/api/orders/sync", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(order),
     });
+    console.log("[order-store] syncOrder response", order.id, res.status);
     return res.ok;
-  } catch {
+  } catch (err) {
+    console.error("[order-store] syncOrder network error", order.id, err);
     return false;
   }
 }
@@ -64,8 +67,12 @@ export const useOrderStore = create<OrderState>()(
       pendingSyncIds: [],
 
       addOrder: (order) => {
+        console.log("[order-store] addOrder", order.id, order.paymentMethod, order.total);
         set((state) => ({ orders: [order, ...state.orders] }));
-        syncOrder(order).then((ok) => markSyncResult(set, order.id, ok));
+        syncOrder(order).then((ok) => {
+          if (!ok) console.error("[order-store] addOrder sync failed, queued for retry", order.id);
+          markSyncResult(set, order.id, ok);
+        });
       },
 
       updateOrderStatus: (id, status) =>

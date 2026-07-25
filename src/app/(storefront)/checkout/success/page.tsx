@@ -64,10 +64,12 @@ function CheckoutSuccessContent() {
     }
 
     let cancelled = false;
+    console.log("[checkout/success] verifying session", sessionId);
     fetch(`/api/checkout/session?id=${encodeURIComponent(sessionId)}`)
       .then((res) => res.json())
       .then((data) => {
         if (cancelled) return;
+        console.log("[checkout/success] session result", data);
         if (!data.paid) {
           setStatus("error");
           setError("Plata nu a fost confirmată.");
@@ -95,12 +97,14 @@ function CheckoutSuccessContent() {
           paymentMethod: "Card bancar",
           shippingAddress: `${address.line1}, ${address.city}, ${address.county} ${address.postalCode}`.trim(),
         };
+        console.log("[checkout/success] creating order", order.id);
         addOrder(order);
         clearCart();
         resetCheckout();
         setStatus("success");
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("[checkout/success] session verification failed", err);
         if (!cancelled) {
           setStatus("error");
           setError("Nu am putut verifica plata. Contactează-ne dacă suma a fost reținută.");

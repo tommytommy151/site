@@ -5,16 +5,17 @@ import type { Order } from "@/types/order";
 // Netlify Blobs reads can fail transiently; retry a couple of times in-process
 // before telling the client to give up, since a paid order silently failing to
 // persist here means it never shows up anywhere but the customer's own browser.
-async function withRetry(fn: () => Promise<void>) {
+async function withRetry(fn: () => Promise<void>, label: string) {
   const delays = [0, 300, 1000];
   let lastError: unknown;
-  for (const delay of delays) {
-    if (delay) await new Promise((r) => setTimeout(r, delay));
+  for (let i = 0; i < delays.length; i++) {
+    if (delays[i]) await new Promise((r) => setTimeout(r, delays[i]));
     try {
       await fn();
       return;
     } catch (err) {
       lastError = err;
+      console.error(`[orders/sync] ${label} attempt ${i + 1}/${delays.length} failed:`, err);
     }
   }
   throw lastError;
@@ -30,11 +31,14 @@ export async function POST(req: NextRequest) {
   if (!order?.id) {
     return NextResponse.json({ error: "id lipsă." }, { status: 400 });
   }
+  console.log("[orders/sync] POST received", order.id);
   try {
-    await withRetry(() => saveOrder(order));
-  } catch {
+    await withRetry(() => saveOrder(order), `saveOrder(${order.id})`);
+  } catch (err) {
+    console.error("[orders/sync] POST giving up on", order.id, err);
     return NextResponse.json({ error: "Nu am putut salva comanda." }, { status: 502 });
   }
+  console.log("[orders/sync] POST ok", order.id);
   return NextResponse.json({ ok: true });
 }
 
@@ -49,7 +53,7 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: "id lipsă." }, { status: 400 });
   }
   try {
-    await withRetry(() => deleteOrder(body.id!));
+    await withRetry(() => deleteOrder(body.id!), `deleteOrder(${body.id})`);
   } catch {
     return NextResponse.json({ error: "Nu am putut șterge comanda." }, { status: 502 });
   }

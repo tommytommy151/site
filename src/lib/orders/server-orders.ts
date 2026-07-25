@@ -11,8 +11,13 @@ function store() {
 // save/delete (read-modify-write) abort rather than overwriting good data
 // with an empty set.
 async function readAll(): Promise<Record<string, Order>> {
-  const data = await store().get(BLOB_KEY, { type: "json", consistency: "strong" });
-  return (data as Record<string, Order> | null) ?? {};
+  try {
+    const data = await store().get(BLOB_KEY, { type: "json", consistency: "strong" });
+    return (data as Record<string, Order> | null) ?? {};
+  } catch (err) {
+    console.error("[orders] readAll failed:", err);
+    throw err;
+  }
 }
 
 // Used for page rendering — degrade to "no orders" on a transient blob
@@ -26,13 +31,20 @@ async function safeReadAll(): Promise<Record<string, Order>> {
 }
 
 async function writeAll(orders: Record<string, Order>) {
-  await store().setJSON(BLOB_KEY, orders);
+  try {
+    await store().setJSON(BLOB_KEY, orders);
+  } catch (err) {
+    console.error("[orders] writeAll failed:", err);
+    throw err;
+  }
 }
 
 export async function saveOrder(order: Order) {
+  console.log("[orders] saveOrder start", order.id);
   const all = await readAll();
   all[order.id] = order;
   await writeAll(all);
+  console.log("[orders] saveOrder done", order.id);
 }
 
 export async function deleteOrder(id: string) {
