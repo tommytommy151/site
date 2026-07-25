@@ -6,6 +6,7 @@ import type { Order } from "@/types/order";
 
 export function OrderStoreHydrator() {
   const mergeServerOrders = useOrderStore((s) => s.mergeServerOrders);
+  const flushPendingSync = useOrderStore((s) => s.flushPendingSync);
 
   useEffect(() => {
     fetch("/api/orders")
@@ -15,6 +16,16 @@ export function OrderStoreHydrator() {
       })
       .catch(() => {});
   }, [mergeServerOrders]);
+
+  useEffect(() => {
+    flushPendingSync();
+    window.addEventListener("online", flushPendingSync);
+    document.addEventListener("visibilitychange", flushPendingSync);
+    return () => {
+      window.removeEventListener("online", flushPendingSync);
+      document.removeEventListener("visibilitychange", flushPendingSync);
+    };
+  }, [flushPendingSync]);
 
   return null;
 }
