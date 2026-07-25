@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Product, ProductBadge } from "@/types/product";
+import type { Product, ProductBadge, ProductVariant } from "@/types/product";
 import { products as DEFAULT_PRODUCTS } from "@/lib/data/products";
 import { generateSmallReviewSet } from "@/lib/data/reviews";
 
@@ -23,6 +23,9 @@ export interface ProductFormInput {
   badges: ProductBadge[];
   tags?: string[];
   boughtTogetherIds?: string[];
+  colorOptions?: { name: string; hex: string }[];
+  sizeOptions?: string[];
+  variants?: ProductVariant[];
 }
 
 function buildProduct(id: string, input: ProductFormInput): Product {
@@ -50,16 +53,20 @@ function buildProduct(id: string, input: ProductFormInput): Product {
     rating,
     reviewCount: reviews.length,
     images,
-    variants: [
-      {
-        id: `${id}-default`,
-        sku: `LC-${id.toUpperCase()}`,
-        options: {},
-        price: input.price,
-        compareAtPrice: input.compareAtPrice,
-        stock: input.stock,
-      },
-    ],
+    colorOptions: input.colorOptions?.length ? input.colorOptions : undefined,
+    sizeOptions: input.sizeOptions?.length ? input.sizeOptions : undefined,
+    variants: input.variants?.length
+      ? input.variants
+      : [
+          {
+            id: `${id}-default`,
+            sku: `LC-${id.toUpperCase()}`,
+            options: {},
+            price: input.price,
+            compareAtPrice: input.compareAtPrice,
+            stock: input.stock,
+          },
+        ],
     badges: input.badges,
     tags: (input.tags ?? []).map((t) => t.trim()).filter(Boolean),
     stock: input.stock,
