@@ -40,6 +40,7 @@ function CheckoutContent() {
     trackedInitiate.current = true;
     trackMetaEvent("InitiateCheckout", {
       content_ids: lines.map((l) => l.productId),
+      content_type: "product",
       num_items: lines.reduce((sum, l) => sum + l.quantity, 0),
       value: lines.reduce((sum, l) => sum + l.price * l.quantity, 0),
       currency: "RON",

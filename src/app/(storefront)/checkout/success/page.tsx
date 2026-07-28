@@ -157,11 +157,13 @@ function CheckoutSuccessContent() {
       "Purchase",
       {
         content_ids: order.items.map((i) => i.productId),
+        content_type: "product",
         num_items: order.items.reduce((sum, i) => sum + i.quantity, 0),
         value: order.total,
         currency: "RON",
       },
       order.id,
+      { email: order.customerEmail },
     );
   }, [status, order]);
 

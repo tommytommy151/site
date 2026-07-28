@@ -109,6 +109,16 @@ export async function POST(req: NextRequest) {
         shipping: shippingAmount,
         total,
         shippingAddress: body.shippingAddress ?? "",
+        // For the Meta Conversions API Purchase event the webhook backstop
+        // sends later — this request is the last point we have the actual
+        // customer's browser cookies/IP available.
+        fbp: req.cookies.get("_fbp")?.value,
+        fbc: req.cookies.get("_fbc")?.value,
+        clientIp:
+          req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+          req.headers.get("x-real-ip") ||
+          undefined,
+        userAgent: req.headers.get("user-agent") ?? undefined,
       });
     } catch (err) {
       console.error("[checkout/create-session] savePendingOrder failed", orderId, err);

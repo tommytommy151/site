@@ -16,6 +16,13 @@ export interface PendingOrder {
   total: number;
   shippingAddress: string;
   createdAt: number;
+  /** Captured from the browser at session-creation time so the webhook backstop
+   * can still send a well-matched Meta Conversions API Purchase event even
+   * though it runs server-to-server, with no request from that browser. */
+  fbp?: string;
+  fbc?: string;
+  clientIp?: string;
+  userAgent?: string;
 }
 
 async function readAll(): Promise<Record<string, PendingOrder>> {
