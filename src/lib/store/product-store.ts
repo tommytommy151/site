@@ -23,7 +23,7 @@ export interface ProductFormInput {
   badges: ProductBadge[];
   tags?: string[];
   boughtTogetherIds?: string[];
-  colorOptions?: { name: string; hex: string }[];
+  colorOptions?: { name: string; hex: string; sizes?: string[] }[];
   sizeOptions?: string[];
   variants?: ProductVariant[];
   attributes?: { name: string; value: string }[];

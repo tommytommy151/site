@@ -45,7 +45,8 @@ export interface Product {
   rating: number;
   reviewCount: number;
   images: string[];
-  colorOptions?: { name: string; hex: string }[];
+  colorOptions?: { name: string; hex: string; sizes?: string[] }[];
+  /** Used only for size-only products (no color options). When colors exist, sizes live per-color on colorOptions[].sizes. */
   sizeOptions?: string[];
   variants: ProductVariant[];
   /** Free-form specification pairs shown on the product page (e.g. Material: Lemn). */

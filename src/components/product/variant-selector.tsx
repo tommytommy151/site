@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Check,
   Heart,
@@ -27,7 +27,25 @@ const WHATSAPP_NUMBER = "40770715920";
 
 export function VariantSelector({ product }: { product: Product }) {
   const [selectedColor, setSelectedColor] = useState(product.colorOptions?.[0]?.name ?? null);
-  const [selectedSize, setSelectedSize] = useState(product.sizeOptions?.[0] ?? null);
+
+  // Sizes are scoped per color when the product has colors; a color with its own
+  // sizes list only offers those sizes (falling back to the flat sizeOptions for
+  // size-only products with no colors at all).
+  const availableSizes = useMemo(() => {
+    if (product.colorOptions?.length) {
+      const color = product.colorOptions.find((c) => c.name === selectedColor);
+      return color?.sizes ?? [];
+    }
+    return product.sizeOptions ?? [];
+  }, [product.colorOptions, product.sizeOptions, selectedColor]);
+
+  const [selectedSize, setSelectedSize] = useState(availableSizes[0] ?? null);
+
+  useEffect(() => {
+    setSelectedSize(availableSizes[0] ?? null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedColor]);
+
   const [quantity, setQuantity] = useState(1);
   const [justAdded, setJustAdded] = useState(false);
 
@@ -145,13 +163,13 @@ export function VariantSelector({ product }: { product: Product }) {
         </div>
       )}
 
-      {product.sizeOptions && product.sizeOptions.length > 0 && (
+      {availableSizes.length > 0 && (
         <div>
           <p className="mb-2.5 text-sm font-medium text-foreground">
             Mărime — <span className="text-muted-foreground">{selectedSize}</span>
           </p>
           <div className="flex flex-wrap gap-2">
-            {product.sizeOptions.map((size) => (
+            {availableSizes.map((size) => (
               <button
                 key={size}
                 onClick={() => setSelectedSize(size)}
