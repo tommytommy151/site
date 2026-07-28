@@ -68,10 +68,11 @@ function slugPart(s: string) {
 }
 
 /** Rebuilds the variant list from the current color/size options, preserving any
- * manually edited stock/price/sku for combos that still exist. */
+ * manually edited stock/price/sku for combos that still exist. Sizes are scoped
+ * per color — each color only crosses with its own sizes list, not a shared one. */
 function regenerateVariants(
   productKey: string,
-  colorOptions: { name: string; hex: string }[],
+  colorOptions: { name: string; hex: string; sizes?: string[] }[],
   sizeOptions: string[],
   existing: ProductVariant[],
   basePrice: number,
@@ -79,33 +80,32 @@ function regenerateVariants(
   baseStock: number,
 ): ProductVariant[] {
   if (!colorOptions.length && !sizeOptions.length) return [];
-  const colors = colorOptions.length ? colorOptions.map((c) => c.name) : [null];
-  const sizes = sizeOptions.length ? sizeOptions : [null];
+  const combos: { color: string | null; size: string | null }[] = colorOptions.length
+    ? colorOptions.flatMap((c) =>
+        (c.sizes?.length ? c.sizes : [null]).map((size) => ({ color: c.name, size })),
+      )
+    : sizeOptions.map((size) => ({ color: null, size }));
   const existingByKey = new Map(
     existing.map((v) => [`${v.options.Culoare ?? ""}__${v.options.Mărime ?? ""}`, v]),
   );
   const key = productKey || "produs";
-  const variants: ProductVariant[] = [];
-  colors.forEach((color) => {
-    sizes.forEach((size) => {
-      const combo = `${color ?? ""}__${size ?? ""}`;
-      const prev = existingByKey.get(combo);
-      const options: Record<string, string> = {};
-      if (color) options.Culoare = color;
-      if (size) options.Mărime = size;
-      const idSuffix = [color ? slugPart(color) : "", size ? slugPart(size) : ""].filter(Boolean).join("-");
-      variants.push({
-        id: prev?.id ?? [key, idSuffix].filter(Boolean).join("-"),
-        sku: prev?.sku ?? `LC-${key.toUpperCase()}${idSuffix ? `-${idSuffix.toUpperCase()}` : ""}`,
-        options,
-        price: prev?.price ?? basePrice,
-        compareAtPrice: prev?.compareAtPrice ?? baseCompareAtPrice,
-        stock: prev?.stock ?? baseStock,
-        image: prev?.image,
-      });
-    });
+  return combos.map(({ color, size }) => {
+    const combo = `${color ?? ""}__${size ?? ""}`;
+    const prev = existingByKey.get(combo);
+    const options: Record<string, string> = {};
+    if (color) options.Culoare = color;
+    if (size) options.Mărime = size;
+    const idSuffix = [color ? slugPart(color) : "", size ? slugPart(size) : ""].filter(Boolean).join("-");
+    return {
+      id: prev?.id ?? [key, idSuffix].filter(Boolean).join("-"),
+      sku: prev?.sku ?? `LC-${key.toUpperCase()}${idSuffix ? `-${idSuffix.toUpperCase()}` : ""}`,
+      options,
+      price: prev?.price ?? basePrice,
+      compareAtPrice: prev?.compareAtPrice ?? baseCompareAtPrice,
+      stock: prev?.stock ?? baseStock,
+      image: prev?.image,
+    };
   });
-  return variants;
 }
 
 function formFromProduct(product: Product): ProductFormInput {
@@ -170,7 +170,7 @@ export function ProductEditForm({ product }: { product?: Product }) {
     const name = newColorName.trim();
     if (!name) return;
     setForm((f) => {
-      const colorOptions = [...(f.colorOptions ?? []), { name, hex: newColorHex }];
+      const colorOptions = [...(f.colorOptions ?? []), { name, hex: newColorHex, sizes: [] }];
       const variants = regenerateVariants(
         productKey,
         colorOptions,
@@ -188,6 +188,22 @@ export function ProductEditForm({ product }: { product?: Product }) {
   function removeColor(index: number) {
     setForm((f) => {
       const colorOptions = (f.colorOptions ?? []).filter((_, i) => i !== index);
+      const variants = regenerateVariants(
+        productKey,
+        colorOptions,
+        f.sizeOptions ?? [],
+        f.variants ?? [],
+        f.price,
+        f.compareAtPrice,
+        f.stock,
+      );
+      return { ...f, colorOptions, variants };
+    });
+  }
+
+  function updateColorSizes(index: number, sizes: string[]) {
+    setForm((f) => {
+      const colorOptions = (f.colorOptions ?? []).map((c, i) => (i === index ? { ...c, sizes } : c));
       const variants = regenerateVariants(
         productKey,
         colorOptions,
@@ -486,26 +502,32 @@ export function ProductEditForm({ product }: { product?: Product }) {
 
             <Label className="mb-1.5">Culori</Label>
             {(form.colorOptions?.length ?? 0) > 0 && (
-              <div className="mb-2 flex flex-wrap gap-1.5">
+              <div className="mb-3 flex flex-col gap-2">
                 {form.colorOptions!.map((c, i) => (
-                  <span
-                    key={i}
-                    className="flex items-center gap-1.5 rounded-full border border-border bg-muted px-2.5 py-1 text-xs text-foreground/85"
-                  >
-                    <span
-                      className="size-3 rounded-full border border-border"
-                      style={{ backgroundColor: c.hex }}
+                  <div key={i} className="rounded-lg border border-border p-2.5">
+                    <div className="mb-2 flex items-center justify-between gap-2">
+                      <span className="flex items-center gap-1.5 text-xs font-medium text-foreground/85">
+                        <span
+                          className="size-3 rounded-full border border-border"
+                          style={{ backgroundColor: c.hex }}
+                        />
+                        {c.name}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removeColor(i)}
+                        aria-label={`Elimină culoarea ${c.name}`}
+                        className="text-muted-foreground hover:text-destructive"
+                      >
+                        <X className="size-3" />
+                      </button>
+                    </div>
+                    <TagInput
+                      value={c.sizes ?? []}
+                      onChange={(sizes) => updateColorSizes(i, sizes)}
+                      placeholder={`Mărimi pentru ${c.name} (ex. M) — apasă Enter`}
                     />
-                    {c.name}
-                    <button
-                      type="button"
-                      onClick={() => removeColor(i)}
-                      aria-label={`Elimină culoarea ${c.name}`}
-                      className="text-muted-foreground hover:text-destructive"
-                    >
-                      <X className="size-3" />
-                    </button>
-                  </span>
+                  </div>
                 ))}
               </div>
             )}
@@ -534,12 +556,16 @@ export function ProductEditForm({ product }: { product?: Product }) {
               </Button>
             </div>
 
-            <Label className="mb-1.5">Mărimi</Label>
-            <TagInput
-              value={form.sizeOptions ?? []}
-              onChange={updateSizeOptions}
-              placeholder="Scrie o mărime (ex. M) și apasă Enter"
-            />
+            {(form.colorOptions?.length ?? 0) === 0 && (
+              <>
+                <Label className="mb-1.5">Mărimi</Label>
+                <TagInput
+                  value={form.sizeOptions ?? []}
+                  onChange={updateSizeOptions}
+                  placeholder="Scrie o mărime (ex. M) și apasă Enter"
+                />
+              </>
+            )}
 
             {(form.variants?.length ?? 0) > 0 && (
               <div className="mt-4 overflow-x-auto rounded-lg border border-border">
@@ -549,7 +575,7 @@ export function ProductEditForm({ product }: { product?: Product }) {
                       {(form.colorOptions?.length ?? 0) > 0 && (
                         <th className="px-3 py-2 text-left font-medium">Culoare</th>
                       )}
-                      {(form.sizeOptions?.length ?? 0) > 0 && (
+                      {form.variants?.some((v) => v.options.Mărime) && (
                         <th className="px-3 py-2 text-left font-medium">Mărime</th>
                       )}
                       <th className="px-3 py-2 text-left font-medium">SKU</th>
@@ -563,7 +589,7 @@ export function ProductEditForm({ product }: { product?: Product }) {
                         {(form.colorOptions?.length ?? 0) > 0 && (
                           <td className="px-3 py-1.5 text-foreground/85">{v.options.Culoare ?? "—"}</td>
                         )}
-                        {(form.sizeOptions?.length ?? 0) > 0 && (
+                        {form.variants?.some((v2) => v2.options.Mărime) && (
                           <td className="px-3 py-1.5 text-foreground/85">{v.options.Mărime ?? "—"}</td>
                         )}
                         <td className="px-3 py-1.5">

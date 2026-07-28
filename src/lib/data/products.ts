@@ -761,7 +761,7 @@ export const products: Product[] = SEEDS.map((seed) => {
     rating: seed.rating,
     reviewCount: seed.reviewCount,
     images,
-    colorOptions: seed.colors.map((c) => COLORS[c]),
+    colorOptions: seed.colors.map((c) => ({ ...COLORS[c], sizes: seed.sizes })),
     sizeOptions: seed.sizes,
     variants: buildVariants(seed),
     badges: seed.badges,
