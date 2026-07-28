@@ -3,6 +3,7 @@ import type Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
 import { saveOrder } from "@/lib/orders/server-orders";
 import { getPendingOrder, deletePendingOrder } from "@/lib/orders/pending-orders";
+import { sendMetaCapiEvent } from "@/lib/meta-capi";
 import type { Order } from "@/types/order";
 
 // Backstop for card orders: /checkout/success only saves the order if the
@@ -68,6 +69,30 @@ export async function POST(req: NextRequest) {
     await saveOrder(order);
     await deletePendingOrder(orderId);
     console.log("[webhooks/stripe] comandă salvată din webhook (backstop)", orderId);
+
+    // The customer's browser may never reach /checkout/success (closed tab,
+    // dropped connection) to fire the client-side Purchase pixel, so send it
+    // here too. event_id = orderId matches whatever the browser path would
+    // have used, so Meta dedupes if both ever do fire for the same order.
+    await sendMetaCapiEvent({
+      eventName: "Purchase",
+      eventId: orderId,
+      eventSourceUrl: `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.estelaoferta.ro"}/checkout/success`,
+      customData: {
+        content_ids: order.items.map((i) => i.productId),
+        content_type: "product",
+        num_items: order.items.reduce((sum, i) => sum + i.quantity, 0),
+        value: order.total,
+        currency: "RON",
+      },
+      userData: {
+        email: order.customerEmail,
+        fbp: draft.fbp,
+        fbc: draft.fbc,
+        clientIp: draft.clientIp,
+        userAgent: draft.userAgent,
+      },
+    });
   } catch (err) {
     console.error("[webhooks/stripe] nu am putut salva comanda", orderId, err);
     // Non-2xx makes Stripe retry the webhook later; the draft is still there.

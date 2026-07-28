@@ -3,7 +3,7 @@
 import Script from "next/script";
 import { useCookieConsentStore } from "@/lib/store/cookie-consent-store";
 
-const META_PIXEL_ID = "1921102271842119";
+const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || "1921102271842119";
 
 declare global {
   interface Window {
@@ -11,16 +11,38 @@ declare global {
   }
 }
 
-// eventId lets Meta dedupe if the same event is ever reported twice (e.g. a
-// retried request) — pass a stable id such as the order id for Purchase.
-export function trackMetaEvent(name: string, params?: Record<string, unknown>, eventId?: string) {
+// Fires the same logical event twice — once client-side via the Pixel, once
+// server-side via the Conversions API (/api/meta/capi) — sharing one event_id
+// so Meta dedupes the pair into a single counted event. The CAPI leg also
+// covers browsers where connect.facebook.net is blocked by an ad blocker.
+// Pass eventId explicitly for events that must stay stable across remounts
+// (e.g. the order id for Purchase); otherwise one is generated per call.
+export function trackMetaEvent(
+  name: string,
+  params?: Record<string, unknown>,
+  eventId?: string,
+  userData?: { email?: string; phone?: string },
+) {
   if (useCookieConsentStore.getState().status !== "accepted") return;
-  if (typeof window === "undefined" || !window.fbq) return;
-  if (eventId) {
-    window.fbq("track", name, params, { eventID: eventId });
-  } else {
-    window.fbq("track", name, params);
+  if (typeof window === "undefined") return;
+  const id = eventId ?? crypto.randomUUID();
+
+  if (window.fbq) {
+    window.fbq("track", name, params, { eventID: id });
   }
+
+  fetch("/api/meta/capi", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    keepalive: true,
+    body: JSON.stringify({
+      eventName: name,
+      eventId: id,
+      eventSourceUrl: window.location.href,
+      customData: params,
+      userData,
+    }),
+  }).catch(() => {});
 }
 
 export function MetaPixel() {
