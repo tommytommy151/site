@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { saveOrder, deleteOrder } from "@/lib/orders/server-orders";
+import { getAllCustomProducts } from "@/lib/products/server-products";
+import { products as seedProducts } from "@/lib/data/products";
 import type { Order } from "@/types/order";
+
+// Card-only products can't be paid via COD — re-checked here since the client
+// only enforces this in the UI, and this route otherwise trusts whatever
+// order object it's handed.
+async function hasCardOnlyItem(order: Order): Promise<boolean> {
+  const custom = await getAllCustomProducts();
+  const byId = new Map([...seedProducts, ...custom].map((p) => [p.id, p]));
+  return order.items.some((item) => byId.get(item.productId)?.cardOnly);
+}
 
 // Netlify Blobs reads can fail transiently; retry a couple of times in-process
 // before telling the client to give up, since a paid order silently failing to
@@ -32,6 +43,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "id lipsă." }, { status: 400 });
   }
   console.log("[orders/sync] POST received", order.id);
+  if (order.paymentMethod === "Ramburs la livrare" && (await hasCardOnlyItem(order))) {
+    return NextResponse.json(
+      { error: "Unul dintre produse poate fi comandat doar cu plata cu cardul." },
+      { status: 400 },
+    );
+  }
   try {
     await withRetry(() => saveOrder(order), `saveOrder(${order.id})`);
   } catch (err) {

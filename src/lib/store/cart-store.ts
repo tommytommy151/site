@@ -19,6 +19,7 @@ export interface CartLine {
   options: Record<string, string>;
   quantity: number;
   maxStock: number;
+  cardOnly?: boolean;
 }
 
 interface CartState {
@@ -80,6 +81,7 @@ export const useCartStore = create<CartState>()(
             options: variant.options,
             quantity: Math.min(quantity, variant.stock),
             maxStock: variant.stock,
+            cardOnly: product.cardOnly,
           };
           return { lines: [...state.lines, line], isOpen: true };
         });

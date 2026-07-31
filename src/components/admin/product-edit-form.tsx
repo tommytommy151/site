@@ -55,6 +55,7 @@ function emptyForm(): ProductFormInput {
     sizeOptions: [],
     variants: [],
     attributes: [],
+    cardOnly: false,
   };
 }
 
@@ -130,6 +131,7 @@ function formFromProduct(product: Product): ProductFormInput {
     sizeOptions: product.sizeOptions ?? [],
     variants: product.variants?.some((v) => Object.keys(v.options).length > 0) ? product.variants : [],
     attributes: product.attributes ?? [],
+    cardOnly: product.cardOnly ?? false,
   };
 }
 
@@ -799,6 +801,15 @@ export function ProductEditForm({ product }: { product?: Product }) {
                   required
                 />
               </div>
+              <label className="flex cursor-pointer items-center gap-2.5 pt-1 text-sm">
+                <Checkbox
+                  checked={form.cardOnly ?? false}
+                  onCheckedChange={(checked) => setForm((f) => ({ ...f, cardOnly: checked === true }))}
+                />
+                <span className="text-foreground/85">
+                  Doar plată cu cardul (dezactivează ramburs la livrare pentru acest produs)
+                </span>
+              </label>
             </div>
           </SidebarBox>
 

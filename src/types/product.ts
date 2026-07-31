@@ -62,6 +62,8 @@ export interface Product {
   boughtTogetherIds?: string[];
   weightGrams?: number;
   freeShipping?: boolean;
+  /** When true, this product can only be ordered with card payment (cash on delivery is disabled at checkout). */
+  cardOnly?: boolean;
 }
 
 export interface Category {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Check, CreditCard, Loader2, Truck } from "lucide-react";
 import { useAuthStore } from "@/lib/store/auth-store";
@@ -35,9 +35,15 @@ export function PaymentStep({ onBack }: { onBack: () => void }) {
   const clearCart = useCartStore((s) => s.clearCart);
   const addOrder = useOrderStore((s) => s.addOrder);
 
-  const [method, setMethod] = useState<Method>("cod");
+  const codDisabled = useMemo(() => lines.some((l) => l.cardOnly), [lines]);
+
+  const [method, setMethod] = useState<Method>(codDisabled ? "card" : "cod");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (codDisabled) setMethod("card");
+  }, [codDisabled]);
   // setSubmitting alone isn't enough to block a second click fired before the
   // re-render lands — this ref blocks synchronously, on the very first line.
   const submittingRef = useRef(false);
@@ -87,7 +93,7 @@ export function PaymentStep({ onBack }: { onBack: () => void }) {
     setSubmitting(true);
     setError("");
 
-    if (method === "cod") {
+    if (method === "cod" && !codDisabled) {
       const order = buildOrder(`order-${Date.now()}`, "Ramburs la livrare");
       addOrder(order);
       clearCart();
@@ -140,18 +146,21 @@ export function PaymentStep({ onBack }: { onBack: () => void }) {
           <div className="flex flex-col gap-2.5">
             <button
               type="button"
-              onClick={() => setMethod("cod")}
+              onClick={() => !codDisabled && setMethod("cod")}
+              disabled={codDisabled}
               className={cn(
                 "flex items-center justify-between rounded-xl border px-4 py-3 text-left text-sm transition-colors",
-                method === "cod"
-                  ? "border-brand-emerald bg-brand-emerald-soft text-brand-emerald"
-                  : "border-border text-foreground hover:border-foreground/30",
+                codDisabled
+                  ? "cursor-not-allowed border-border text-muted-foreground opacity-50"
+                  : method === "cod"
+                    ? "border-brand-emerald bg-brand-emerald-soft text-brand-emerald"
+                    : "border-border text-foreground hover:border-foreground/30",
               )}
             >
               <span className="flex items-center gap-2">
                 <Truck className="size-4" /> Ramburs la livrare
               </span>
-              {method === "cod" && <Check className="size-4" />}
+              {method === "cod" && !codDisabled && <Check className="size-4" />}
             </button>
             <button
               type="button"
@@ -174,6 +183,11 @@ export function PaymentStep({ onBack }: { onBack: () => void }) {
               </span>
             </button>
           </div>
+          {codDisabled && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Unul dintre produsele din coș poate fi comandat doar cu plata online cu cardul.
+            </p>
+          )}
           {method === "card" ? (
             <p className="mt-2 text-xs text-muted-foreground">
               Ai primit 20% reducere pentru plata cu cardul. Vei fi redirecționat către o pagină

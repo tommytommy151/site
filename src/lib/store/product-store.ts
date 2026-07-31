@@ -27,6 +27,7 @@ export interface ProductFormInput {
   sizeOptions?: string[];
   variants?: ProductVariant[];
   attributes?: { name: string; value: string }[];
+  cardOnly?: boolean;
 }
 
 function buildProduct(id: string, input: ProductFormInput): Product {
@@ -70,6 +71,7 @@ function buildProduct(id: string, input: ProductFormInput): Product {
           },
         ],
     badges: input.badges,
+    cardOnly: input.cardOnly,
     tags: (input.tags ?? []).map((t) => t.trim()).filter(Boolean),
     stock: input.stock,
     sku: `LC-${id.toUpperCase()}`,
