@@ -6,6 +6,7 @@ import type { Product, ProductVariant } from "@/types/product";
 import { useCouponStore } from "@/lib/store/coupon-store";
 import { quantityLineTotal } from "@/lib/pricing";
 import { trackMetaEvent } from "@/components/meta-pixel";
+import { trackTikTokEvent } from "@/components/tiktok-pixel";
 
 export interface CartLine {
   productId: string;
@@ -86,6 +87,14 @@ export const useCartStore = create<CartState>()(
           return { lines: [...state.lines, line], isOpen: true };
         });
         trackMetaEvent("AddToCart", {
+          content_ids: [product.id],
+          content_name: product.name,
+          content_type: "product",
+          value: variant.price,
+          currency: product.currency,
+        });
+        trackTikTokEvent("AddToCart", {
+          content_id: product.id,
           content_ids: [product.id],
           content_name: product.name,
           content_type: "product",

@@ -13,6 +13,7 @@ import { ProductRail } from "@/components/sections/product-rail";
 import { TrackRecentlyViewed } from "@/components/product/track-recently-viewed";
 import { TrackProductClick } from "@/components/product/track-product-click";
 import { trackMetaEvent } from "@/components/meta-pixel";
+import { trackTikTokEvent } from "@/components/tiktok-pixel";
 import { useProductStore } from "@/lib/store/product-store";
 import type { Product } from "@/types/product";
 
@@ -51,6 +52,14 @@ export function ProductDetail({ slug }: { slug: string }) {
   useEffect(() => {
     if (!product) return;
     trackMetaEvent("ViewContent", {
+      content_ids: [product.id],
+      content_name: product.name,
+      content_type: "product",
+      value: product.price,
+      currency: product.currency,
+    });
+    trackTikTokEvent("ViewContent", {
+      content_id: product.id,
       content_ids: [product.id],
       content_name: product.name,
       content_type: "product",

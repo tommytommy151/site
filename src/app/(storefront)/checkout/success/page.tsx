@@ -12,6 +12,7 @@ import { useCartStore } from "@/lib/store/cart-store";
 import { useOrderStore } from "@/lib/store/order-store";
 import { shippingCost } from "@/lib/pricing";
 import { trackMetaEvent } from "@/components/meta-pixel";
+import { trackTikTokEvent } from "@/components/tiktok-pixel";
 import type { Order } from "@/types/order";
 
 export default function CheckoutSuccessPage() {
@@ -165,6 +166,13 @@ function CheckoutSuccessContent() {
       order.id,
       { email: order.customerEmail },
     );
+    trackTikTokEvent("Purchase", {
+      content_ids: order.items.map((i) => i.productId),
+      content_type: "product",
+      quantity: order.items.reduce((sum, i) => sum + i.quantity, 0),
+      value: order.total,
+      currency: "RON",
+    });
   }, [status, order]);
 
   return (

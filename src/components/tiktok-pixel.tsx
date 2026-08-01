@@ -3,7 +3,22 @@
 import Script from "next/script";
 import { useCookieConsentStore } from "@/lib/store/cookie-consent-store";
 
-const TIKTOK_PIXEL_ID = "D9D6A2BC77U1MDFHRO1G";
+const TIKTOK_PIXEL_ID = "D9MP0MBC77U05N07KES0";
+
+declare global {
+  interface Window {
+    ttq?: {
+      track: (event: string, params?: Record<string, unknown>) => void;
+      [key: string]: unknown;
+    };
+  }
+}
+
+export function trackTikTokEvent(name: string, params?: Record<string, unknown>) {
+  if (useCookieConsentStore.getState().status !== "accepted") return;
+  if (typeof window === "undefined" || !window.ttq) return;
+  window.ttq.track(name, params);
+}
 
 export function TikTokPixel() {
   const status = useCookieConsentStore((s) => s.status);
