@@ -20,6 +20,35 @@ export function trackTikTokEvent(name: string, params?: Record<string, unknown>)
   window.ttq.track(name, params);
 }
 
+export interface TikTokContentItem {
+  content_id: string;
+  content_name?: string;
+  content_category?: string;
+  quantity?: number;
+  price?: number;
+}
+
+/**
+ * Builds the `content_id` / `contents` fields TikTok's diagnostics require on every
+ * ecommerce event. `content_id` must always be a real, non-empty product id — TikTok
+ * flags "Content ID is missing" when only `content_ids` (plural, legacy) is sent.
+ */
+export function buildTikTokContentParams(items: TikTokContentItem[]) {
+  const validItems = items.filter((i) => Boolean(i.content_id));
+  return {
+    content_id: validItems[0]?.content_id ?? "",
+    content_type: "product" as const,
+    contents: validItems.map((i) => ({
+      content_id: i.content_id,
+      content_type: "product" as const,
+      content_name: i.content_name,
+      content_category: i.content_category,
+      quantity: i.quantity ?? 1,
+      price: i.price,
+    })),
+  };
+}
+
 export function TikTokPixel() {
   const status = useCookieConsentStore((s) => s.status);
 

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/lib/store/auth-store";
 import { useCartStore } from "@/lib/store/cart-store";
 import { trackMetaEvent } from "@/components/meta-pixel";
-import { trackTikTokEvent } from "@/components/tiktok-pixel";
+import { buildTikTokContentParams, trackTikTokEvent } from "@/components/tiktok-pixel";
 import { CheckoutStepIndicator, type CheckoutStep } from "@/components/checkout/checkout-step-indicator";
 import { AccountStep } from "@/components/checkout/account-step";
 import { ShippingStep } from "@/components/checkout/shipping-step";
@@ -47,8 +47,14 @@ function CheckoutContent() {
       currency: "RON",
     });
     trackTikTokEvent("InitiateCheckout", {
-      content_ids: lines.map((l) => l.productId),
-      content_type: "product",
+      ...buildTikTokContentParams(
+        lines.map((l) => ({
+          content_id: l.productId,
+          content_name: l.name,
+          quantity: l.quantity,
+          price: l.price,
+        })),
+      ),
       quantity: lines.reduce((sum, l) => sum + l.quantity, 0),
       value: lines.reduce((sum, l) => sum + l.price * l.quantity, 0),
       currency: "RON",

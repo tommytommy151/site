@@ -13,7 +13,7 @@ import { ProductRail } from "@/components/sections/product-rail";
 import { TrackRecentlyViewed } from "@/components/product/track-recently-viewed";
 import { TrackProductClick } from "@/components/product/track-product-click";
 import { trackMetaEvent } from "@/components/meta-pixel";
-import { trackTikTokEvent } from "@/components/tiktok-pixel";
+import { buildTikTokContentParams, trackTikTokEvent } from "@/components/tiktok-pixel";
 import { useProductStore } from "@/lib/store/product-store";
 import type { Product } from "@/types/product";
 
@@ -59,10 +59,15 @@ export function ProductDetail({ slug }: { slug: string }) {
       currency: product.currency,
     });
     trackTikTokEvent("ViewContent", {
-      content_id: product.id,
-      content_ids: [product.id],
-      content_name: product.name,
-      content_type: "product",
+      ...buildTikTokContentParams([
+        {
+          content_id: product.id,
+          content_name: product.name,
+          content_category: product.category,
+          quantity: 1,
+          price: product.price,
+        },
+      ]),
       value: product.price,
       currency: product.currency,
     });
