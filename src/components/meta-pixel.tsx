@@ -101,6 +101,16 @@ export function MetaPixel() {
           fbq('track', 'PageView');
         `}
       </Script>
+      <noscript>
+        {/* eslint-disable-next-line @next/next/no-img-element -- 1x1 tracking pixel, not a real image */}
+        <img
+          height="1"
+          width="1"
+          style={{ display: "none" }}
+          src={`https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1`}
+          alt=""
+        />
+      </noscript>
       <Suspense fallback={null}>
         <PageViewTracker />
       </Suspense>
