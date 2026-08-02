@@ -56,7 +56,7 @@ export function ProductDetail({ slug }: { slug: string }) {
       content_name: product.name,
       content_type: "product",
       value: product.price,
-      currency: product.currency,
+      currency: "RON",
     });
     trackTikTokEvent("ViewContent", {
       ...buildTikTokContentParams([

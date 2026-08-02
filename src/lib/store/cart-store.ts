@@ -91,7 +91,7 @@ export const useCartStore = create<CartState>()(
           content_name: product.name,
           content_type: "product",
           value: variant.price,
-          currency: product.currency,
+          currency: "RON",
         });
         trackTikTokEvent("AddToCart", {
           ...buildTikTokContentParams([
