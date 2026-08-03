@@ -1,11 +1,25 @@
 "use client";
 
+// ---------------------------------------------------------------------------
+// Meta (Facebook) Pixel
+//
+// Pixel ID: read from NEXT_PUBLIC_FACEBOOK_PIXEL_ID (see .env.example). The
+// hardcoded value below is only a safety net for the current production
+// pixel in case the env var isn't set yet — the env var is the source of
+// truth and should be kept up to date in Netlify's dashboard.
+// ---------------------------------------------------------------------------
+
 import { Suspense, useEffect, useRef } from "react";
 import Script from "next/script";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useCookieConsentStore } from "@/lib/store/cookie-consent-store";
 
-const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || "1389718926685322";
+const META_PIXEL_ID = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID || "1389718926685322";
+
+// `next build` (and therefore every real deploy) sets NODE_ENV to
+// "production"; only `next dev` doesn't. Gating on this keeps local
+// development from ever sending real events into Meta's ad account.
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
 declare global {
   interface Window {
@@ -31,6 +45,7 @@ export function trackMetaEvent(
   userData?: { email?: string; phone?: string },
 ) {
   if (typeof window === "undefined") return;
+  if (!IS_PRODUCTION) return; // no real Meta traffic from local dev
   const consented = useCookieConsentStore.getState().status === "accepted";
   const id = eventId ?? crypto.randomUUID();
 
@@ -85,11 +100,12 @@ function PageViewTracker() {
   return null;
 }
 
-// The pixel script now always loads, regardless of consent status — Meta's
-// automated pixel checker (and any crawler) just loads the page once and
-// never clicks the cookie banner, so gating the whole component behind
-// "accepted" meant the pixel was never detectable and never fired for the
-// (large) share of real visitors who never interact with the banner either.
+// Note on consent: the pixel loads unconditionally (whenever IS_PRODUCTION
+// is true) rather than being gated behind "accepted" — Meta's automated
+// pixel checker (and Test Events) just loads the page once and never clicks
+// the cookie banner, so hiding the whole component until "accepted" meant
+// the pixel was never detectable, and it also meant real ad-driven visitors
+// who never interacted with the banner generated zero signal.
 //
 // Instead we use Meta's Consent Mode: `fbq('consent', 'revoke')` boots the
 // pixel in a cookieless/limited mode (no _fbp/_fbc, no ad personalization)
@@ -99,7 +115,10 @@ export function MetaPixel() {
   const status = useCookieConsentStore((s) => s.status);
   const lastAppliedStatus = useRef<string | null>(null);
 
+  // Step A: keep an already-booted pixel's consent state in sync as the
+  // visitor's choice changes, without re-running the boot script.
   useEffect(() => {
+    if (!IS_PRODUCTION) return;
     if (lastAppliedStatus.current === null) {
       // Covered by the boot script's initial fbq('consent', ...) call below.
       lastAppliedStatus.current = status;
@@ -113,10 +132,21 @@ export function MetaPixel() {
     }
   }, [status]);
 
+  // Step B: only load the pixel in production — never in `next dev`.
+  if (!IS_PRODUCTION) return null;
+
   return (
     <>
+      {/* Step C: next/script with strategy="afterInteractive" fetches and
+          runs the pixel after the page has become interactive, so it never
+          blocks first paint/hydration. The stable `id` is how Next.js
+          de-dupes this script — even across re-renders or Strict Mode's
+          double-invoke in dev, the tag (and fbq init) is only ever inserted
+          once per page load, so there's no duplicate initialization. */}
       <Script id="meta-pixel" strategy="afterInteractive">
         {`
+          // Step D: official Meta Pixel base code, unmodified. The
+          // "if(f.fbq)return" guard is Meta's own duplicate-init protection.
           !function(f,b,e,v,n,t,s)
           {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
           n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -125,11 +155,23 @@ export function MetaPixel() {
           t.src=v;s=b.getElementsByTagName(e)[0];
           s.parentNode.insertBefore(t,s)}(window, document,'script',
           'https://connect.facebook.net/en_US/fbevents.js');
+
+          // Step E: Consent Mode — start in "revoke" (cookieless/limited)
+          // unless this visitor already accepted cookies in a prior visit;
+          // the effect above switches this live to "grant" without reload.
           fbq('consent', '${status === "accepted" ? "grant" : "revoke"}');
+
+          // Step F: initialize with the configured Pixel ID.
           fbq('init', '${META_PIXEL_ID}');
+
+          // Step G: track the initial PageView for the page that was
+          // active when the script finished loading.
           fbq('track', 'PageView');
         `}
       </Script>
+
+      {/* Step H: required <noscript> fallback — a 1x1 tracking image so
+          visitors with JavaScript disabled still register a PageView. */}
       <noscript>
         {/* eslint-disable-next-line @next/next/no-img-element -- 1x1 tracking pixel, not a real image */}
         <img
@@ -140,6 +182,10 @@ export function MetaPixel() {
           alt=""
         />
       </noscript>
+
+      {/* Step I: track PageView on every subsequent client-side route
+          change — the App Router doesn't reload the document on <Link>
+          navigation, so without this only the first page would be tracked. */}
       <Suspense fallback={null}>
         <PageViewTracker />
       </Suspense>

@@ -36,13 +36,16 @@ let warnedMissingConfig = false;
  * dedup collapses the pair into a single counted event.
  */
 export async function sendMetaCapiEvent(input: MetaCapiEventInput): Promise<void> {
-  const pixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+  // Same Pixel ID the client-side pixel uses (see meta-pixel.tsx), so events
+  // from both legs land in the same Meta dataset and can be deduped. Falls
+  // back to the current production pixel ID if the env var isn't set yet.
+  const pixelId = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID || "1389718926685322";
   const accessToken = process.env.META_CONVERSIONS_API_TOKEN;
   if (!pixelId || !accessToken) {
     if (!warnedMissingConfig) {
       warnedMissingConfig = true;
       console.warn(
-        "[meta-capi] NEXT_PUBLIC_META_PIXEL_ID / META_CONVERSIONS_API_TOKEN not configured — skipping Conversions API call.",
+        "[meta-capi] NEXT_PUBLIC_FACEBOOK_PIXEL_ID / META_CONVERSIONS_API_TOKEN not configured — skipping Conversions API call.",
       );
     }
     return;
