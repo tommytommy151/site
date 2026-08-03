@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Script from "next/script";
 import { useCookieConsentStore } from "@/lib/store/cookie-consent-store";
 
@@ -9,13 +10,17 @@ declare global {
   interface Window {
     ttq?: {
       track: (event: string, params?: Record<string, unknown>) => void;
+      holdConsent?: () => void;
+      grantConsent?: () => void;
+      revokeConsent?: () => void;
       [key: string]: unknown;
     };
   }
 }
 
+// Events always fire — held in TikTok's cookieless "holdConsent" mode until
+// the visitor accepts (see TikTokPixel below), same reasoning as Meta.
 export function trackTikTokEvent(name: string, params?: Record<string, unknown>) {
-  if (useCookieConsentStore.getState().status !== "accepted") return;
   if (typeof window === "undefined" || !window.ttq) return;
   window.ttq.track(name, params);
 }
@@ -49,10 +54,35 @@ export function buildTikTokContentParams(items: TikTokContentItem[]) {
   };
 }
 
+function tiktokConsentCall(status: string): string {
+  if (status === "accepted") return "ttq.grantConsent();";
+  if (status === "rejected") return "ttq.revokeConsent();";
+  return "ttq.holdConsent();";
+}
+
+// Same reasoning as MetaPixel: the pixel loader always runs so it's
+// detectable and so events queue up correctly, but ttq.holdConsent() keeps
+// it from setting cookies or sending anything until the visitor decides.
+// grantConsent()/revokeConsent() are called live once they do.
 export function TikTokPixel() {
   const status = useCookieConsentStore((s) => s.status);
+  const lastAppliedStatus = useRef<string | null>(null);
 
-  if (status !== "accepted") return null;
+  useEffect(() => {
+    if (lastAppliedStatus.current === null) {
+      // Covered by the boot script's initial consent call below.
+      lastAppliedStatus.current = status;
+      return;
+    }
+    if (lastAppliedStatus.current === status) return;
+    lastAppliedStatus.current = status;
+
+    if (typeof window !== "undefined" && window.ttq) {
+      if (status === "accepted") window.ttq.grantConsent?.();
+      else if (status === "rejected") window.ttq.revokeConsent?.();
+      else window.ttq.holdConsent?.();
+    }
+  }, [status]);
 
   return (
     <Script id="tiktok-pixel" strategy="afterInteractive">
@@ -62,6 +92,7 @@ export function TikTokPixel() {
           var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script")
           ;n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
 
+          ${tiktokConsentCall(status)}
           ttq.load('${TIKTOK_PIXEL_ID}');
           ttq.page();
         }(window, document, 'ttq');

@@ -19,14 +19,19 @@ declare global {
 // covers browsers where connect.facebook.net is blocked by an ad blocker.
 // Pass eventId explicitly for events that must stay stable across remounts
 // (e.g. the order id for Purchase); otherwise one is generated per call.
+//
+// The pixel itself always fires (Meta's Consent Mode — see MetaPixel below —
+// decides whether it's allowed to drop cookies), but personally-identifying
+// userData (email/phone) is only ever sent once the visitor has explicitly
+// accepted marketing cookies.
 export function trackMetaEvent(
   name: string,
   params?: Record<string, unknown>,
   eventId?: string,
   userData?: { email?: string; phone?: string },
 ) {
-  if (useCookieConsentStore.getState().status !== "accepted") return;
   if (typeof window === "undefined") return;
+  const consented = useCookieConsentStore.getState().status === "accepted";
   const id = eventId ?? crypto.randomUUID();
 
   if (window.fbq) {
@@ -42,7 +47,7 @@ export function trackMetaEvent(
       eventId: id,
       eventSourceUrl: window.location.href,
       customData: params,
-      userData,
+      userData: consented ? userData : undefined,
     }),
   }).catch(() => {});
 }
@@ -80,10 +85,33 @@ function PageViewTracker() {
   return null;
 }
 
+// The pixel script now always loads, regardless of consent status — Meta's
+// automated pixel checker (and any crawler) just loads the page once and
+// never clicks the cookie banner, so gating the whole component behind
+// "accepted" meant the pixel was never detectable and never fired for the
+// (large) share of real visitors who never interact with the banner either.
+//
+// Instead we use Meta's Consent Mode: `fbq('consent', 'revoke')` boots the
+// pixel in a cookieless/limited mode (no _fbp/_fbc, no ad personalization)
+// until the visitor accepts, at which point `fbq('consent', 'grant')` is
+// called live to switch on full tracking — no page reload needed.
 export function MetaPixel() {
   const status = useCookieConsentStore((s) => s.status);
+  const lastAppliedStatus = useRef<string | null>(null);
 
-  if (status !== "accepted") return null;
+  useEffect(() => {
+    if (lastAppliedStatus.current === null) {
+      // Covered by the boot script's initial fbq('consent', ...) call below.
+      lastAppliedStatus.current = status;
+      return;
+    }
+    if (lastAppliedStatus.current === status) return;
+    lastAppliedStatus.current = status;
+
+    if (typeof window !== "undefined" && window.fbq) {
+      window.fbq("consent", status === "accepted" ? "grant" : "revoke");
+    }
+  }, [status]);
 
   return (
     <>
@@ -97,6 +125,7 @@ export function MetaPixel() {
           t.src=v;s=b.getElementsByTagName(e)[0];
           s.parentNode.insertBefore(t,s)}(window, document,'script',
           'https://connect.facebook.net/en_US/fbevents.js');
+          fbq('consent', '${status === "accepted" ? "grant" : "revoke"}');
           fbq('init', '${META_PIXEL_ID}');
           fbq('track', 'PageView');
         `}
