@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   LogOut,
   Megaphone,
+  Menu,
   Package,
   Palette,
   Settings,
@@ -19,6 +20,8 @@ import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/lib/store/auth-store";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SiteLogo } from "@/components/site-logo";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 
 interface NavChild {
   href: string;
@@ -140,7 +143,7 @@ export function AdminSidebar() {
   );
 }
 
-function AdminSidebarContent() {
+function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -167,8 +170,8 @@ function AdminSidebarContent() {
   }
 
   return (
-    <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-border bg-card print:hidden">
-      <div className="flex h-16 items-center gap-2 border-b border-border px-5">
+    <div className="flex h-full flex-col">
+      <div className="flex h-16 shrink-0 items-center gap-2 border-b border-border px-5">
         <SiteLogo className="flex min-w-0 items-center gap-2" />
         <span className="ml-auto shrink-0 rounded-full bg-brand-indigo-soft px-2 py-0.5 text-[10px] font-semibold text-brand-indigo">
           ADMIN
@@ -211,6 +214,7 @@ function AdminSidebarContent() {
                         <Link
                           key={child.href + child.label}
                           href={child.href}
+                          onClick={onNavigate}
                           className={cn(
                             "rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                             childActive
@@ -233,6 +237,7 @@ function AdminSidebarContent() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={onNavigate}
               className={cn(
                 "flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                 active
@@ -247,9 +252,10 @@ function AdminSidebarContent() {
         })}
       </nav>
 
-      <div className="flex flex-col gap-1 border-t border-border p-3">
+      <div className="flex shrink-0 flex-col gap-1 border-t border-border p-3">
         <Link
           href="/"
+          onClick={onNavigate}
           className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/75 transition-colors hover:bg-muted hover:text-foreground"
         >
           <Store className="size-4" />
@@ -267,6 +273,46 @@ function AdminSidebarContent() {
           <ThemeToggle />
         </div>
       </div>
-    </aside>
+    </div>
+  );
+}
+
+function AdminSidebarContent() {
+  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+
+  // Close the mobile drawer whenever the route changes (e.g. back/forward nav).
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  return (
+    <>
+      <aside className="hidden h-screen w-64 shrink-0 flex-col border-r border-border bg-card print:hidden md:flex">
+        <SidebarBody />
+      </aside>
+
+      <div className="flex h-14 shrink-0 items-center gap-2 border-b border-border bg-card px-4 print:hidden md:hidden">
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={() => setOpen(true)}
+          aria-label="Deschide meniul"
+        >
+          <Menu className="size-5" />
+        </Button>
+        <SiteLogo className="flex min-w-0 items-center gap-2" />
+        <span className="ml-auto shrink-0 rounded-full bg-brand-indigo-soft px-2 py-0.5 text-[10px] font-semibold text-brand-indigo">
+          ADMIN
+        </span>
+      </div>
+
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetContent side="left" className="w-72 p-0 md:hidden">
+          <SheetTitle className="sr-only">Meniu administrare</SheetTitle>
+          <SidebarBody onNavigate={() => setOpen(false)} />
+        </SheetContent>
+      </Sheet>
+    </>
   );
 }
