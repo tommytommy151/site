@@ -8,6 +8,7 @@ import { OrderStoreHydrator } from "@/components/order-store-hydrator";
 import { CatalogStoreHydrator } from "@/components/catalog-store-hydrator";
 import { MetaPixel } from "@/components/meta-pixel";
 import { TikTokPixel } from "@/components/tiktok-pixel";
+import { getAllCustomProducts } from "@/lib/products/server-products";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -48,6 +49,11 @@ export const metadata: Metadata = {
   },
 };
 
+// Product data below is fetched once per build unless pages revalidate —
+// without this, the server-seeded catalog would freeze at whatever existed
+// at the last deploy instead of picking up products added/edited since.
+export const revalidate = 60;
+
 const organizationJsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
@@ -70,11 +76,12 @@ const websiteJsonLd = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const initialProducts = await getAllCustomProducts();
   return (
     <html lang="ro" suppressHydrationWarning>
       <body
@@ -90,7 +97,7 @@ export default function RootLayout({
         />
         <Providers>
           <ThemeApplier />
-          <ProductStoreHydrator />
+          <ProductStoreHydrator initialProducts={initialProducts} />
           <OrderStoreHydrator />
           <CatalogStoreHydrator />
           <MetaPixel />
