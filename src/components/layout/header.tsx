@@ -60,8 +60,9 @@ export function Header() {
         <div className="flex w-max animate-marquee gap-16 whitespace-nowrap">
           {Array.from({ length: 2 }).map((_, i) => (
             <span key={i}>
-              🔥 BLACK FRIDAY — reduceri de până la 70% • livrare gratuită peste 300 RON • plătește
-              cu cardul și primești 20% reducere la toate produsele 💳🔥
+              ☀️ OFERTĂ DE VARĂ — 10% reducere la toate produsele cu codul{" "}
+              <strong className="font-extrabold">VARA10</strong> • livrare gratuită peste 300 RON
+              • retur gratuit în 14 zile
             </span>
           ))}
         </div>

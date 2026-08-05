@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import {
   Check,
   Heart,
   MessageCircle,
   Minus,
   Plus,
+  RotateCcw,
   Scale,
+  ShieldCheck,
   ShoppingBag,
   Truck,
 } from "lucide-react";
@@ -21,6 +24,7 @@ import { useCartStore } from "@/lib/store/cart-store";
 import { useWishlistStore } from "@/lib/store/wishlist-store";
 import { useCompareStore } from "@/lib/store/compare-store";
 import { ShareIconsRow } from "@/components/product/share-button";
+import { VisaIcon, MastercardIcon, PaypalIcon } from "@/components/icons/payment-icons";
 import { cn } from "@/lib/utils";
 
 const WHATSAPP_NUMBER = "40770715920";
@@ -48,6 +52,18 @@ export function VariantSelector({ product }: { product: Product }) {
 
   const [quantity, setQuantity] = useState(1);
   const [justAdded, setJustAdded] = useState(false);
+  const [mainCtaVisible, setMainCtaVisible] = useState(true);
+  const mainCtaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = mainCtaRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(([entry]) => setMainCtaVisible(entry.isIntersecting), {
+      threshold: 0,
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const addItem = useCartStore((s) => s.addItem);
   const isWishlisted = useWishlistStore((s) => s.has(product.id));
@@ -217,7 +233,7 @@ export function VariantSelector({ product }: { product: Product }) {
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div ref={mainCtaRef} className="flex items-center gap-3">
         <div className="flex items-center rounded-xl border border-border">
           <button
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
@@ -308,6 +324,21 @@ export function VariantSelector({ product }: { product: Product }) {
             Livrare gratuită peste 300 de lei — sosește în 2–4 zile lucrătoare
           </span>
         </div>
+        <div className="flex items-center gap-3 text-sm">
+          <RotateCcw className="size-4 shrink-0 text-brand-emerald" />
+          <span className="text-foreground">Retur gratuit în 14 zile, fără întrebări</span>
+        </div>
+        <div className="flex items-center justify-between gap-3 border-t border-border pt-3">
+          <div className="flex items-center gap-2 text-sm text-foreground">
+            <ShieldCheck className="size-4 shrink-0 text-brand-emerald" />
+            Plată 100% securizată
+          </div>
+          <div className="flex items-center gap-1.5">
+            <VisaIcon className="h-4 w-auto" />
+            <MastercardIcon className="h-4 w-auto" />
+            <PaypalIcon className="h-4 w-auto" />
+          </div>
+        </div>
       </div>
 
       <p className="text-xs text-muted-foreground">
@@ -327,6 +358,31 @@ export function VariantSelector({ product }: { product: Product }) {
         </button>
         <ShareIconsRow slug={product.slug} name={product.name} />
       </div>
+
+      {!mainCtaVisible && !outOfStock && (
+        <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t border-border bg-background/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_16px_rgba(0,0,0,0.08)] backdrop-blur-md sm:hidden">
+          <div className="relative size-11 shrink-0 overflow-hidden rounded-lg bg-muted">
+            <Image src={product.images[0]} alt="" fill sizes="44px" className="object-cover" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-medium text-foreground">{product.name}</p>
+            <p className="text-sm font-semibold text-foreground">
+              {formatPrice(activeVariant.price, product.currency)}
+            </p>
+          </div>
+          <Button onClick={handleAddToCart} className="h-11 shrink-0 rounded-xl px-4 text-sm">
+            {justAdded ? (
+              <>
+                <Check className="size-4" /> Adăugat
+              </>
+            ) : (
+              <>
+                <ShoppingBag className="size-4" /> Adaugă
+              </>
+            )}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

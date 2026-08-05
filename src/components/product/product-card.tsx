@@ -88,9 +88,12 @@ export function ProductCard({ product, className }: { product: Product; classNam
           </div>
         </div>
 
-        <div className="absolute inset-x-3 bottom-3 translate-y-2 opacity-0 transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100">
+        <div className="absolute inset-x-3 bottom-3 translate-y-0 opacity-100 transition-all duration-200 sm:translate-y-2 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
           <button
-            onClick={() => addItem(product, product.variants[0])}
+            onClick={(e) => {
+              e.preventDefault();
+              addItem(product, product.variants[0]);
+            }}
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-background/95 py-2.5 text-sm font-medium text-foreground shadow-lg backdrop-blur-md transition-colors hover:bg-brand-emerald hover:text-primary-foreground"
           >
             <ShoppingBag className="size-4" />

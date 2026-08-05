@@ -13,6 +13,7 @@ export interface Coupon {
 const DEFAULT_COUPONS: Coupon[] = [
   { id: "coupon-welcome10", code: "WELCOME10", discountPct: 10, active: true },
   { id: "coupon-lucent15", code: "LUCENT15", discountPct: 15, active: true },
+  { id: "coupon-vara10", code: "VARA10", discountPct: 10, active: true },
 ];
 
 interface CouponState {
