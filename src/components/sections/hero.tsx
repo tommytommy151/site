@@ -4,7 +4,7 @@ import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, Sparkles, Truck } from "lucide-react";
+import { ArrowRight, RotateCcw, ShieldCheck, Sparkles, Truck } from "lucide-react";
 import { Container } from "@/components/layout/container";
 import { Button } from "@/components/ui/button";
 import { Counter } from "@/components/motion/counter";
@@ -12,6 +12,8 @@ import { useSiteStore } from "@/lib/store/site-store";
 
 const TRUST_POINTS = [
   { icon: Truck, label: "Livrare gratuită peste 300 RON" },
+  { icon: RotateCcw, label: "Retur gratuit în 14 zile" },
+  { icon: ShieldCheck, label: "Plată 100% securizată" },
 ];
 
 export function Hero() {
@@ -139,8 +141,8 @@ export function Hero() {
           </div>
 
           <div className="bg-brand-indigo text-white absolute -top-5 -right-5 flex size-24 rotate-6 flex-col items-center justify-center rounded-full text-center shadow-glow-indigo sm:size-28">
-            <span className="text-2xl font-bold sm:text-3xl">-70%</span>
-            <span className="text-[10px] font-semibold tracking-wide uppercase">Black Friday</span>
+            <span className="text-2xl font-bold sm:text-3xl">-10%</span>
+            <span className="text-[10px] font-semibold tracking-wide uppercase">Cod VARA10</span>
           </div>
 
           <div className="glass absolute -bottom-6 -left-6 hidden rounded-2xl px-5 py-4 shadow-xl sm:block">

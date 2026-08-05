@@ -7,7 +7,7 @@ export const categories: Category[] = [
     slug: "electrocasnice",
     image: "https://images.unsplash.com/photo-1556911220-bff31c812dba?w=900&h=1100&fit=crop&q=80",
     productCount: 12,
-    description: "Electrocasnice smart pentru bucătărie și casă, la preț de Black Friday.",
+    description: "Electrocasnice smart pentru bucătărie și casă, la prețuri excelente.",
   },
   {
     id: "cat-accesorii-telefon",

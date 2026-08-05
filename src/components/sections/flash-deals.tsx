@@ -20,10 +20,10 @@ export function FlashDeals() {
         <Reveal className="mb-10 flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
           <div>
             <span className="mb-3 inline-flex items-center gap-1.5 text-xs font-semibold tracking-[0.18em] text-brand-emerald uppercase">
-              <Zap className="size-3.5" /> Black Friday
+              <Zap className="size-3.5" /> Oferte Flash
             </span>
             <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-              Reduceri de <span className="text-brand-indigo">până la 70%</span> — se termină curând
+              Reduceri <span className="text-brand-indigo">pe stoc limitat</span> — se termină curând
             </h2>
           </div>
           <div className="flex items-center gap-4">

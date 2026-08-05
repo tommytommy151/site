@@ -1,15 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Flame, Percent, Tag } from "lucide-react";
+import { Sun, Percent, Tag, Truck } from "lucide-react";
 import { Container } from "@/components/layout/container";
 import { Reveal } from "@/components/motion/reveal";
 
 const FLOATING_TAGS = [
-  { icon: Percent, label: "-70%", className: "top-6 left-[8%] rotate-[-8deg]" },
-  { icon: Tag, label: "-50%", className: "top-[55%] left-[2%] rotate-[6deg]" },
-  { icon: Flame, label: "-60%", className: "top-10 right-[6%] rotate-[7deg]" },
-  { icon: Percent, label: "-40%", className: "bottom-8 right-[10%] rotate-[-5deg]" },
+  { icon: Percent, label: "-10%", className: "top-6 left-[8%] rotate-[-8deg]" },
+  { icon: Tag, label: "VARA10", className: "top-[55%] left-[2%] rotate-[6deg]" },
+  { icon: Truck, label: "Livrare gratuită", className: "top-10 right-[6%] rotate-[7deg]" },
+  { icon: Sun, label: "Retur 14 zile", className: "bottom-8 right-[10%] rotate-[-5deg]" },
 ];
 
 export function PromoBanner() {
@@ -39,20 +39,20 @@ export function PromoBanner() {
       <Container className="relative flex flex-col items-center gap-6 text-center text-white">
         <Reveal className="flex flex-col items-center gap-6">
           <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold tracking-[0.2em] uppercase ring-1 ring-white/25">
-            <Flame className="size-3.5" />
-            Black Friday e aici
+            <Sun className="size-3.5" />
+            Ofertă de vară
           </span>
 
           <h2 className="max-w-3xl text-balance text-4xl leading-[1.05] font-semibold tracking-tight sm:text-5xl lg:text-6xl">
-            Cele mai bune oferte ale anului —{" "}
+            10% reducere la toate produsele —{" "}
             <span className="bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
-              până la 70% reducere
+              cu codul VARA10
             </span>
           </h2>
 
           <p className="max-w-xl text-[17px] leading-relaxed text-white/80">
-            Mii de produse la prețuri reduse, stoc limitat și livrare rapidă. Ofertele se
-            reînnoiesc constant — nu le rata.
+            Aplică VARA10 la finalizarea comenzii pentru 10% reducere la orice produs, plus
+            livrare gratuită peste 300 RON și retur gratuit în 14 zile.
           </p>
 
         </Reveal>

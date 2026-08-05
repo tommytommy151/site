@@ -12,7 +12,7 @@ const BADGE_STYLES: Record<ProductBadge, string> = {
 const BADGE_LABELS: Record<ProductBadge, string> = {
   new: "Nou",
   bestseller: "Cel mai vândut",
-  "flash-deal": "Black Friday",
+  "flash-deal": "Ofertă Flash",
   "sold-out": "Stoc epuizat",
   limited: "Ediție limitată",
 };

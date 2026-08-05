@@ -16,11 +16,11 @@ export const DEFAULT_MENU: MenuItem[] = [
 ];
 
 export const DEFAULT_HERO: HeroContent = {
-  eyebrow: "BLACK FRIDAY — reduceri de până la 70%",
-  titleLine1: "Cele mai mari reduceri —",
-  titleLine2: "doar în acest weekend.",
+  eyebrow: "OFERTĂ DE VARĂ — 10% reducere cu codul VARA10",
+  titleLine1: "Produsele tale preferate —",
+  titleLine2: "acum cu 10% reducere.",
   description:
-    "Un catalog atent selectat de audio, ceasuri, genți și îmbrăcăminte de la creatori independenți, acum la prețuri de Black Friday — cu o finalizare a comenzii de sub un minut și livrare rapidă.",
+    "Un catalog atent selectat de audio, ceasuri, genți și îmbrăcăminte de la creatori independenți, cu o finalizare a comenzii de sub un minut și livrare rapidă.",
   ctaPrimaryLabel: "Oferte Hot",
   ctaPrimaryHref: "/products",
   ctaSecondaryLabel: "Vezi toată colecția",
@@ -29,7 +29,7 @@ export const DEFAULT_HERO: HeroContent = {
 };
 
 export const DEFAULT_HOME_SECTIONS: HomeSection[] = [
-  { id: "promo-banner", label: "Banner Black Friday", visible: true },
+  { id: "promo-banner", label: "Banner ofertă de vară", visible: true },
   { id: "todays-offers", label: "Ofertele zilei", visible: true },
   { id: "popular-rail", label: "Produse în tendințe", visible: true },
   { id: "bestseller-rail", label: "Cele mai vândute", visible: true },
